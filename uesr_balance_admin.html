@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Balance - Admin</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+    <style>
+        :root {
+            --primary: #007bff;
+            --success: #28a745;
+            --dark-bg: #0a0a0a;
+            --card-bg: #1a1a1a;
+            --text-main: #ffffff;
+            --text-dim: #888;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-main);
+            padding: 15px;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            position: sticky;
+            top: 0;
+            background: var(--dark-bg);
+            padding: 10px 0;
+            z-index: 100;
+        }
+
+        .back-btn { text-decoration: none; color: var(--primary); font-size: 20px; margin-right: 15px; }
+
+        .search-container input {
+            width: 100%;
+            padding: 12px;
+            background: var(--card-bg);
+            border: 1px solid #333;
+            color: #fff;
+            border-radius: 8px;
+            box-sizing: border-box;
+            outline: none;
+            margin-bottom: 20px;
+        }
+
+        .user-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .balance-card {
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid #222;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .user-info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .u-name { font-weight: bold; color: var(--primary); font-size: 15px; }
+        .u-num { color: #666; font-size: 12px; display: block; }
+
+        .current-bal {
+            font-size: 14px;
+            color: #00ff00;
+            font-weight: bold;
+            background: rgba(0, 255, 0, 0.05);
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        /* Update Area */
+        .update-box {
+            display: flex;
+            gap: 10px;
+            border-top: 1px solid #222;
+            padding-top: 10px;
+        }
+
+        .update-box input {
+            flex: 1;
+            padding: 10px;
+            background: #000;
+            border: 1px solid #444;
+            color: #fff;
+            border-radius: 5px;
+            outline: none;
+            font-weight: bold;
+        }
+
+        .upd-btn {
+            padding: 10px 15px;
+            background: var(--success);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .upd-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <a href="home_admin.html" class="back-btn">⬅</a>
+    <h3 style="margin:0">User Balance Update</h3>
+</div>
+
+<div class="search-container">
+    <input type="text" id="searchInput" placeholder="Search by Name or Number..." oninput="filterUsers()">
+</div>
+
+<div class="user-list" id="userContainer">
+    <!-- User balance cards load here -->
+</div>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyBFPd0umYUjpFBH08GNhpvjPA00kTh6Y5c",
+        authDomain: "unlimited-73d64.firebaseapp.com",
+        databaseURL: "https://unlimited-73d64-default-rtdb.firebaseio.com",
+        projectId: "unlimited-73d64",
+        storageBucket: "unlimited-73d64.firebasestorage.app",
+        messagingSenderId: "1089467648940",
+        appId: "1:1089467648940:web:ed748a5a93b27ee408c809"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    let allUsers = [];
+
+    // 1. Fetch Users
+    db.ref('users').on('value', snap => {
+        allUsers = [];
+        if(snap.exists()){
+            snap.forEach(child => {
+                const data = child.val();
+                data.key = child.key;
+                allUsers.push(data);
+            });
+        }
+        renderUsers(allUsers);
+    });
+
+    // 2. Render Function
+    function renderUsers(users) {
+        const container = document.getElementById('userContainer');
+        container.innerHTML = "";
+
+        users.forEach(u => {
+            const card = document.createElement('div');
+            card.className = 'balance-card';
+            card.innerHTML = `
+                <div class="user-info-row">
+                    <div>
+                        <span class="u-name">${u.name}</span>
+                        <span class="u-num">${u.number}</span>
+                    </div>
+                    <div class="current-bal">৳${u.balance || 0}</div>
+                </div>
+                <div class="update-box">
+                    <input type="number" id="inp_${u.key}" placeholder="New Balance (৳)">
+                    <button class="upd-btn" id="btn_${u.key}" onclick="updateBalance('${u.key}', '${u.name}')">UPDATE</button>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    // 3. Update Balance Logic
+    function updateBalance(userKey, userName) {
+        const inputField = document.getElementById(`inp_${userKey}`);
+        const btn = document.getElementById(`btn_${userKey}`);
+        const newAmount = parseFloat(inputField.value);
+
+        if(isNaN(newAmount)) {
+            alert("Please enter a valid number!");
+            return;
+        }
+
+        if(!confirm(`Update ${userName}'s balance to ৳${newAmount}?`)) return;
+
+        btn.disabled = true;
+        btn.innerText = "Saving...";
+
+        // 2-second lock system
+        setTimeout(() => {
+            db.ref('users/' + userKey).update({
+                balance: newAmount
+            }).then(() => {
+                // Add record to history
+                db.ref('history/' + userKey).push({
+                    type: "Admin Adjustment",
+                    amount: newAmount,
+                    status: "Success",
+                    timestamp: Date.now()
+                });
+                
+                alert("Balance Updated Successfully!");
+                inputField.value = "";
+                btn.disabled = false;
+                btn.innerText = "UPDATE";
+            }).catch(err => {
+                alert("Error: " + err.message);
+                btn.disabled = false;
+                btn.innerText = "UPDATE";
+            });
+        }, 2000);
+    }
+
+    // 4. Search Filter
+    function filterUsers() {
+        const q = document.getElementById('searchInput').value.toLowerCase();
+        const filtered = allUsers.filter(u => 
+            u.name.toLowerCase().includes(q) || 
+            u.number.includes(q)
+        );
+        renderUsers(filtered);
+    }
+
+</script>
+
+</body>
+</html>

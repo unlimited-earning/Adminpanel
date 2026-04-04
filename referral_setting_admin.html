@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Referral Settings - Admin</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+    <style>
+        :root {
+            --primary: #007bff;
+            --success: #28a745;
+            --warning: #ffc107;
+            --dark-bg: #0a0a0a;
+            --card-bg: #1a1a1a;
+            --text-main: #ffffff;
+            --text-dim: #888;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-main);
+            padding: 15px;
+        }
+
+        .header { display: flex; align-items: center; margin-bottom: 25px; }
+        .back-btn { text-decoration: none; color: var(--primary); font-size: 20px; margin-right: 15px; }
+
+        .settings-container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid #333;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .card h4 { margin-top: 0; color: var(--warning); border-bottom: 1px solid #222; padding-bottom: 10px; }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: var(--text-dim);
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            background: #000;
+            border: 1px solid #444;
+            color: #00ff00;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            box-sizing: border-box;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        .input-group input:focus { border-color: var(--primary); }
+
+        .save-btn {
+            width: 100%;
+            padding: 15px;
+            background: var(--success);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .save-btn:active { transform: scale(0.98); }
+        .save-btn:disabled { background: #444; cursor: not-allowed; }
+
+        .info-box {
+            background: rgba(0, 123, 255, 0.1);
+            border-left: 4px solid var(--primary);
+            padding: 15px;
+            font-size: 13px;
+            color: #bbb;
+            border-radius: 5px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <a href="home_admin.html" class="back-btn">⬅</a>
+    <h3>Referral Setup</h3>
+</div>
+
+<div class="settings-container">
+    <div class="card">
+        <h4>Referral Commission</h4>
+        
+        <div class="input-group">
+            <label>Current Referral Price (৳)</label>
+            <input type="number" id="refPrice" placeholder="e.g. 10">
+            <small style="color: #666; font-size: 11px;">Jakhun referral user active hobe takhun eita referrer pabe.</small>
+        </div>
+
+        <div class="input-group">
+            <label>Downline Level Price (৳)</label>
+            <input type="number" id="downlinePrice" placeholder="e.g. 2">
+            <small style="color: #666; font-size: 11px;">Downline level thake koto asbe (Optional).</small>
+        </div>
+
+        <button class="save-btn" id="saveBtn" onclick="saveSettings()">SAVE SETTINGS</button>
+    </div>
+
+    <div class="info-box">
+        <b>Rules:</b><br>
+        1. Referral amount tkhuni add hobe jakhun user **2 ta task success** korbe (Active status).<br>
+        2. Apni jakhuni price change korben, porer bar theke notun price-e referral bonus pabe.<br>
+        3. Referral count and balance auto real-time update hobe.
+    </div>
+</div>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyBFPd0umYUjpFBH08GNhpvjPA00kTh6Y5c",
+        authDomain: "unlimited-73d64.firebaseapp.com",
+        databaseURL: "https://unlimited-73d64-default-rtdb.firebaseio.com",
+        projectId: "unlimited-73d64",
+        storageBucket: "unlimited-73d64.firebasestorage.app",
+        messagingSenderId: "1089467648940",
+        appId: "1:1089467648940:web:ed748a5a93b27ee408c809"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // Load current values
+    db.ref('settings/referral').on('value', snap => {
+        if(snap.exists()){
+            const data = snap.val();
+            document.getElementById('refPrice').value = data.currentPrice || 0;
+            document.getElementById('downlinePrice').value = data.downlinePrice || 0;
+        }
+    });
+
+    function saveSettings() {
+        const btn = document.getElementById('saveBtn');
+        const price = parseFloat(document.getElementById('refPrice').value) || 0;
+        const dPrice = parseFloat(document.getElementById('downlinePrice').value) || 0;
+
+        btn.disabled = true;
+        btn.innerText = "Updating...";
+
+        // 2-second lock system
+        setTimeout(() => {
+            db.ref('settings/referral').update({
+                currentPrice: price,
+                downlinePrice: dPrice,
+                lastUpdated: Date.now()
+            }).then(() => {
+                alert("Referral Settings Updated Successfully!");
+                btn.disabled = false;
+                btn.innerText = "SAVE SETTINGS";
+            }).catch(err => {
+                alert("Error: " + err.message);
+                btn.disabled = false;
+                btn.innerText = "SAVE SETTINGS";
+            });
+        }, 2000);
+    }
+</script>
+
+</body>
+</html>

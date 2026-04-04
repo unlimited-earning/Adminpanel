@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Request - Admin</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+    <style>
+        :root {
+            --primary: #007bff;
+            --success: #28a745;
+            --danger: #dc3545;
+            --dark-bg: #0a0a0a;
+            --card-bg: #1a1a1a;
+            --text-main: #ffffff;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-main);
+            padding: 15px;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .back-btn {
+            text-decoration: none;
+            color: var(--primary);
+            font-size: 18px;
+            margin-right: 15px;
+        }
+
+        /* Request Card */
+        #requestList {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .req-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 15px;
+            border-left: 5px solid var(--primary);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .user-info {
+            font-size: 14px;
+            color: #bbb;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 5px;
+        }
+
+        .user-info b { color: var(--primary); }
+
+        /* Auto-Fill Section */
+        .input-group {
+            margin-top: 10px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 80px;
+            background: #252525;
+            color: white;
+            border: 1px solid #444;
+            border-radius: 8px;
+            padding: 10px;
+            box-sizing: border-box;
+            font-size: 13px;
+            resize: none;
+            margin-bottom: 10px;
+        }
+
+        .fields-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .fields-grid input {
+            background: #111;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 8px;
+            border-radius: 5px;
+            font-size: 12px;
+            outline: none;
+        }
+
+        .send-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--success);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .send-btn:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+
+        .timer-info {
+            font-size: 11px;
+            color: var(--danger);
+            float: right;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <a href="home_admin.html" class="back-btn">⬅</a>
+    <h3>Task Requests</h3>
+</div>
+
+<div id="requestList">
+    <!-- Requests will appear here -->
+</div>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyBFPd0umYUjpFBH08GNhpvjPA00kTh6Y5c",
+        authDomain: "unlimited-73d64.firebaseapp.com",
+        databaseURL: "https://unlimited-73d64-default-rtdb.firebaseio.com",
+        projectId: "unlimited-73d64",
+        storageBucket: "unlimited-73d64.firebasestorage.app",
+        messagingSenderId: "1089467648940",
+        appId: "1:1089467648940:web:ed748a5a93b27ee408c809"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    function speak(text) {
+        const msg = new SpeechSynthesisUtterance();
+        msg.text = text;
+        window.speechSynthesis.speak(msg);
+    }
+
+    // Auto-filter logic
+    function handlePaste(textarea, reqId) {
+        setTimeout(() => {
+            const val = textarea.value;
+            const firstName = val.match(/First name:\s*(.*)/i)?.[1] || "";
+            const lastName = val.match(/Last name:\s*(.*)/i)?.[1] || "";
+            const password = val.match(/Password:\s*(.*)/i)?.[1] || "";
+            const birth = val.match(/Birthdate:\s*(.*)/i)?.[1] || "";
+            const email = val.match(/Email:\s*(.*)/i)?.[1] || "";
+            const recovery = val.match(/Recovery email:\s*(.*)/i)?.[1] || "";
+
+            document.getElementById(`fn_${reqId}`).value = firstName.trim();
+            document.getElementById(`ln_${reqId}`).value = lastName.trim();
+            document.getElementById(`ps_${reqId}`).value = password.trim();
+            document.getElementById(`bd_${reqId}`).value = birth.trim();
+            document.getElementById(`em_${reqId}`).value = email.trim();
+            document.getElementById(`re_${reqId}`).value = recovery.trim();
+        }, 100);
+    }
+
+    // Load Requests
+    db.ref('task_requests').on('value', snap => {
+        const list = document.getElementById('requestList');
+        list.innerHTML = "";
+        
+        if(!snap.exists()) {
+            list.innerHTML = "<p style='text-align:center; color:#666;'>No active requests</p>";
+            return;
+        }
+
+        snap.forEach(child => {
+            const req = child.val();
+            const reqId = child.key;
+            const timeElapsed = (Date.now() - req.timestamp) / 1000;
+
+            // Auto-remove after 120 seconds (2 minutes)
+            if(timeElapsed > 120) {
+                db.ref('task_requests').child(reqId).remove();
+                return;
+            }
+
+            const card = document.createElement('div');
+            card.className = 'req-card';
+            card.innerHTML = `
+                <div class="user-info">
+                    <b>User:</b> ${req.userName} | <b>UID:</b> ${req.uid}
+                    <span class="timer-info">Expiring soon...</span>
+                </div>
+                <textarea placeholder="Paste Gmail details here..." oninput="handlePaste(this, '${reqId}')"></textarea>
+                <div class="fields-grid">
+                    <input type="text" id="fn_${reqId}" placeholder="First Name">
+                    <input type="text" id="ln_${reqId}" placeholder="Last Name">
+                    <input type="text" id="ps_${reqId}" placeholder="Password">
+                    <input type="text" id="bd_${reqId}" placeholder="Birthdate">
+                    <input type="text" id="em_${reqId}" placeholder="Email">
+                    <input type="text" id="re_${reqId}" placeholder="Recovery Email">
+                </div>
+                <button class="send-btn" id="btn_${reqId}" onclick="sendTask('${reqId}', '${req.uid}')">SEND TASK</button>
+            `;
+            list.appendChild(card);
+        });
+    });
+
+    // Send Task Logic
+    function sendTask(reqId, userUid) {
+        const btn = document.getElementById(`btn_${reqId}`);
+        btn.disabled = true;
+        btn.innerText = "Sending...";
+
+        const taskData = {
+            firstName: document.getElementById(`fn_${reqId}`).value,
+            lastName: document.getElementById(`ln_${reqId}`).value,
+            password: document.getElementById(`ps_${reqId}`).value,
+            birthdate: document.getElementById(`bd_${reqId}`).value,
+            email: document.getElementById(`em_${reqId}`).value,
+            recoveryEmail: document.getElementById(`re_${reqId}`).value,
+            status: "active",
+            timestamp: Date.now()
+        };
+
+        // Validate
+        if(!taskData.email || !taskData.password) {
+            alert("Email and Password are required!");
+            btn.disabled = false;
+            btn.innerText = "SEND TASK";
+            return;
+        }
+
+        // Wait 2 seconds then execute
+        setTimeout(() => {
+            // 1. Move to user's active task node
+            db.ref('active_tasks/' + userUid).set(taskData).then(() => {
+                // 2. Remove from request list
+                db.ref('task_requests').child(reqId).remove();
+                console.log("Task Sent Successfully");
+            });
+        }, 2000);
+    }
+
+    // Voice notification for new request
+    let lastCount = 0;
+    db.ref('task_requests').on('value', snap => {
+        const count = snap.numChildren();
+        if(count > lastCount) {
+            speak("User task request diy-e-che");
+        }
+        lastCount = count;
+    });
+
+</script>
+</body>
+</html>
