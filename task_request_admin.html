@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Terminal - Task Dispatcher</title>
+    
+    <!-- 
+    ======================================================
+    PREMIUM ADMIN LIBRARIES
+    ======================================================
+    -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* 
+        ======================================================
+        ADVANCED ADMIN CSS ARCHITECTURE (150+ Lines)
+        ======================================================
+        */
+        :root {
+            --primary: #1e272e;
+            --accent: #3498db;
+            --success: #2ecc71;
+            --danger: #ea2027;
+            --warning: #f1c40f;
+            --bg: #f1f2f6;
+            --white: #ffffff;
+            --card-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        
+        body { 
+            background-color: var(--bg); 
+            color: var(--primary); 
+            padding-bottom: 50px;
+            overflow-x: hidden;
+        }
+
+        /* Voice Activation Overlay - Crucial for Chrome Background Voice */
+        #voiceOverlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(30, 39, 46, 0.98);
+            z-index: 9999;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            color: white; text-align: center;
+            transition: var(--transition);
+        }
+        #voiceOverlay i { font-size: 80px; color: var(--accent); margin-bottom: 20px; animation: pulse 2s infinite; }
+        #voiceOverlay h2 { font-size: 24px; margin-bottom: 10px; }
+        .btn-activate {
+            padding: 15px 40px; background: var(--accent); color: white;
+            border: none; border-radius: 50px; font-weight: 700; cursor: pointer;
+            box-shadow: 0 10px 20px rgba(52, 152, 219, 0.4);
+        }
+
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+
+        /* Header Premium Styling */
+        .header {
+            background: var(--primary);
+            padding: 20px 25px;
+            color: white;
+            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 1000;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .header h2 { font-size: 18px; font-weight: 600; letter-spacing: 0.5px; }
+        .back-btn { font-size: 22px; cursor: pointer; color: #d1d8e0; transition: 0.3s; }
+        .back-btn:hover { color: white; transform: translateX(-5px); }
+
+        .container { padding: 20px; max-width: 800px; margin: 0 auto; }
+
+        /* Status Board */
+        .status-bar {
+            background: var(--white);
+            padding: 15px 25px;
+            border-radius: 20px;
+            margin-bottom: 25px;
+            box-shadow: var(--card-shadow);
+            display: flex; justify-content: space-between; align-items: center;
+            border-right: 5px solid var(--accent);
+        }
+        .voice-tag { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; color: var(--success); }
+        .dot { width: 10px; height: 10px; background: var(--success); border-radius: 50%; animation: blink 1s infinite; }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+
+        /* Request Card UI */
+        #requestList { display: flex; flex-direction: column; gap: 25px; }
+        .task-card {
+            background: var(--white);
+            border-radius: 30px;
+            padding: 30px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid #eee;
+            animation: slideIn 0.5s ease forwards;
+            position: relative;
+        }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+        .user-head {
+            display: flex; justify-content: space-between;
+            margin-bottom: 20px; padding-bottom: 15px;
+            border-bottom: 1px solid #f5f5f5;
+        }
+        .user-head b { font-size: 17px; color: var(--primary); }
+        .user-head span { font-size: 12px; color: #999; font-weight: 600; }
+
+        /* Parsing Section */
+        .parsing-section { margin-bottom: 20px; }
+        .parsing-section label { display: block; font-size: 11px; font-weight: 800; color: #666; text-transform: uppercase; margin-bottom: 8px; }
+        
+        .raw-box {
+            width: 100%; height: 130px;
+            padding: 15px; border-radius: 18px;
+            border: 2px solid #f0f0f0; background: #fafafa;
+            font-size: 12px; color: #444; outline: none; transition: 0.3s;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .raw-box:focus { border-color: var(--accent); background: white; }
+
+        /* Data Fields Grid */
+        .field-grid {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 12px; margin-bottom: 25px;
+        }
+        .input-group { position: relative; }
+        .input-group label { display: block; font-size: 9px; font-weight: 800; color: #aaa; text-transform: uppercase; margin-bottom: 4px; padding-left: 5px; }
+        .input-group input {
+            width: 100%; padding: 12px 15px;
+            border: 1px solid #eee; border-radius: 12px;
+            font-size: 13px; font-weight: 600; color: #333;
+            background: #fff; transition: 0.3s;
+        }
+        .input-group input:focus { border-color: var(--accent); box-shadow: 0 0 10px rgba(52,152,219,0.1); }
+
+        /* Button Actions */
+        .action-grid { display: flex; gap: 15px; }
+        .btn {
+            flex: 1; padding: 16px; border: none; border-radius: 18px;
+            font-weight: 800; font-size: 14px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            transition: var(--transition);
+        }
+        .btn-parse { background: #ebf5fb; color: var(--accent); }
+        .btn-parse:hover { background: var(--accent); color: white; }
+        
+        .btn-send { background: var(--success); color: white; box-shadow: 0 8px 20px rgba(46, 204, 113, 0.2); }
+        .btn-send:hover { transform: translateY(-3px); box-shadow: 0 12px 25px rgba(46, 204, 113, 0.3); }
+        .btn:disabled { background: #cbd5e0 !important; transform: none !important; box-shadow: none !important; cursor: not-allowed; }
+
+        /* Empty State */
+        .empty-box { text-align: center; margin-top: 100px; color: #bdc3c7; }
+        .empty-box i { font-size: 60px; margin-bottom: 15px; opacity: 0.2; }
+
+    </style>
+</head>
+<body>
+
+    <!-- Chrome Voice Permission Overlay -->
+    <div id="voiceOverlay">
+        <i class="fas fa-microphone-lines"></i>
+        <h2>Unlimited Voice Terminal</h2>
+        <p style="margin-bottom: 30px; opacity: 0.8; padding: 0 40px;">ক্রোম ব্রাউজারে ব্যাকগ্রাউন্ড ভয়েস নোটিফিকেশন চালু করতে নিচের বাটনে ক্লিক করুন।</p>
+        <button class="btn-activate" onclick="activateTerminal()">ACTIVATE TERMINAL</button>
+    </div>
+
+    <!-- Admin Header -->
+    <header class="header">
+        <i class="fas fa-chevron-left back-btn" onclick="location.href='home_admin.html'"></i>
+        <h2>Task Request Center</h2>
+        <div id="connectionStatus" class="voice-tag"><div class="dot"></div> LIVE</div>
+    </header>
+
+    <div class="container">
+        <!-- Live Counters -->
+        <div class="status-bar">
+            <span style="font-size: 13px; font-weight: 600; color: #7f8c8d;">Pending Requests</span>
+            <b id="reqCountLabel" style="font-size: 22px; color: var(--accent);">0</b>
+        </div>
+
+        <!-- Cards Container -->
+        <div id="requestList">
+            <div class="empty-box">
+                <i class="fas fa-tower-broadcast"></i>
+                <p>Waiting for real-time requests...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 
+    ======================================================
+    FIREBASE CORE ENGINE (200+ Lines)
+    ======================================================
+    -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+    <script>
+        /**
+         * FIREBASE CONFIGURATION
+         */
+        const firebaseConfig = {
+            apiKey: "AIzaSyAOdWqPh69SEG-Z6P71xL6jlcFcNb9gMNs",
+            authDomain: "unlimited-earning-28639.firebaseapp.com",
+            databaseURL: "https://unlimited-earning-28639-default-rtdb.firebaseio.com",
+            projectId: "unlimited-earning-28639",
+            storageBucket: "unlimited-earning-28639.firebasestorage.app",
+            messagingSenderId: "1061620701842",
+            appId: "1:1061620701842:web:80fab8608da73a3fdc244b"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let terminalActive = false;
+        let lastKnownCount = -1;
+        const AUTO_CLEAN_TIME = 120000; // 2 Minutes
+
+        /**
+         * CHROME OPTIMIZED VOICE ENGINE
+         */
+        function speak(text) {
+            if(!terminalActive) return;
+
+            // Clear any pending speech to ensure immediate alert
+            window.speechSynthesis.cancel();
+
+            const msg = new SpeechSynthesisUtterance(text);
+            msg.volume = 1;
+            msg.rate = 1;
+            msg.pitch = 1;
+            msg.lang = 'en-US';
+
+            // Chrome often requires a small hack to speak in background
+            window.speechSynthesis.speak(msg);
+        }
+
+        /**
+         * ACTIVATE TERMINAL (User Interaction)
+         */
+        function activateTerminal() {
+            terminalActive = true;
+            document.getElementById('voiceOverlay').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('voiceOverlay').style.display = 'none';
+            }, 400);
+            
+            // Initial greeting to confirm speech is working
+            speak("Voice terminal is now active. Monitoring task requests.");
+        }
+
+        /**
+         * MASTER DATABASE LISTENER
+         */
+        db.ref('task_requests').on('value', snapshot => {
+            const listArea = document.getElementById('requestList');
+            const count = snapshot.numChildren();
+            document.getElementById('reqCountLabel').innerText = count;
+
+            // VOICE ALERT LOGIC: Triggered when count increases
+            if(lastKnownCount !== -1 && count > lastKnownCount) {
+                console.log("New request detected! Triggering voice...");
+                speak("User task request");
+            }
+            lastKnownCount = count;
+
+            if(!snapshot.exists()) {
+                listArea.innerHTML = `<div class="empty-box"><i class="fas fa-check-circle"></i><p>Everything is up to date.</p></div>`;
+                return;
+            }
+
+            listArea.innerHTML = ""; // Refresh Area
+            const now = Date.now();
+
+            snapshot.forEach(child => {
+                const data = child.val();
+                const key = child.key;
+
+                // 2 Minute Expiry Logic
+                if (now - data.timestamp > AUTO_CLEAN_TIME) {
+                    db.ref('task_requests/' + key).remove();
+                    return;
+                }
+
+                // Building Request Card
+                const card = document.createElement('div');
+                card.className = 'task-card';
+                card.innerHTML = `
+                    <div class="user-head">
+                        <div>
+                            <b>${data.name}</b>
+                            <p style="font-size:11px; color:var(--accent);">UID: ${data.uid || 'N/A'}</p>
+                        </div>
+                        <span>Applied: ${new Date(data.timestamp).toLocaleTimeString()}</span>
+                    </div>
+
+                    <div class="parsing-section">
+                        <label>Paste Account Data</label>
+                        <textarea class="raw-box" id="raw_${key}" placeholder="Paste full text here..."></textarea>
+                    </div>
+
+                    <div class="field-grid">
+                        <div class="input-group"><label>First Name</label><input type="text" id="fn_${key}"></div>
+                        <div class="input-group"><label>Last Name</label><input type="text" id="ln_${key}"></div>
+                        <div class="input-group"><label>Email Address</label><input type="text" id="em_${key}"></div>
+                        <div class="input-group"><label>Password</label><input type="text" id="ps_${key}"></div>
+                        <div class="input-group"><label>Birthdate</label><input type="text" id="bd_${key}"></div>
+                        <div class="input-group"><label>Recovery Email</label><input type="text" id="re_${key}"></div>
+                    </div>
+
+                    <div class="action-grid">
+                        <button class="btn btn-parse" onclick="runAutoParser('${key}')">
+                            <i class="fas fa-wand-magic-sparkles"></i> Auto Fill
+                        </button>
+                        <button class="btn btn-send" id="sendBtn_${key}" onclick="dispatchTask('${key}', '${data.phone}')">
+                            <i class="fas fa-paper-plane"></i> Dispatch Task
+                        </button>
+                    </div>
+                `;
+                listArea.appendChild(card);
+            });
+        });
+
+        /**
+         * AUTO PARSER (Regex Engine)
+         */
+        function runAutoParser(key) {
+            const raw = document.getElementById('raw_'+key).value;
+            if(!raw) return alert("Paste text first!");
+
+            const parse = (label) => {
+                const regex = new RegExp(`${label}:\\s*(.*)`, 'i');
+                const match = raw.match(regex);
+                return match ? match[1].trim() : "";
+            };
+
+            // Mapping to UI
+            document.getElementById('fn_'+key).value = parse("First name");
+            document.getElementById('ln_'+key).value = parse("Last name");
+            document.getElementById('em_'+key).value = parse("Email");
+            document.getElementById('ps_'+key).value = parse("Password");
+            document.getElementById('bd_'+key).value = parse("Birthdate");
+            document.getElementById('re_'+key).value = parse("Recovery email");
+        }
+
+        /**
+         * TASK DISPATCHER (With 2-second Protection)
+         */
+        async function dispatchTask(key, phone) {
+            const btn = document.getElementById('sendBtn_'+key);
+            
+            const payload = {
+                firstName: document.getElementById('fn_'+key).value,
+                lastName: document.getElementById('ln_'+key).value,
+                email: document.getElementById('em_'+key).value,
+                password: document.getElementById('ps_'+key).value,
+                birthdate: document.getElementById('bd_'+key).value,
+                recoveryEmail: document.getElementById('re_'+key).value,
+                timestamp: Date.now()
+            };
+
+            if(!payload.email || !payload.password) {
+                return alert("Email and Password are required!");
+            }
+
+            // Lock UI for 2 seconds
+            btn.disabled = true;
+
+            try {
+                // 1. Move to active node for user
+                await db.ref('active_tasks/' + phone).set(payload);
+                
+                // 2. Remove pending request
+                await db.ref('task_requests/' + phone).remove();
+                
+                console.log("Task dispatched successfully to:", phone);
+            } catch (err) {
+                alert("Dispatch Failed: " + err.message);
+                btn.disabled = false;
+            }
+
+            // Safety delay
+            setTimeout(() => {
+                if(btn) btn.disabled = false;
+            }, 2000);
+        }
+
+    </script>
+</body>
+</html>
