@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Withdrawal Management - Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/dist/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #3498db;
+            --bg: #f4f7f6;
+            --white: #ffffff;
+            --success: #27ae60;
+            --danger: #e74c3c;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background-color: var(--bg); padding-bottom: 30px; }
+
+        .header {
+            background: var(--primary); padding: 20px; color: white;
+            display: flex; align-items: center; gap: 15px; position: sticky; top: 0; z-index: 100;
+        }
+        .back-btn { font-size: 20px; color: white; cursor: pointer; }
+
+        .container { padding: 15px; }
+
+        /* Settings Card */
+        .settings-card {
+            background: white; padding: 20px; border-radius: 15px;
+            margin-bottom: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        .settings-card h3 { font-size: 16px; margin-bottom: 15px; color: var(--primary); border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .grid-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .input-group { margin-bottom: 12px; }
+        .input-group label { display: block; font-size: 11px; color: #666; margin-bottom: 4px; }
+        .input-group input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; outline: none; font-size: 13px; }
+        .btn-update { width: 100%; padding: 12px; background: var(--accent); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 5px; }
+
+        /* Request Cards */
+        .request-card {
+            background: white; padding: 15px; border-radius: 15px;
+            margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); border-left: 5px solid var(--accent);
+        }
+        .req-header { display: flex; justify-content: space-between; border-bottom: 1px solid #f5f5f5; padding-bottom: 8px; margin-bottom: 10px; }
+        .req-header b { font-size: 14px; color: var(--primary); }
+        .req-header span { font-size: 11px; color: #888; }
+
+        .info-line { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; }
+        .info-line span { color: #777; }
+        .info-line b { color: #333; }
+
+        .method-tag { background: #eef2ff; color: var(--accent); padding: 2px 8px; border-radius: 5px; font-size: 11px; font-weight: 600; }
+        
+        .btn-paid {
+            width: 100%; padding: 12px; background: var(--success); color: white;
+            border: none; border-radius: 10px; font-weight: 600; cursor: pointer; margin-top: 10px; transition: 0.3s;
+        }
+        .btn-paid:disabled { background: #ccc; cursor: not-allowed; }
+
+        .loading { text-align: center; margin-top: 50px; color: #aaa; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <i class="fas fa-arrow-left back-btn" onclick="location.href='home_admin.html'"></i>
+    <h2 style="font-size: 18px;">Withdrawal Requests</h2>
+</div>
+
+<div class="container">
+    <!-- Global Withdraw Settings -->
+    <div class="settings-card">
+        <h3><i class="fas fa-cog"></i> Withdraw Settings</h3>
+        <div class="grid-inputs">
+            <div class="input-group">
+                <label>Min Recharge</label>
+                <input type="number" id="minRec" placeholder="20">
+            </div>
+            <div class="input-group">
+                <label>Max Recharge</label>
+                <input type="number" id="maxRec" placeholder="39">
+            </div>
+            <div class="input-group">
+                <label>Min Nagad</label>
+                <input type="number" id="minNag" placeholder="40">
+            </div>
+            <div class="input-group">
+                <label>Min Bkash</label>
+                <input type="number" id="minBka" placeholder="60">
+            </div>
+            <div class="input-group" style="grid-column: span 2;">
+                <label>Required Active Referrals</label>
+                <input type="number" id="reqRef" placeholder="1">
+            </div>
+        </div>
+        <button class="btn-update" onclick="updateSettings()">Update Limits</button>
+    </div>
+
+    <h3 style="margin-bottom: 15px; font-size: 16px; color: #555;">Pending Requests</h3>
+    <div id="withdrawList">
+        <div class="loading">Loading requests...</div>
+    </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyAOdWqPh69SEG-Z6P71xL6jlcFcNb9gMNs",
+        authDomain: "unlimited-earning-28639.firebaseapp.com",
+        databaseURL: "https://unlimited-earning-28639-default-rtdb.firebaseio.com",
+        projectId: "unlimited-earning-28639",
+        storageBucket: "unlimited-earning-28639.firebasestorage.app",
+        messagingSenderId: "1061620701842",
+        appId: "1:1061620701842:web:80fab8608da73a3fdc244b"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // 1. Load Current Settings
+    db.ref('settings/withdraw').on('value', snap => {
+        if(snap.exists()){
+            const s = snap.val();
+            document.getElementById('minRec').value = s.minRecharge;
+            document.getElementById('maxRec').value = s.maxRecharge;
+            document.getElementById('minNag').value = s.minNagad;
+            document.getElementById('minBka').value = s.minBkash;
+            document.getElementById('reqRef').value = s.requiredRef;
+        }
+    });
+
+    function updateSettings() {
+        const data = {
+            minRecharge: parseInt(document.getElementById('minRec').value),
+            maxRecharge: parseInt(document.getElementById('maxRec').value),
+            minNagad: parseInt(document.getElementById('minNag').value),
+            minBkash: parseInt(document.getElementById('minBka').value),
+            requiredRef: parseInt(document.getElementById('reqRef').value)
+        };
+        db.ref('settings/withdraw').set(data)
+          .then(() => alert("Settings Updated Successfully!"))
+          .catch(e => alert(e.message));
+    }
+
+    // 2. Load Pending Withdrawal Requests
+    db.ref('withdrawal_requests').orderByChild('status').equalTo('pending').on('value', snap => {
+        const listDiv = document.getElementById('withdrawList');
+        listDiv.innerHTML = "";
+
+        if(!snap.exists()) {
+            listDiv.innerHTML = '<div class="loading">No pending requests found.</div>';
+            return;
+        }
+
+        snap.forEach(child => {
+            const req = child.val();
+            const card = document.createElement('div');
+            card.className = 'request-card';
+            card.innerHTML = `
+                <div class="req-header">
+                    <b>${req.name}</b>
+                    <span>${new Date(req.timestamp).toLocaleTimeString()}</span>
+                </div>
+                <div class="info-line"><span>User Phone:</span> <b>${req.userPhone}</b></div>
+                <div class="info-line"><span>User UID:</span> <b>${req.uid}</b></div>
+                <div class="info-line"><span>Withdraw Number:</span> <b style="color:var(--accent)">${req.withdrawNumber}</b></div>
+                <div class="info-line"><span>Method:</span> <span class="method-tag">${req.method}</span></div>
+                <div class="info-line" style="margin-top:10px; border-top:1px dashed #eee; padding-top:5px;">
+                    <span>Amount:</span> <b style="font-size:18px; color:var(--success)">৳${req.amount}</b>
+                </div>
+                <button class="btn-paid" id="btn_${child.key}" onclick="markAsPaid('${child.key}', '${req.userPhone}', '${req.amount}', '${req.method}')">Mark as Paid</button>
+            `;
+            listDiv.appendChild(card);
+        });
+    });
+
+    async function markAsPaid(reqKey, phone, amount, method) {
+        if(!confirm("Are you sure you sent the money?")) return;
+
+        const btn = document.getElementById('btn_' + reqKey);
+        btn.disabled = true; // Lock for 2 seconds
+
+        try {
+            // Update Request Status
+            await db.ref('withdrawal_requests/' + reqKey).update({ status: 'paid' });
+
+            // Add to User History
+            await db.ref('history/' + phone).push({
+                type: 'withdraw',
+                title: 'Withdraw Paid (' + method + ')',
+                amount: amount,
+                status: 'Paid',
+                timestamp: Date.now()
+            });
+
+            alert("Marked as Paid!");
+        } catch (e) {
+            alert(e.message);
+        }
+
+        setTimeout(() => { if(btn) btn.disabled = false; }, 2000);
+    }
+</script>
+</body>
+</html>

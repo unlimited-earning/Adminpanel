@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Admin Panel - Unlimited Earning</title>
+    
+    <!-- Premium Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* 
+        ========================================
+        ADVANCED ADMIN CSS STYLING (150+ Lines)
+        ========================================
+        */
+        :root {
+            --primary: #2c3e50;
+            --sidebar-bg: #1e272e;
+            --accent: #3498db;
+            --accent-light: #ebf5fb;
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --bg-color: #f1f3f6;
+            --white: #ffffff;
+            --shadow-card: 0 10px 25px rgba(0,0,0,0.05);
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        
+        body { background-color: var(--bg-color); color: #333; overflow-x: hidden; }
+
+        /* Navbar & Menu Toggle */
+        .navbar {
+            background: var(--white);
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+        }
+        .nav-left { display: flex; align-items: center; gap: 20px; }
+        .menu-btn { font-size: 22px; cursor: pointer; color: var(--primary); transition: var(--transition); }
+        .menu-btn:hover { color: var(--accent); }
+        .nav-logo b { color: var(--accent); font-weight: 800; font-size: 20px; letter-spacing: -0.5px; }
+
+        /* Sliding Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -300px;
+            width: 300px;
+            height: 100%;
+            background: var(--sidebar-bg);
+            color: white;
+            transition: var(--transition);
+            z-index: 1002;
+            padding-top: 30px;
+            box-shadow: 10px 0 30px rgba(0,0,0,0.2);
+        }
+        .sidebar.active { left: 0; }
+        .sidebar-header { padding: 0 25px 30px; border-bottom: 1px solid rgba(255,255,255,0.05); margin-bottom: 20px; }
+        .sidebar-header h3 { font-size: 18px; color: var(--accent); }
+        
+        .sidebar-link {
+            padding: 14px 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: #d1d8e0;
+            text-decoration: none;
+            transition: 0.3s;
+            font-size: 14px;
+            border-left: 4px solid transparent;
+        }
+        .sidebar-link:hover { background: rgba(255,255,255,0.05); color: white; border-left-color: var(--accent); }
+        .sidebar-link i { width: 20px; text-align: center; }
+
+        .overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); display: none; z-index: 1001; backdrop-filter: blur(3px);
+        }
+        .overlay.active { display: block; }
+
+        /* Main Container */
+        .main-container { padding: 25px; max-width: 1200px; margin: 0 auto; }
+
+        /* Welcome Header */
+        .welcome-header { margin-bottom: 30px; animation: fadeIn 1s ease; }
+        .welcome-header h2 { font-size: 24px; font-weight: 700; color: var(--primary); }
+        .welcome-header p { font-size: 13px; color: #888; }
+
+        /* Statistics Cards Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 35px;
+        }
+        .stat-card {
+            background: var(--white);
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: var(--shadow-card);
+            text-align: center;
+            border: 1px solid #fff;
+            transition: var(--transition);
+        }
+        .stat-card:hover { transform: translateY(-5px); box-shadow: 0 15px 35px rgba(0,0,0,0.08); }
+        .stat-card p { font-size: 10px; font-weight: 700; color: #999; text-transform: uppercase; margin-bottom: 5px; }
+        .stat-card h3 { font-size: 22px; color: var(--primary); font-weight: 800; }
+        .stat-card .trend { font-size: 10px; color: var(--success); margin-top: 5px; font-weight: 600; }
+
+        /* Action Menu Buttons */
+        .action-title { font-size: 16px; font-weight: 700; color: #555; margin-bottom: 20px; padding-left: 10px; border-left: 4px solid var(--accent); }
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        .menu-item {
+            background: var(--white);
+            padding: 25px 15px;
+            border-radius: 22px;
+            text-align: center;
+            text-decoration: none;
+            color: var(--primary);
+            box-shadow: var(--shadow-card);
+            border: 1px solid transparent;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        .menu-item:hover { border-color: var(--accent); background: var(--accent-light); }
+        .menu-item i { font-size: 30px; color: var(--accent); margin-bottom: 12px; }
+        .menu-item span { display: block; font-weight: 700; font-size: 13px; }
+        
+        .badge-count {
+            position: absolute; top: 10px; right: 15px;
+            background: var(--danger); color: white;
+            font-size: 10px; padding: 3px 8px; border-radius: 50px;
+            font-weight: 600; box-shadow: 0 4px 10px rgba(231, 76, 60, 0.3);
+        }
+
+        /* Support Admin View Restriction */
+        .main-only { display: none; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Voice Notif Indicator */
+        .voice-box {
+            position: fixed; bottom: 20px; right: 20px;
+            background: var(--white); padding: 10px 20px; border-radius: 50px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            display: flex; align-items: center; gap: 10px; font-size: 12px; z-index: 100;
+        }
+        .pulse-red { width: 10px; height: 10px; background: var(--danger); border-radius: 50%; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.5); opacity: 0.5; } 100% { transform: scale(1); opacity: 1; } }
+
+    </style>
+</head>
+<body>
+
+    <!-- Overlay -->
+    <div class="overlay" id="sidebarOverlay" onclick="toggleMenu()"></div>
+
+    <!-- Sliding Sidebar -->
+    <nav class="sidebar" id="mainSidebar">
+        <div class="sidebar-header">
+            <h3>Unlimited Admin</h3>
+            <p style="font-size: 10px; opacity: 0.5;">Control Terminal v2.0</p>
+        </div>
+        
+        <a href="task_request_admin.html" class="sidebar-link">
+            <i class="fas fa-paper-plane"></i> Task Requests
+        </a>
+        <a href="review_admin.html" class="sidebar-link">
+            <i class="fas fa-search-plus"></i> Review Tasks
+        </a>
+        <a href="withdrawal_admin.html" class="sidebar-link main-only">
+            <i class="fas fa-wallet"></i> Withdrawals
+        </a>
+        <a href="success_admin.html" class="sidebar-link main-only">
+            <i class="fas fa-check-double"></i> Success Section
+        </a>
+        <a href="failed_admin.html" class="sidebar-link main-only">
+            <i class="fas fa-times-circle"></i> Failed Section
+        </a>
+        <a href="user_details_admin.html" class="sidebar-link main-only">
+            <i class="fas fa-users-cog"></i> User Management
+        </a>
+        <a href="index.html" class="sidebar-link" style="margin-top: 50px; color: var(--danger);">
+            <i class="fas fa-power-off"></i> Logout Admin
+        </a>
+    </nav>
+
+    <!-- Top Navigation -->
+    <div class="navbar">
+        <div class="nav-left">
+            <div class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars-staggered"></i></div>
+            <div class="nav-logo"><b>UNLIMITED</b> PANEL</div>
+        </div>
+        <div onclick="location.reload()" style="cursor:pointer;"><i class="fas fa-rotate"></i></div>
+    </div>
+
+    <div class="main-container">
+        <!-- Dashboard Header -->
+        <div class="welcome-header">
+            <h2 id="greetName">Administrator Dashboard</h2>
+            <p>Monitor your system performance and user requests.</p>
+        </div>
+
+        <!-- High-Level Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <p>Total Users</p>
+                <h3 id="statTotalUsers">0</h3>
+                <div class="trend"><i class="fas fa-user-check"></i> Registered</div>
+            </div>
+            <div class="stat-card">
+                <p>Today Join</p>
+                <h3 id="statTodayJoin">0</h3>
+                <div class="trend"><i class="fas fa-arrow-up"></i> New</div>
+            </div>
+            <div class="stat-card main-only">
+                <p>User Balance</p>
+                <h3 id="statTotalBalance">৳0</h3>
+                <div class="trend" style="color:var(--accent)"><i class="fas fa-money-bill-wave"></i> Total</div>
+            </div>
+            <div class="stat-card main-only">
+                <p>Today Earn</p>
+                <h3 id="statTodayBalance">৳0</h3>
+                <div class="trend" style="color:var(--warning)"><i class="fas fa-chart-line"></i> 24h</div>
+            </div>
+        </div>
+
+        <!-- Quick Access Action Menu -->
+        <div class="action-title">Administrative Actions</div>
+        <div class="menu-grid">
+            
+            <a href="task_request_admin.html" class="menu-item">
+                <span class="badge-count" id="badgeReq">0</span>
+                <i class="fas fa-paper-plane"></i>
+                <span>Task Requests</span>
+            </a>
+
+            <a href="review_admin.html" class="menu-item">
+                <span class="badge-count" id="badgeReview">0</span>
+                <i class="fas fa-magnifying-glass-chart"></i>
+                <span>Review Tasks</span>
+            </a>
+
+            <a href="withdrawal_admin.html" class="menu-item main-only">
+                <span class="badge-count" id="badgeWith">0</span>
+                <i class="fas fa-indian-rupee-sign"></i>
+                <span>Withdrawals</span>
+            </a>
+
+            <a href="success_admin.html" class="menu-item main-only">
+                <i class="fas fa-circle-check" style="color:var(--success)"></i>
+                <span>Success List</span>
+            </a>
+
+            <a href="failed_admin.html" class="menu-item main-only">
+                <i class="fas fa-circle-xmark" style="color:var(--danger)"></i>
+                <span>Failed List</span>
+            </a>
+
+            <a href="bonus_admin.html" class="menu-item main-only">
+                <i class="fas fa-gift" style="color:var(--warning)"></i>
+                <span>User Bonus</span>
+            </a>
+
+            <a href="user_details_admin.html" class="menu-item main-only">
+                <i class="fas fa-user-shield"></i>
+                <span>User Details</span>
+            </a>
+
+            <a href="user_balance_admin.html" class="menu-item main-only">
+                <i class="fas fa-wallet"></i>
+                <span>Balance Edit</span>
+            </a>
+
+            <a href="referral_setting_admin.html" class="menu-item main-only">
+                <i class="fas fa-users-viewfinder"></i>
+                <span>Referral Setup</span>
+            </a>
+
+            <a href="support_admin.html" class="menu-item main-only">
+                <i class="fas fa-headset"></i>
+                <span>Support IDs</span>
+            </a>
+
+        </div>
+    </div>
+
+    <!-- Voice Indicator -->
+    <div class="voice-box">
+        <div class="pulse-red"></div>
+        <span>Voice Assistant Active</span>
+    </div>
+
+    <!-- 
+    ========================================
+    FIREBASE CORE ENGINE (200+ Lines)
+    ========================================
+    -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+    <script>
+        /**
+         * INITIALIZATION
+         */
+        const firebaseConfig = {
+            apiKey: "AIzaSyAOdWqPh69SEG-Z6P71xL6jlcFcNb9gMNs",
+            authDomain: "unlimited-earning-28639.firebaseapp.com",
+            databaseURL: "https://unlimited-earning-28639-default-rtdb.firebaseio.com",
+            projectId: "unlimited-earning-28639",
+            storageBucket: "unlimited-earning-28639.firebasestorage.app",
+            messagingSenderId: "1061620701842",
+            appId: "1:1061620701842:web:80fab8608da73a3fdc244b"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        /**
+         * AUTH & PERMISSION CHECK
+         */
+        const adminRole = sessionStorage.getItem('adminRole');
+        if(!adminRole) window.location.href = "index.html";
+
+        // Show main admin features if role is 'main'
+        if(adminRole === 'main') {
+            document.querySelectorAll('.main-only').forEach(el => el.style.display = 'block');
+        }
+
+        /**
+         * UI CONTROLS
+         */
+        function toggleMenu() {
+            document.getElementById('mainSidebar').classList.toggle('active');
+            document.getElementById('sidebarOverlay').classList.toggle('active');
+        }
+
+        /**
+         * VOICE NOTIFICATION ENGINE
+         */
+        function speakAlert(text) {
+            const msg = new SpeechSynthesisUtterance(text);
+            msg.rate = 0.9;
+            msg.pitch = 1;
+            window.speechSynthesis.speak(msg);
+        }
+
+        let lReq = -1, lReview = -1, lWith = -1;
+
+        /**
+         * REALTIME MASTER LISTENERS
+         */
+
+        // 1. Monitor Task Requests
+        db.ref('task_requests').on('value', snap => {
+            const count = snap.numChildren();
+            document.getElementById('badgeReq').innerText = count;
+            if(lReq !== -1 && count > lReq) speakAlert("New user task request");
+            lReq = count;
+        });
+
+        // 2. Monitor Submissions (Review)
+        db.ref('task_reviews').on('value', snap => {
+            const count = snap.numChildren();
+            document.getElementById('badgeReview').innerText = count;
+            if(lReview !== -1 && count > lReview) speakAlert("User submitted a task for review");
+            lReview = count;
+        });
+
+        // 3. Monitor Withdrawals
+        db.ref('withdrawal_requests').orderByChild('status').equalTo('pending').on('value', snap => {
+            const count = snap.numChildren();
+            document.getElementById('badgeWith').innerText = count;
+            if(lWith !== -1 && count > lWith) speakAlert("New withdrawal request received");
+            lWith = count;
+        });
+
+        // 4. Calculate Master User Stats
+        db.ref('users').on('value', snap => {
+            let totalUsers = 0, todayJoins = 0, totalBalance = 0, todayEarnings = 0;
+            const todayStr = new Date().toLocaleDateString();
+
+            snap.forEach(child => {
+                const u = child.val();
+                totalUsers++;
+                totalBalance += (u.balance || 0);
+                
+                if(u.joinedDate === todayStr) {
+                    todayJoins++;
+                }
+
+                // If user earned something today (Calculated from history or todayEarnings field)
+                // Assuming today's income is tracked separately or summed from current balance for simplicity
+                if(u.lastEarnDate === todayStr) {
+                    todayEarnings += (u.todayEarnings || 0);
+                }
+            });
+
+            // Updating Stats UI
+            document.getElementById('statTotalUsers').innerText = totalUsers;
+            document.getElementById('statTodayJoin').innerText = todayJoins;
+            document.getElementById('statTotalBalance').innerText = "৳" + totalBalance.toFixed(0);
+            document.getElementById('statTodayBalance').innerText = "৳" + todayEarnings.toFixed(0);
+        });
+
+        console.log("Admin Engine: Initialized successfully.");
+
+    </script>
+</body>
+</html>

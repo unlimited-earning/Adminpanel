@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Details - Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/dist/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #3498db;
+            --bg: #f4f7f6;
+            --white: #ffffff;
+            --success: #27ae60;
+            --danger: #e74c3c;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background-color: var(--bg); padding-bottom: 30px; }
+
+        .header {
+            background: var(--primary);
+            padding: 20px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .back-btn { font-size: 20px; color: white; cursor: pointer; }
+
+        .container { padding: 15px; }
+
+        /* Search Section */
+        .search-box {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .search-box input {
+            flex: 1;
+            border: 1px solid #ddd;
+            padding: 10px 15px;
+            border-radius: 8px;
+            outline: none;
+            font-size: 14px;
+        }
+        .search-box i { color: var(--accent); }
+
+        /* User List Table Style (Mobile Responsive) */
+        .user-card {
+            background: white;
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+            border: 1px solid #eee;
+            position: relative;
+        }
+
+        .user-card h4 { font-size: 15px; color: var(--primary); margin-bottom: 5px; }
+        .user-info-row { display: flex; justify-content: space-between; font-size: 12px; margin-top: 5px; }
+        .user-info-row span { color: #888; }
+        .user-info-row b { color: #333; }
+
+        .password-tag {
+            background: #fff4e5;
+            color: #d35400;
+            padding: 2px 8px;
+            border-radius: 50px;
+            font-weight: 600;
+        }
+
+        .status-badge {
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 50px;
+            font-weight: 600;
+        }
+        .active-badge { background: #e3fcef; color: var(--success); }
+        .unactive-badge { background: #f1f2f6; color: #999; }
+
+        .stat-summary {
+            font-size: 13px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 10px;
+            padding-left: 5px;
+        }
+
+        .loading { text-align: center; margin-top: 50px; color: #aaa; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <i class="fas fa-arrow-left back-btn" onclick="location.href='home_admin.html'"></i>
+    <h2 style="font-size: 18px;">All User Details</h2>
+</div>
+
+<div class="container">
+    <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" id="searchInput" placeholder="Search by name or phone..." onkeyup="searchUsers()">
+    </div>
+
+    <div class="stat-summary" id="userCountText">Showing 0 Users</div>
+
+    <div id="userList">
+        <div class="loading">Loading database...</div>
+    </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyAOdWqPh69SEG-Z6P71xL6jlcFcNb9gMNs",
+        authDomain: "unlimited-earning-28639.firebaseapp.com",
+        databaseURL: "https://unlimited-earning-28639-default-rtdb.firebaseio.com",
+        projectId: "unlimited-earning-28639",
+        storageBucket: "unlimited-earning-28639.firebasestorage.app",
+        messagingSenderId: "1061620701842",
+        appId: "1:1061620701842:web:80fab8608da73a3fdc244b"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    let allUsers = [];
+
+    // Load All Users from Database
+    db.ref('users').on('value', snap => {
+        allUsers = [];
+        const listDiv = document.getElementById('userList');
+        listDiv.innerHTML = "";
+
+        if(!snap.exists()) {
+            listDiv.innerHTML = '<div class="loading">No users found.</div>';
+            return;
+        }
+
+        snap.forEach(child => {
+            const user = child.val();
+            user.phoneKey = child.key; // Store the phone number as well
+            allUsers.push(user);
+        });
+
+        renderUsers(allUsers);
+    });
+
+    function renderUsers(users) {
+        const listDiv = document.getElementById('userList');
+        listDiv.innerHTML = "";
+        document.getElementById('userCountText').innerText = `Showing ${users.length} Users`;
+
+        users.forEach(user => {
+            const statusClass = user.status === 'active' ? 'active-badge' : 'unactive-badge';
+            
+            const card = document.createElement('div');
+            card.className = 'user-card';
+            card.innerHTML = `
+                <div style="display:flex; justify-content: space-between; align-items: flex-start;">
+                    <h4>${user.name}</h4>
+                    <span class="status-badge ${statusClass}">${user.status || 'unactive'}</span>
+                </div>
+                <div class="user-info-row">
+                    <span>Phone Number:</span>
+                    <b>${user.phone || user.phoneKey}</b>
+                </div>
+                <div class="user-info-row">
+                    <span>UID:</span>
+                    <b>${user.uid || 'N/A'}</b>
+                </div>
+                <div class="user-info-row">
+                    <span>Password:</span>
+                    <b class="password-tag">${user.password}</b>
+                </div>
+                <div class="user-info-row">
+                    <span>Current Balance:</span>
+                    <b style="color:var(--success)">৳${(user.balance || 0).toFixed(2)}</b>
+                </div>
+                <div class="user-info-row">
+                    <span>Total Tasks:</span>
+                    <b>${(user.successTasks || 0) + (user.failedTasks || 0)}</b>
+                </div>
+            `;
+            listDiv.appendChild(card);
+        });
+    }
+
+    // Search Logic
+    function searchUsers() {
+        const query = document.getElementById('searchInput').value.toLowerCase();
+        const filtered = allUsers.filter(user => {
+            return user.name.toLowerCase().includes(query) || 
+                   (user.phone && user.phone.includes(query)) ||
+                   (user.uid && user.uid.toString().includes(query));
+        });
+        renderUsers(filtered);
+    }
+</script>
+</body>
+</html>

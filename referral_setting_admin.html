@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Referral Settings - Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/dist/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #3498db;
+            --bg: #f4f7f6;
+            --white: #ffffff;
+            --success: #27ae60;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background-color: var(--bg); padding-bottom: 30px; }
+
+        .header {
+            background: var(--primary); padding: 20px; color: white;
+            display: flex; align-items: center; gap: 15px; position: sticky; top: 0; z-index: 100;
+        }
+        .back-btn { font-size: 20px; color: white; cursor: pointer; }
+
+        .container { padding: 20px; max-width: 600px; margin: 0 auto; }
+
+        .settings-card {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            margin-top: 20px;
+        }
+
+        .settings-card h3 {
+            font-size: 18px;
+            color: var(--primary);
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group { margin-bottom: 20px; }
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .input-wrapper i {
+            position: absolute;
+            left: 15px;
+            color: var(--accent);
+        }
+        .input-wrapper input {
+            width: 100%;
+            padding: 12px 15px 12px 45px;
+            border: 2px solid #eee;
+            border-radius: 12px;
+            outline: none;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+        .input-wrapper input:focus { border-color: var(--accent); }
+
+        .btn-save {
+            width: 100%;
+            padding: 15px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+        .btn-save:hover { background: #2980b9; transform: translateY(-2px); }
+        .btn-save:disabled { background: #ccc; box-shadow: none; cursor: not-allowed; }
+
+        .info-box {
+            background: #eef2ff;
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 25px;
+            font-size: 12px;
+            color: #555;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <i class="fas fa-arrow-left back-btn" onclick="location.href='home_admin.html'"></i>
+    <h2 style="font-size: 18px;">Referral Settings</h2>
+</div>
+
+<div class="container">
+    <div class="settings-card">
+        <h3><i class="fas fa-coins"></i> Manage Bonus Rates</h3>
+        
+        <div class="form-group">
+            <label>Direct Referral Bonus (Level 1)</label>
+            <div class="input-wrapper">
+                <i class="fas fa-hand-holding-usd"></i>
+                <input type="number" id="directBonus" placeholder="e.g. 10">
+            </div>
+            <p style="font-size: 10px; color: #999; margin-top: 5px;">ইউজার একটিভ হওয়ার সাথে সাথে রেফারার এই টাকা পাবে।</p>
+        </div>
+
+        <div class="form-group">
+            <label>Downline Bonus (Level 2)</label>
+            <div class="input-wrapper">
+                <i class="fas fa-users"></i>
+                <input type="number" id="downlineBonus" placeholder="e.g. 5">
+            </div>
+            <p style="font-size: 10px; color: #999; margin-top: 5px;">রেফারেলের রেফারেল একটিভ হলে এই টাকা পাবে।</p>
+        </div>
+
+        <button class="btn-save" id="btnSave" onclick="saveSettings()">Update Bonus Rates</button>
+    </div>
+
+    <div class="info-box">
+        <b>Pro Tip:</b> আপনি যখনই এই রেট পরিবর্তন করবেন, পরবর্তী সকল রেফারেল একটিভেশনের জন্য নতুন রেট কার্যকর হবে। পূর্বের রেফারেলগুলোতে এটি প্রভাব ফেলবে না।
+    </div>
+</div>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+<script>
+    // Your Firebase Configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyAOdWqPh69SEG-Z6P71xL6jlcFcNb9gMNs",
+        authDomain: "unlimited-earning-28639.firebaseapp.com",
+        databaseURL: "https://unlimited-earning-28639-default-rtdb.firebaseio.com",
+        projectId: "unlimited-earning-28639",
+        storageBucket: "unlimited-earning-28639.firebasestorage.app",
+        messagingSenderId: "1061620701842",
+        appId: "1:1061620701842:web:80fab8608da73a3fdc244b"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // 1. Load Current Settings from Database
+    db.ref('settings/referral').on('value', snap => {
+        if(snap.exists()) {
+            const data = snap.val();
+            document.getElementById('directBonus').value = data.directPrice || 0;
+            document.getElementById('downlineBonus').value = data.downlinePrice || 0;
+        }
+    });
+
+    // 2. Save New Settings
+    async function saveSettings() {
+        const direct = document.getElementById('directBonus').value;
+        const downline = document.getElementById('downlineBonus').value;
+        const btn = document.getElementById('btnSave');
+
+        if(direct === "" || downline === "") return alert("Please fill both fields!");
+
+        btn.disabled = true; // Lock for 2 seconds
+
+        try {
+            await db.ref('settings/referral').set({
+                directPrice: parseFloat(direct),
+                downlinePrice: parseFloat(downline)
+            });
+            alert("Referral rates updated successfully!");
+        } catch (e) {
+            alert("Error: " + e.message);
+        }
+
+        // Unlock after 2 seconds
+        setTimeout(() => {
+            btn.disabled = false;
+        }, 2000);
+    }
+</script>
+</body>
+</html>

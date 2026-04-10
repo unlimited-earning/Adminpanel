@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Access - Unlimited Earning</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/dist/css/all.min.css">
+    
+    <style>
+        :root {
+            --admin-primary: #2c3e50;
+            --admin-secondary: #34495e;
+            --accent: #3498db;
+            --white: #ffffff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+
+        body {
+            background: linear-gradient(135deg, var(--admin-primary), var(--admin-secondary));
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--white);
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            width: 100%;
+            max-width: 400px;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+        }
+
+        .login-card i.main-icon {
+            font-size: 50px;
+            color: var(--accent);
+            margin-bottom: 15px;
+        }
+
+        h2 { margin-bottom: 10px; font-weight: 600; letter-spacing: 1px; }
+        p { font-size: 13px; opacity: 0.7; margin-bottom: 30px; }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            margin-bottom: 5px;
+            margin-left: 5px;
+            text-transform: uppercase;
+            opacity: 0.8;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 10px;
+            color: white;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        .form-group input:focus {
+            border-color: var(--accent);
+            background: rgba(255,255,255,0.1);
+        }
+
+        .toggle-pass {
+            position: absolute;
+            right: 15px;
+            top: 35px;
+            cursor: pointer;
+            opacity: 0.6;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 15px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-login:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .support-link {
+            margin-top: 25px;
+            font-size: 13px;
+        }
+
+        .support-link span {
+            color: var(--accent);
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .loader {
+            display: none;
+            margin: 20px auto 0;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--accent);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<div class="login-card">
+    <i class="fas fa-user-shield main-icon"></i>
+    <h2 id="loginTitle">Main Admin</h2>
+    <p id="loginDesc">Secure access for Unlimited Earning</p>
+
+    <div class="form-group">
+        <label>Admin Number</label>
+        <input type="number" id="adminNumber" placeholder="Enter number">
+    </div>
+
+    <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="adminPass" placeholder="Enter password">
+        <i class="fas fa-eye toggle-pass" onclick="togglePass()"></i>
+    </div>
+
+    <button class="btn-login" onclick="handleLogin()">ACCESS PANEL</button>
+    <div class="loader" id="loader"></div>
+
+    <div class="support-link">
+        <span id="toggleText" onclick="switchMode()">Login as Support Admin</span>
+    </div>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyAOdWqPh69SEG-Z6P71xL6jlcFcNb9gMNs",
+        authDomain: "unlimited-earning-28639.firebaseapp.com",
+        databaseURL: "https://unlimited-earning-28639-default-rtdb.firebaseio.com",
+        projectId: "unlimited-earning-28639",
+        storageBucket: "unlimited-earning-28639.firebasestorage.app",
+        messagingSenderId: "1061620701842",
+        appId: "1:1061620701842:web:80fab8608da73a3fdc244b"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    let isSupportMode = false;
+
+    function switchMode() {
+        isSupportMode = !isSupportMode;
+        document.getElementById('loginTitle').innerText = isSupportMode ? "Support Admin" : "Main Admin";
+        document.getElementById('toggleText').innerText = isSupportMode ? "Login as Main Admin" : "Login as Support Admin";
+    }
+
+    function togglePass() {
+        const p = document.getElementById('adminPass');
+        p.type = p.type === "password" ? "text" : "password";
+    }
+
+    async function handleLogin() {
+        const num = document.getElementById('adminNumber').value;
+        const pass = document.getElementById('adminPass').value;
+        const loader = document.getElementById('loader');
+
+        if(!num || !pass) return alert("Please fill all fields!");
+
+        loader.style.display = "block";
+
+        // Default Credentials Check (For Main Admin)
+        if(!isSupportMode) {
+            if(num === "01310504728" && pass === "RAFSAN20") {
+                sessionStorage.setItem('adminRole', 'main');
+                window.location.href = "home_admin.html";
+                return;
+            }
+        }
+
+        // Check in Firebase (For both Support and if Main credentials change)
+        try {
+            const path = isSupportMode ? 'admins/support' : 'admins/main';
+            const snapshot = await db.ref(path).orderByChild('number').equalTo(num).once('value');
+            
+            if(snapshot.exists()) {
+                let found = false;
+                snapshot.forEach(child => {
+                    const adminData = child.val();
+                    if(adminData.password === pass) {
+                        found = true;
+                        sessionStorage.setItem('adminRole', isSupportMode ? 'support' : 'main');
+                        sessionStorage.setItem('adminID', child.key);
+                        window.location.href = "home_admin.html";
+                    }
+                });
+                if(!found) alert("Incorrect password!");
+            } else {
+                if(!(!isSupportMode && num === "01310504728")) { // If not default admin
+                    alert("Admin not found!");
+                }
+            }
+        } catch (e) {
+            alert("Error: " + e.message);
+        }
+        loader.style.display = "none";
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Dispatcher - Admin Panel</title>
+    
+    <!-- Google Fonts & Font Awesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* 
+        ========================================
+        PREMIUM ADMIN CSS (120+ Lines)
+        ========================================
+        */
+        :root {
+            --primary: #2c3e50;
+            --accent: #3498db;
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --bg: #f8f9fb;
+            --white: #ffffff;
+            --shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background-color: var(--bg); color: #333; padding-bottom: 50px; }
+
+        /* Header Layout */
+        .header {
+            background: var(--primary);
+            padding: 20px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .header h2 { font-size: 18px; font-weight: 600; }
+        .back-btn { font-size: 20px; color: white; cursor: pointer; transition: 0.3s; }
+        .back-btn:hover { transform: translateX(-5px); }
+
+        /* Main Container */
+        .container { padding: 20px; max-width: 800px; margin: 0 auto; }
+
+        /* Realtime Stats */
+        .stats-bar {
+            background: var(--white);
+            padding: 15px 25px;
+            border-radius: 20px;
+            margin-bottom: 25px;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 5px solid var(--accent);
+        }
+        .stats-bar b { color: var(--accent); font-size: 20px; }
+
+        /* Request Cards */
+        #requestArea { display: flex; flex-direction: column; gap: 20px; }
+        
+        .request-card {
+            background: var(--white);
+            border-radius: 25px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            border: 1px solid #eee;
+            animation: slideUp 0.5s ease forwards;
+        }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .user-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .user-info b { font-size: 16px; color: var(--primary); }
+        .user-info span { font-size: 11px; color: #888; }
+
+        /* Raw Text Input */
+        .raw-input-container { margin-bottom: 20px; }
+        .raw-input-container label { display: block; font-size: 12px; font-weight: 600; color: #666; margin-bottom: 8px; }
+        .raw-textarea {
+            width: 100%;
+            height: 120px;
+            padding: 15px;
+            border: 2px solid #f0f0f0;
+            border-radius: 15px;
+            outline: none;
+            font-size: 12px;
+            background: #fafafa;
+            transition: 0.3s;
+        }
+        .raw-textarea:focus { border-color: var(--accent); background: #fff; }
+
+        /* Parsed Field Grid */
+        .field-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .input-group { position: relative; }
+        .input-group label { display: block; font-size: 10px; font-weight: 700; color: #999; text-transform: uppercase; margin-bottom: 4px; padding-left: 5px; }
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #eee;
+            border-radius: 10px;
+            font-size: 13px;
+            outline: none;
+            background: #fff;
+        }
+        .input-group input:focus { border-color: var(--accent); }
+
+        /* Action Buttons */
+        .action-btns { display: flex; gap: 15px; margin-top: 10px; }
+        .btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 14px;
+        }
+        .btn-parse { background: #eef2ff; color: var(--accent); }
+        .btn-send { background: var(--success); color: white; box-shadow: 0 5px 15px rgba(39, 174, 96, 0.2); }
+        .btn:disabled { background: #ccc !important; box-shadow: none !important; cursor: not-allowed; }
+
+        /* Notifications */
+        .empty-state { text-align: center; margin-top: 100px; color: #aaa; }
+        .empty-state i { font-size: 50px; margin-bottom: 10px; opacity: 0.3; }
+
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <i class="fas fa-arrow-left back-btn" onclick="location.href='home_admin.html'"></i>
+        <h2>Task Requests Dashboard</h2>
+        <div onclick="location.reload()"><i class="fas fa-sync-alt"></i></div>
+    </header>
+
+    <div class="container">
+        <!-- Stats Section -->
+        <div class="stats-bar">
+            <span>Live Pending Requests:</span>
+            <b id="liveReqCount">0</b>
+        </div>
+
+        <!-- Request Cards Display Area -->
+        <div id="requestArea">
+            <div class="empty-state">
+                <i class="fas fa-satellite-dish"></i>
+                <p>Waiting for incoming requests...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 
+    ========================================
+    FIREBASE & LOGIC ENGINE (200+ Lines)
+    ========================================
+    -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+    <script>
+        /**
+         * INITIALIZATION
+         */
+        const firebaseConfig = {
+            apiKey: "AIzaSyAOdWqPh69SEG-Z6P71xL6jlcFcNb9gMNs",
+            authDomain: "unlimited-earning-28639.firebaseapp.com",
+            databaseURL: "https://unlimited-earning-28639-default-rtdb.firebaseio.com",
+            projectId: "unlimited-earning-28639",
+            storageBucket: "unlimited-earning-28639.firebasestorage.app",
+            messagingSenderId: "1061620701842",
+            appId: "1:1061620701842:web:80fab8608da73a3fdc244b"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let lastCount = -1;
+        const REQUEST_EXPIRY = 120000; // 2 minutes auto-remove
+
+        /**
+         * VOICE NOTIFICATION SYSTEM
+         */
+        function playVoiceAlert(text) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 1;
+            utterance.pitch = 1;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        /**
+         * MONITOR REQUESTS
+         */
+        db.ref('task_requests').on('value', snapshot => {
+            const area = document.getElementById('requestArea');
+            const currentCount = snapshot.numChildren();
+            document.getElementById('liveReqCount').innerText = currentCount;
+
+            // Trigger Voice Alert if count increases
+            if(lastCount !== -1 && currentCount > lastCount) {
+                playVoiceAlert("User task request");
+            }
+            lastCount = currentCount;
+
+            if(!snapshot.exists()) {
+                area.innerHTML = `<div class="empty-state"><i class="fas fa-check-circle"></i><p>No active requests at this moment.</p></div>`;
+                return;
+            }
+
+            area.innerHTML = ""; // Clear area
+            const now = Date.now();
+
+            snapshot.forEach(child => {
+                const req = child.val();
+                const reqKey = child.key;
+
+                // 2-Minute Expiry Logic
+                if (now - req.timestamp > REQUEST_EXPIRY) {
+                    db.ref('task_requests/' + reqKey).remove();
+                    return;
+                }
+
+                const card = document.createElement('div');
+                card.className = 'request-card';
+                card.innerHTML = `
+                    <div class="user-info">
+                        <div>
+                            <b>${req.name}</b>
+                            <p style="font-size:12px; color:#666;">ID: ${req.phone}</p>
+                        </div>
+                        <span>Time: ${new Date(req.timestamp).toLocaleTimeString()}</span>
+                    </div>
+
+                    <div class="raw-input-container">
+                        <label>Paste Raw Gmail Data Block</label>
+                        <textarea class="raw-textarea" id="raw_${reqKey}" placeholder="First name: Joseph\nLast name: Shelton..."></textarea>
+                    </div>
+
+                    <div class="field-grid">
+                        <div class="input-group"><label>First Name</label><input type="text" id="fn_${reqKey}"></div>
+                        <div class="input-group"><label>Last Name</label><input type="text" id="ln_${reqKey}"></div>
+                        <div class="input-group"><label>Email</label><input type="text" id="em_${reqKey}"></div>
+                        <div class="input-group"><label>Password</label><input type="text" id="ps_${reqKey}"></div>
+                        <div class="input-group"><label>Birthdate</label><input type="text" id="bd_${reqKey}"></div>
+                        <div class="input-group"><label>Recovery Email</label><input type="text" id="re_${reqKey}"></div>
+                    </div>
+
+                    <div class="action-btns">
+                        <button class="btn btn-parse" onclick="autoParseData('${reqKey}')">
+                            <i class="fas fa-magic"></i> Auto Fill
+                        </button>
+                        <button class="btn btn-send" id="btnSend_${reqKey}" onclick="sendTaskToUser('${reqKey}', '${req.phone}')">
+                            <i class="fas fa-paper-plane"></i> Send Task
+                        </button>
+                    </div>
+                `;
+                area.appendChild(card);
+            });
+        });
+
+        /**
+         * AUTO PARSE LOGIC (Extract from Text)
+         */
+        function autoParseData(key) {
+            const rawText = document.getElementById('raw_'+key).value;
+            if(!rawText) return alert("Please paste text first!");
+
+            const getValue = (field) => {
+                const regex = new RegExp(`${field}:\\s*(.*)`, 'i');
+                const match = rawText.match(regex);
+                return match ? match[1].trim() : "";
+            };
+
+            // Filling fields
+            document.getElementById('fn_'+key).value = getValue("First name");
+            document.getElementById('ln_'+key).value = getValue("Last name");
+            document.getElementById('em_'+key).value = getValue("Email");
+            document.getElementById('ps_'+key).value = getValue("Password");
+            document.getElementById('bd_'+key).value = getValue("Birthdate");
+            document.getElementById('re_'+key).value = getValue("Recovery email");
+            
+            console.log("Parsing successful for:", key);
+        }
+
+        /**
+         * SEND TASK TO USER (With 2-second lock)
+         */
+        async function sendTaskToUser(key, phone) {
+            const btn = document.getElementById('btnSend_'+key);
+            
+            const taskData = {
+                firstName: document.getElementById('fn_'+key).value,
+                lastName: document.getElementById('ln_'+key).value,
+                email: document.getElementById('em_'+key).value,
+                password: document.getElementById('ps_'+key).value,
+                birthdate: document.getElementById('bd_'+key).value,
+                recoveryEmail: document.getElementById('re_'+key).value,
+                timestamp: Date.now()
+            };
+
+            if(!taskData.email || !taskData.password) {
+                return alert("Email and Password are mandatory!");
+            }
+
+            // LOCK BUTTON FOR 2 SECONDS
+            btn.disabled = true;
+
+            try {
+                // 1. Dispatch Task to User's active node
+                await db.ref('active_tasks/' + phone).set(taskData);
+                
+                // 2. Remove Request from Global Pending List
+                await db.ref('task_requests/' + phone).remove();
+                
+                console.log("Task dispatched successfully to:", phone);
+            } catch (err) {
+                alert("Error sending task: " + err.message);
+            }
+
+            // Delay Unlock
+            setTimeout(() => {
+                if(btn) btn.disabled = false;
+            }, 2000);
+        }
+
+    </script>
+</body>
+</html>
