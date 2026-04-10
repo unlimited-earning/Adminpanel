@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elite Task Dispatcher | Admin Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root { --primary: #1e272e; --accent: #3498db; --success: #2ecc71; --bg: #f1f2f6; --white: #ffffff; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background-color: var(--bg); color: var(--primary); padding-bottom: 50px; }
+        .header { background: var(--primary); padding: 20px; color: white; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
+        .container { padding: 20px; max-width: 800px; margin: 0 auto; }
+        .task-card { background: var(--white); border-radius: 35px; padding: 35px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 25px; border: 1px solid #f0f0f0; }
+        .raw-input { width: 100%; height: 120px; padding: 15px; border-radius: 20px; border: 2px solid #f1f2f6; background: #fafafa; font-size: 12px; outline: none; margin-bottom: 20px; }
+        .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px; }
+        .field-grid input { width: 100%; padding: 14px; border: 1.5px solid #eee; border-radius: 15px; font-size: 13px; font-weight: 700; }
+        .btn-ui { flex: 1; padding: 18px; border: none; border-radius: 20px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn-parse { background: #eef2ff; color: var(--accent); }
+        .btn-dispatch { background: var(--success); color: white; }
+        .btn-ui:disabled { background: #cbd5e0; cursor: not-allowed; }
+        #voiceOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(30, 39, 46, 0.98); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; text-align: center; transition: 0.5s; }
+    </style>
+</head>
+<body>
+
+    <div id="voiceOverlay">
+        <i class="fas fa-headset" style="font-size: 80px; color: var(--accent); margin-bottom: 20px;"></i>
+        <h2>Terminal Voice Sync Ready</h2>
+        <button onclick="unlockAudio()" style="margin-top:20px; padding:15px 40px; border-radius:50px; border:none; background:var(--accent); color:white; font-weight:800; cursor:pointer;">ACTIVATE VOICE</button>
+    </div>
+
+    <header class="header">
+        <i class="fas fa-arrow-left" style="cursor:pointer;" onclick="location.href='home_admin.html'"></i>
+        <h2>Task Dispatch Center</h2>
+        <b id="q_count">0 Requests</b>
+    </header>
+
+    <div class="container" id="requestFeed">
+        <!-- Requests Load Here -->
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAOdWqPh69SEG-Z6P71xL6jlcFcNb9gMNs",
+            authDomain: "unlimited-earning-28639.firebaseapp.com",
+            databaseURL: "https://unlimited-earning-28639-default-rtdb.firebaseio.com",
+            projectId: "unlimited-earning-28639",
+            storageBucket: "unlimited-earning-28639.firebasestorage.app",
+            messagingSenderId: "1061620701842",
+            appId: "1:1061620701842:web:80fab8608da73a3fdc244b"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let lastCount = -1;
+        let audioOn = false;
+
+        function speak(t) { if(audioOn) { window.speechSynthesis.cancel(); window.speechSynthesis.speak(new SpeechSynthesisUtterance(t)); } }
+        function unlockAudio() { audioOn = true; document.getElementById('voiceOverlay').style.display = 'none'; speak("Voice Ready"); }
+
+        db.ref('task_requests').on('value', snap => {
+            const feed = document.getElementById('requestFeed');
+            const count = snap.numChildren();
+            document.getElementById('q_count').innerText = count + " Requests";
+
+            if(lastCount !== -1 && count > lastCount) speak("User task request");
+            lastCount = count;
+
+            if(!snap.exists()) { feed.innerHTML = "<p style='text-align:center; margin-top:100px; color:#aaa;'>No Requests...</p>"; return; }
+
+            feed.innerHTML = "";
+            snap.forEach(child => {
+                const d = child.val();
+                const k = child.key;
+                const card = document.createElement('div');
+                card.className = 'task-card';
+                card.innerHTML = `
+                    <b>${d.name} (${d.phone})</b><br><br>
+                    <textarea class="raw-input" id="raw_${k}" placeholder="Paste Text Block"></textarea>
+                    <div class="field-grid">
+                        <input type="text" id="fn_${k}" placeholder="First Name">
+                        <input type="text" id="ln_${k}" placeholder="Last Name">
+                        <input type="text" id="em_${k}" placeholder="Email">
+                        <input type="text" id="ps_${k}" placeholder="Password">
+                        <input type="text" id="bd_${k}" placeholder="Birthdate">
+                        <input type="text" id="re_${k}" placeholder="Recovery">
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <button class="btn-ui btn-parse" onclick="doParse('${k}')">AUTO FILL</button>
+                        <button class="btn-ui btn-dispatch" id="ds_${k}" onclick="sendTask('${k}', '${d.phone}')">DISPATCH</button>
+                    </div>
+                `;
+                feed.appendChild(card);
+            });
+        });
+
+        function doParse(id) {
+            const val = document.getElementById('raw_'+id).value;
+            const find = (tag) => { const r = new RegExp(`${tag}:\\s*(.*)`, 'i'); const m = val.match(r); return m ? m[1].trim() : ""; };
+            document.getElementById('fn_'+id).value = find("First name");
+            document.getElementById('ln_'+id).value = find("Last name");
+            document.getElementById('em_'+id).value = find("Email");
+            document.getElementById('ps_'+id).value = find("Password");
+            document.getElementById('bd_'+id).value = find("Birthdate");
+            document.getElementById('re_'+id).value = find("Recovery email");
+        }
+
+        async function sendTask(key, phone) {
+            const btn = document.getElementById('ds_'+key);
+            const expireAt = Date.now() + (13 * 60 * 1000);
+            const data = {
+                firstName: document.getElementById('fn_'+key).value,
+                lastName: document.getElementById('ln_'+key).value,
+                email: document.getElementById('em_'+key).value,
+                password: document.getElementById('ps_'+key).value,
+                birthdate: document.getElementById('bd_'+key).value,
+                recoveryEmail: document.getElementById('re_'+key).value,
+                expireAt: expireAt
+            };
+            if(!data.email || !data.password) return alert("Fill Email/Pass!");
+            btn.disabled = true;
+            try {
+                await db.ref('active_tasks/' + phone).set(data);
+                await db.ref('task_requests/' + phone).remove();
+            } catch (e) { alert(e.message); btn.disabled = false; }
+            setTimeout(() => { if(btn) btn.disabled = false; }, 2000);
+        }
+    </script>
+</body>
+</html>

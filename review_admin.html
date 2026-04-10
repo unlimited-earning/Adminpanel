@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review Terminal - Admin Panel</title>
+    
+    <!-- Premium Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* 
+        ======================================================
+        ADMIN PREMIUM CSS ARCHITECTURE
+        ======================================================
+        */
+        :root {
+            --primary: #2c3e50;
+            --accent: #6c5ce7;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --warning: #f1c40f;
+            --bg: #f4f7f6;
+            --white: #ffffff;
+            --shadow: 0 15px 35px rgba(0,0,0,0.06);
+            --radius-lg: 35px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background-color: var(--bg); padding-bottom: 50px; overflow-x: hidden; }
+
+        /* Voice Unlock Overlay for Chrome */
+        #audioGate {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(44, 62, 80, 0.99);
+            z-index: 9999; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; color: white; text-align: center;
+        }
+        #audioGate i { font-size: 85px; color: var(--success); margin-bottom: 25px; animation: bounce 2s infinite; }
+        .btn-gate {
+            padding: 18px 60px; background: var(--success); color: white;
+            border: none; border-radius: 50px; font-weight: 800; cursor: pointer;
+            box-shadow: 0 10px 25px rgba(46, 204, 113, 0.3); font-size: 16px;
+        }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+
+        /* Navigation Header */
+        .admin-header {
+            background: var(--primary);
+            padding: 22px 25px;
+            color: white;
+            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 1000;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .admin-header h2 { font-size: 18px; font-weight: 700; letter-spacing: 0.5px; }
+        .btn-back { font-size: 22px; cursor: pointer; color: #d1d8e0; transition: 0.3s; }
+        .btn-back:hover { transform: translateX(-5px); color: white; }
+
+        .wrapper { padding: 20px; max-width: 900px; margin: 0 auto; }
+
+        /* Global Status Board */
+        .stats-row {
+            display: grid; grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px; margin-bottom: 30px;
+        }
+        .stat-widget {
+            background: white; padding: 22px 10px; border-radius: 25px;
+            text-align: center; box-shadow: var(--shadow); border: 1.5px solid #fff;
+        }
+        .stat-widget p { font-size: 10px; color: #95a5a6; text-transform: uppercase; font-weight: 800; margin-bottom: 4px; }
+        .stat-widget h3 { font-size: 22px; color: var(--primary); font-weight: 800; }
+
+        /* Submission Card Component */
+        .review-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 35px;
+            margin-bottom: 25px;
+            box-shadow: var(--shadow);
+            border: 1px solid #f0f0f0;
+            animation: cardFade 0.6s ease forwards;
+            position: relative;
+        }
+        @keyframes cardFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* DATE & TIME SECTION (Requested) */
+        .submit-timestamp {
+            background: #fff9e6;
+            color: #856404;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 18px;
+            border-radius: 50px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            border: 1px solid #ffeeba;
+        }
+        .submit-timestamp i { font-size: 14px; }
+
+        /* User Identity Header */
+        .identity-strip {
+            background: #f0f3ff;
+            padding: 15px 22px;
+            border-radius: 20px;
+            margin-bottom: 22px;
+            border-left: 6px solid var(--accent);
+            display: flex; align-items: center; gap: 15px;
+        }
+        .identity-strip i { font-size: 26px; color: var(--accent); }
+        .identity-strip div b { font-size: 16px; color: #333; display: block; letter-spacing: -0.5px; }
+        .identity-strip div span { font-size: 12px; color: #7f8c8d; font-weight: 500; }
+
+        /* Data Fields Grid */
+        .details-grid {
+            display: grid; grid-template-columns: 1fr;
+            gap: 12px; margin-bottom: 30px;
+        }
+        .data-box {
+            background: #fcfcfc; padding: 16px 20px;
+            border-radius: 18px; border: 1.5px solid #f1f1f1;
+            display: flex; justify-content: space-between; align-items: center;
+            transition: 0.3s;
+        }
+        .data-box:hover { border-color: var(--accent); }
+        .data-box label { font-size: 10px; color: #bdc3c7; text-transform: uppercase; font-weight: 800; letter-spacing: 0.8px; }
+        .data-box b { font-size: 14px; color: #2d3436; flex: 1; text-align: right; margin-left: 15px; word-break: break-all; }
+        
+        .btn-copy-ico { color: var(--accent); cursor: pointer; margin-left: 15px; font-size: 18px; padding: 5px; }
+
+        /* Action Buttons Styling */
+        .action-row { display: flex; gap: 15px; }
+        .btn-master {
+            flex: 1; padding: 20px; border: none; border-radius: 22px;
+            font-weight: 800; font-size: 15px; cursor: pointer;
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            color: white;
+            display: flex; justify-content: center; align-items: center; gap: 10px;
+        }
+        .btn-master:active { transform: scale(0.95); }
+        .btn-rej { background: var(--danger); box-shadow: 0 8px 20px rgba(231, 76, 60, 0.25); }
+        .btn-app { background: var(--success); box-shadow: 0 8px 20px rgba(46, 204, 113, 0.25); }
+        .btn-master:disabled { background: #cbd5e0 !important; cursor: not-allowed; box-shadow: none !important; opacity: 0.7; }
+
+        /* Voice Sync Label */
+        .voice-live { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 800; color: var(--success); }
+        .dot-pulse { width: 10px; height: 10px; background: var(--success); border-radius: 50%; animation: pulseBlink 1.2s infinite; }
+        @keyframes pulseBlink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+
+    </style>
+</head>
+<body>
+
+    <!-- Chrome Voice Protection Overlay -->
+    <div id="audioGate">
+        <i class="fas fa-headset"></i>
+        <h2 style="font-weight: 800; margin-bottom: 10px; letter-spacing: -0.5px;">Verification Audio Engine</h2>
+        <p style="margin-bottom: 35px; opacity: 0.8; padding: 0 60px; font-weight: 300;">অন্য ট্যাবে থাকলেও <b>"User submitted task"</b> ভয়েস শুনতে নিচের বাটনটি চাপুন।</p>
+        <button class="btn-gate" onclick="unlockAdminAudio()">ACTIVATE MONITORING</button>
+    </div>
+
+    <!-- Top Admin Header -->
+    <header class="admin-header">
+        <div style="display: flex; align-items: center; gap: 18px;">
+            <i class="fas fa-arrow-left btn-back" onclick="location.href='home_admin.html'"></i>
+            <h2>Review & Dispatch</h2>
+        </div>
+        <div class="voice-live"><div class="dot-pulse"></div> MONITORING LIVE</div>
+    </header>
+
+    <div class="wrapper">
+        <!-- Live Dashboard Stats -->
+        <div class="stats-row">
+            <div class="stat-widget"><p>In Queue</p><h3 id="stat_pend">0</h3></div>
+            <div class="stat-widget"><p>Verified</p><h3 id="stat_succ" style="color:var(--success)">0</h3></div>
+            <div class="stat-widget"><p>Rejected</p><h3 id="stat_fail" style="color:var(--danger)">0</h3></div>
+        </div>
+
+        <!-- Submission Grid Area -->
+        <div id="masterReviewList">
+            <p style="text-align:center; color:#bdc3c7; margin-top:80px; font-size: 14px;">Initializing encrypted connection...</p>
+        </div>
+    </div>
+
+    <!-- 
+    ======================================================
+    FIREBASE CORE & ABSOLUTE REVIEW ENGINE (300+ Lines)
+    ======================================================
+    -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+    <script>
+        /**
+         * 1. FIREBASE BOOTSTRAP
+         */
+        const firebaseConfig = {
+            apiKey: "AIzaSyAOdWqPh69SEG-Z6P71xL6jlcFcNb9gMNs",
+            authDomain: "unlimited-earning-28639.firebaseapp.com",
+            databaseURL: "https://unlimited-earning-28639-default-rtdb.firebaseio.com",
+            projectId: "unlimited-earning-28639",
+            storageBucket: "unlimited-earning-28639.firebasestorage.app",
+            messagingSenderId: "1061620701842",
+            appId: "1:1061620701842:web:80fab8608da73a3fdc244b"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let previousBatchSize = -1;
+        let audioActive = false;
+
+        /**
+         * 2. VOICE ENGINE (Chrome Optimized)
+         */
+        function playVoiceNotification(txt) {
+            if(!audioActive) return;
+            window.speechSynthesis.cancel(); // Stop current speech
+            const msg = new SpeechSynthesisUtterance(txt);
+            msg.rate = 1; msg.pitch = 1; msg.volume = 1;
+            window.speechSynthesis.speak(msg);
+        }
+
+        function unlockAdminAudio() {
+            audioActive = true;
+            document.getElementById('audioGate').style.opacity = '0';
+            setTimeout(() => { document.getElementById('audioGate').style.display = 'none'; }, 500);
+            playVoiceNotification("Review terminal online. System synchronized.");
+        }
+
+        /**
+         * 3. GLOBAL STATS REFRESHER
+         */
+        db.ref('users').on('value', snapshot => {
+            let sCount = 0, fCount = 0;
+            snapshot.forEach(user => {
+                const d = user.val();
+                sCount += (d.successTasks || 0);
+                fCount += (d.failedTasks || 0);
+            });
+            document.getElementById('stat_succ').innerText = sCount;
+            document.getElementById('stat_fail').innerText = fCount;
+        });
+
+        /**
+         * 4. MASTER REALTIME REVIEW LISTENER
+         */
+        db.ref('task_reviews').on('value', snapshot => {
+            const container = document.getElementById('masterReviewList');
+            const currentSize = snapshot.numChildren();
+            document.getElementById('stat_pend').innerText = currentSize;
+
+            // Voice Alert: New Work Detection
+            if(previousBatchSize !== -1 && currentSize > previousBatchSize) {
+                console.log("System: New submission detected.");
+                playVoiceNotification("User submitted task");
+            }
+            previousBatchSize = currentSize;
+
+            if(!snapshot.exists()) {
+                container.innerHTML = `<div style="text-align:center; margin-top:100px; color:#bbb;"><i class="fas fa-check-circle fa-4x" style="opacity:0.3; margin-bottom:15px;"></i><p>No pending work items in queue.</p></div>`;
+                return;
+            }
+
+            container.innerHTML = ""; // Clear for refresh
+            snapshot.forEach(child => {
+                const task = child.val();
+                const key = child.key;
+
+                // Creating card with date display
+                const card = document.createElement('div');
+                card.className = 'review-card';
+
+                // Format the "Review Out" Date/Time
+                const reviewDate = new Date(task.taskID).toLocaleString('en-US', {
+                    day: 'numeric', month: 'long', year: 'numeric',
+                    hour: '2-digit', minute: '2-digit', hour12: true
+                });
+
+                // Get Submitter's Account Name
+                db.ref('users/' + task.phone).once('value', uSnap => {
+                    const uData = uSnap.val();
+                    const realName = uData ? uData.name : "System User";
+
+                    card.innerHTML = `
+                        <div class="submit-timestamp">
+                            <i class="fas fa-calendar-check"></i> Submitted On: ${reviewDate}
+                        </div>
+
+                        <div class="identity-strip">
+                            <i class="fas fa-user-shield"></i>
+                            <div>
+                                <b>${realName}</b>
+                                <span>Phone ID: ${task.phone}</span>
+                            </div>
+                        </div>
+
+                        <div class="details-grid">
+                            <div class="data-box"><label>Submitted Gmail</label><b id="gm_${key}">${task.email}</b><i class="far fa-copy btn-copy-ico" onclick="copyValue('gm_${key}')"></i></div>
+                            <div class="data-box"><label>Account Password</label><b id="ps_${key}">${task.details.password}</b><i class="far fa-copy btn-copy-ico" onclick="copyValue('ps_${key}')"></i></div>
+                            <div class="data-box"><label>Recovery Mail</label><b id="re_${key}">${task.details.recoveryEmail}</b><i class="far fa-copy btn-copy-ico" onclick="copyValue('re_${key}')"></i></div>
+                            <div class="data-box"><label>Admin Target Name</label><b>${task.details.firstName} ${task.details.lastName}</b></div>
+                        </div>
+
+                        <div class="action-row">
+                            <button class="btn-master btn-rej" id="r_${key}" onclick="processSubmission('${key}', 'failed', '${task.phone}', '${task.email}')">
+                                <i class="fas fa-times-circle"></i> REJECT
+                            </button>
+                            <button class="btn-master btn-app" id="a_${key}" onclick="initiatePayment('${key}', '${task.phone}', '${task.email}')">
+                                <i class="fas fa-check-circle"></i> APPROVE & PAY
+                            </button>
+                        </div>
+                    `;
+                });
+                container.appendChild(card);
+            });
+        });
+
+        /**
+         * 5. PAYMENT HANDLER (Prompt)
+         */
+        function initiatePayment(key, phone, email) {
+            const amt = prompt("Enter payment amount (BDT):", "10");
+            if(amt && !isNaN(amt) && amt > 0) {
+                processSubmission(key, 'success', phone, email, amt);
+            }
+        }
+
+        /**
+         * 6. FINAL PROCESSING ENGINE (With Transaction & 2s Protection)
+         */
+        async function processSubmission(key, status, phone, email, amt = 0) {
+            const appBtn = document.getElementById('a_'+key);
+            const rejBtn = document.getElementById('r_'+key);
+            
+            // Lock UI for 2 Seconds
+            appBtn.disabled = true; rejBtn.disabled = true;
+
+            try {
+                const userRef = db.ref('users/' + phone);
+                
+                if(status === 'success') {
+                    // Update user balance and task count using transaction
+                    await userRef.transaction(d => {
+                        if(d) {
+                            d.balance = (d.balance || 0) + parseFloat(amt);
+                            d.successTasks = (d.successTasks || 0) + 1;
+                            d.pendingTasks = Math.max(0, (d.pendingTasks || 0) - 1);
+                        }
+                        return d;
+                    });
+                    // Log Success History
+                    await db.ref('history/' + phone).push({
+                        type: 'task', title: `Task Success (${email})`, amount: amt, status: 'Success', timestamp: Date.now()
+                    });
+                } else {
+                    // Update failed counter
+                    await userRef.transaction(d => {
+                        if(d) {
+                            d.failedTasks = (d.failedTasks || 0) + 1;
+                            d.pendingTasks = Math.max(0, (d.pendingTasks || 0) - 1);
+                        }
+                        return d;
+                    });
+                    // Log Failed History
+                    await db.ref('history/' + phone).push({
+                        type: 'task', title: `Task Failed (${email})`, amount: 0, status: 'Failed', timestamp: Date.now()
+                    });
+                }
+
+                // Delete from Review Queue
+                await db.ref('task_reviews/' + key).remove();
+                alert("Operation Completed!");
+
+            } catch (err) {
+                alert("Error: " + err.message);
+                appBtn.disabled = false; rejBtn.disabled = false;
+            }
+
+            // Restore buttons after safety delay
+            setTimeout(() => { if(appBtn) appBtn.disabled = false; }, 2000);
+        }
+
+        /**
+         * 7. UTILITY: COPY TO CLIPBOARD
+         */
+        function copyValue(id) {
+            const val = document.getElementById(id).innerText;
+            navigator.clipboard.writeText(val).then(() => { alert("Details Copied!"); });
+        }
+
+    </script>
+</body>
+</html>
