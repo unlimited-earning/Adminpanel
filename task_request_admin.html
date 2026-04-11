@@ -3,49 +3,216 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elite Task Dispatcher | Admin Panel</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>Task Dispatch Terminal | Unlimited Admin</title>
+    
+    <!-- 
+    ======================================================
+    PREMIUM ADMIN ASSETS (100+ Lines CSS)
+    ======================================================
+    -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        :root { --primary: #1e272e; --accent: #3498db; --success: #2ecc71; --bg: #f1f2f6; --white: #ffffff; }
+        :root {
+            --primary: #1e272e;
+            --sidebar: #2f3542;
+            --accent: #3498db;
+            --success: #2ecc71;
+            --danger: #e17055;
+            --warning: #f1c40f;
+            --bg-color: #f1f2f6;
+            --white: #ffffff;
+            --shadow-card: 0 15px 40px rgba(0,0,0,0.1);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-        body { background-color: var(--bg); color: var(--primary); padding-bottom: 50px; }
-        .header { background: var(--primary); padding: 20px; color: white; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
-        .container { padding: 20px; max-width: 800px; margin: 0 auto; }
-        .task-card { background: var(--white); border-radius: 35px; padding: 35px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 25px; border: 1px solid #f0f0f0; }
-        .raw-input { width: 100%; height: 120px; padding: 15px; border-radius: 20px; border: 2px solid #f1f2f6; background: #fafafa; font-size: 12px; outline: none; margin-bottom: 20px; }
-        .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px; }
-        .field-grid input { width: 100%; padding: 14px; border: 1.5px solid #eee; border-radius: 15px; font-size: 13px; font-weight: 700; }
-        .btn-ui { flex: 1; padding: 18px; border: none; border-radius: 20px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .btn-parse { background: #eef2ff; color: var(--accent); }
-        .btn-dispatch { background: var(--success); color: white; }
-        .btn-ui:disabled { background: #cbd5e0; cursor: not-allowed; }
-        #voiceOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(30, 39, 46, 0.98); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; text-align: center; transition: 0.5s; }
+        
+        body { 
+            background-color: var(--bg-color); 
+            color: var(--primary); 
+            padding-bottom: 50px;
+            overflow-x: hidden;
+        }
+
+        /* Voice Activation Overlay - Crucial for Chrome Support */
+        #audioTerminalGate {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(30, 39, 46, 0.98);
+            z-index: 9999;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            color: white; text-align: center;
+            transition: var(--transition);
+        }
+        #audioTerminalGate i { font-size: 85px; color: var(--accent); margin-bottom: 25px; animation: glow 2s infinite; }
+        .btn-activate-voice {
+            padding: 20px 55px; background: var(--accent); color: white;
+            border: none; border-radius: 50px; font-weight: 800; cursor: pointer;
+            box-shadow: 0 10px 25px rgba(52, 152, 219, 0.4);
+            font-size: 16px; letter-spacing: 1px;
+        }
+        @keyframes glow { 0% { opacity: 0.8; transform: scale(1); } 50% { opacity: 1; transform: scale(1.1); } 100% { opacity: 0.8; transform: scale(1); } }
+
+        /* Top Admin Header */
+        .admin-header {
+            background: var(--primary);
+            padding: 22px 25px;
+            color: white;
+            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 1000;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .admin-header h2 { font-size: 18px; font-weight: 700; letter-spacing: 0.5px; }
+        .back-btn { font-size: 24px; cursor: pointer; color: #d1d8e0; transition: 0.3s; }
+        .back-btn:hover { color: white; transform: translateX(-5px); }
+
+        .container { padding: 25px; max-width: 850px; margin: 0 auto; }
+
+        /* Live Status Info */
+        .status-strip {
+            background: var(--white);
+            padding: 20px 25px;
+            border-radius: 25px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow-card);
+            display: flex; justify-content: space-between; align-items: center;
+            border-right: 6px solid var(--accent);
+        }
+        .live-tag { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 800; color: var(--success); }
+        .pulse { width: 10px; height: 10px; background: var(--success); border-radius: 50%; animation: blink 1.2s infinite; }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.2; } 100% { opacity: 1; } }
+
+        /* Request Card UI */
+        #requestFeed { display: flex; flex-direction: column; gap: 30px; }
+        .dispatch-card {
+            background: var(--white);
+            border-radius: 40px;
+            padding: 35px;
+            box-shadow: var(--shadow-card);
+            border: 1px solid #f0f0f0;
+            animation: slideUp 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+            position: relative;
+        }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* DETAILED TIMESTAMP & USER INFO */
+        .card-meta {
+            margin-bottom: 25px; padding-bottom: 20px;
+            border-bottom: 1.5px solid #f8f9fa;
+        }
+        .user-title { display: flex; justify-content: space-between; align-items: flex-start; }
+        .user-title b { font-size: 19px; color: var(--primary); font-weight: 800; }
+        .timestamp-label { 
+            background: #fdfaf0; color: #856404; font-size: 11px; font-weight: 800; 
+            padding: 6px 15px; border-radius: 50px; margin-top: 10px; display: inline-flex; align-items: center; gap: 6px;
+        }
+
+        /* Parser Workspace */
+        .parser-label { display: block; font-size: 11px; font-weight: 800; color: #7f8c8d; text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.5px; }
+        .raw-textarea {
+            width: 100%; height: 140px;
+            padding: 20px; border-radius: 20px;
+            border: 2px solid #f1f2f6; background: #fafafa;
+            font-size: 12px; color: #2f3640; outline: none; transition: 0.3s;
+            font-family: 'JetBrains Mono', monospace;
+            resize: none;
+        }
+        .raw-textarea:focus { border-color: var(--accent); background: white; }
+
+        /* Field Grid */
+        .grid-data {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 15px; margin-top: 25px; margin-bottom: 35px;
+        }
+        .input-unit { position: relative; }
+        .input-unit label { display: block; font-size: 10px; font-weight: 800; color: #bdc3c7; text-transform: uppercase; margin-bottom: 6px; padding-left: 8px; }
+        .input-unit input {
+            width: 100%; padding: 16px 20px;
+            border: 1.5px solid #eee; border-radius: 18px;
+            font-size: 14px; font-weight: 700; color: #333;
+            background: #fff; transition: 0.3s;
+        }
+        .input-unit input:focus { border-color: var(--accent); }
+
+        /* Master Buttons */
+        .action-tray { display: flex; gap: 12px; }
+        .btn-ui {
+            flex: 1; padding: 20px; border: none; border-radius: 22px;
+            font-weight: 800; font-size: 14px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 12px;
+            transition: var(--transition);
+        }
+        .btn-autofill { background: #eef2ff; color: var(--accent); }
+        .btn-autofill:hover { background: var(--accent); color: white; }
+        
+        .btn-dispatch { background: var(--success); color: white; box-shadow: 0 10px 25px rgba(46, 204, 113, 0.25); }
+        .btn-dispatch:hover { transform: translateY(-4px); box-shadow: 0 15px 30px rgba(46, 204, 113, 0.35); }
+
+        /* CANCEL BUTTON */
+        .btn-cancel { 
+            background: var(--danger); color: white; max-width: 60px;
+            box-shadow: 0 8px 20px rgba(225, 112, 85, 0.2);
+        }
+        .btn-cancel:hover { filter: brightness(1.1); transform: translateY(-4px); }
+        
+        .btn-ui:disabled { background: #cbd5e0 !important; transform: none !important; box-shadow: none !important; cursor: not-allowed; opacity: 0.7; }
+
+        /* States UI */
+        .empty-view { text-align: center; margin-top: 150px; color: #bdc3c7; }
+        .empty-view i { font-size: 75px; margin-bottom: 25px; opacity: 0.2; }
+        .empty-view p { font-weight: 700; font-size: 18px; letter-spacing: -0.5px; }
+
     </style>
 </head>
 <body>
 
-    <div id="voiceOverlay">
-        <i class="fas fa-headset" style="font-size: 80px; color: var(--accent); margin-bottom: 20px;"></i>
-        <h2>Terminal Voice Sync Ready</h2>
-        <button onclick="unlockAudio()" style="margin-top:20px; padding:15px 40px; border-radius:50px; border:none; background:var(--accent); color:white; font-weight:800; cursor:pointer;">ACTIVATE VOICE</button>
+    <!-- Chrome Autoplay Policy Guard Overlay -->
+    <div id="audioTerminalGate">
+        <i class="fas fa-tower-broadcast"></i>
+        <h2 style="font-weight: 900; letter-spacing: -1px; font-size: 28px;">Admin Voice Terminal</h2>
+        <p style="margin-bottom: 40px; opacity: 0.8; font-weight: 400; padding: 0 60px; line-height: 1.7;">ইউজার টাস্কের জন্য অ্যাপ্লাই করলে অন্য অ্যাপে থাকলেও <b>ভয়েস নোটিফিকেশন</b> শুনতে নিচের বাটনটি চাপুন।</p>
+        <button class="btn-activate-voice" onclick="startTerminalAudio()">ACTIVATE MONITORING</button>
     </div>
 
-    <header class="header">
-        <i class="fas fa-arrow-left" style="cursor:pointer;" onclick="location.href='home_admin.html'"></i>
-        <h2>Task Dispatch Center</h2>
-        <b id="q_count">0 Requests</b>
+    <!-- Persistent Header -->
+    <header class="admin-header">
+        <div style="display: flex; align-items: center; gap: 20px;">
+            <i class="fas fa-arrow-left back-btn" onclick="location.href='home_admin.html'"></i>
+            <h2>Master Dispatch Hub</h2>
+        </div>
+        <div class="live-tag"><div class="pulse"></div> LIVE SYNC</div>
     </header>
 
-    <div class="container" id="requestFeed">
-        <!-- Requests Load Here -->
+    <div class="container">
+        <!-- Live Request Stats -->
+        <div class="status-strip animate">
+            <span style="font-size: 15px; font-weight: 800; color: #636e72;">Requests in Queue</span>
+            <b id="liveQueueCounter" style="font-size: 28px; color: var(--accent);">0</b>
+        </div>
+
+        <!-- Dynamic Feed -->
+        <div id="requestFeed">
+            <div class="empty-view">
+                <i class="fas fa-terminal"></i>
+                <p>Waiting for incoming task requests...</p>
+            </div>
+        </div>
     </div>
 
+    <!-- 
+    ======================================================
+    FIREBASE LOGIC ENGINE & DATA PROCESSOR (300+ Lines)
+    ======================================================
+    -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
     <script>
+        /**
+         * 1. SYSTEM INITIALIZATION
+         */
         const firebaseConfig = {
             apiKey: "AIzaSyAOdWqPh69SEG-Z6P71xL6jlcFcNb9gMNs",
             authDomain: "unlimited-earning-28639.firebaseapp.com",
@@ -55,82 +222,227 @@
             messagingSenderId: "1061620701842",
             appId: "1:1061620701842:web:80fab8608da73a3fdc244b"
         };
-        firebase.initializeApp(firebaseConfig);
+
+        const app = firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let lastCount = -1;
-        let audioOn = false;
+        let isVoiceEnabled = false;
+        let lastKnownQueueSize = -1;
+        const REQUEST_LIFETIME = 120000; // 2 Mins strict auto-cleanup
 
-        function speak(t) { if(audioOn) { window.speechSynthesis.cancel(); window.speechSynthesis.speak(new SpeechSynthesisUtterance(t)); } }
-        function unlockAudio() { audioOn = true; document.getElementById('voiceOverlay').style.display = 'none'; speak("Voice Ready"); }
+        /**
+         * 2. CHROME-OPTIMIZED VOICE ENGINE
+         */
+        function speakAlert(text) {
+            if(!isVoiceEnabled) return;
 
-        db.ref('task_requests').on('value', snap => {
-            const feed = document.getElementById('requestFeed');
-            const count = snap.numChildren();
-            document.getElementById('q_count').innerText = count + " Requests";
+            // Immediate reset to ensure prompt delivery
+            window.speechSynthesis.cancel();
 
-            if(lastCount !== -1 && count > lastCount) speak("User task request");
-            lastCount = count;
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 1.0;
+            utterance.pitch = 1.0;
+            utterance.volume = 1.0;
+            utterance.lang = 'en-US';
 
-            if(!snap.exists()) { feed.innerHTML = "<p style='text-align:center; margin-top:100px; color:#aaa;'>No Requests...</p>"; return; }
+            window.speechSynthesis.speak(utterance);
+        }
 
-            feed.innerHTML = "";
-            snap.forEach(child => {
-                const d = child.val();
-                const k = child.key;
+        /**
+         * 3. TERMINAL ACTIVATION HANDLER
+         */
+        function startTerminalAudio() {
+            isVoiceEnabled = true;
+            document.getElementById('audioTerminalGate').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('audioTerminalGate').style.display = 'none';
+            }, 500);
+            
+            speakAlert("Dispatch system initialized. Audio unlocked.");
+        }
+
+        /**
+         * 4. MAIN REALTIME QUEUE LISTENER
+         */
+        db.ref('task_requests').on('value', snapshot => {
+            const feedContainer = document.getElementById('requestFeed');
+            const queueSize = snapshot.numChildren();
+            document.getElementById('liveQueueCounter').innerText = queueSize;
+
+            // VOICE TRIGGER: Detect only new incoming requests
+            if(lastKnownQueueSize !== -1 && queueSize > lastKnownQueueSize) {
+                console.info("Dispatch Engine: New user request arrived.");
+                speakAlert("User task request");
+            }
+            lastKnownQueueSize = queueSize;
+
+            if(!snapshot.exists()) {
+                feedContainer.innerHTML = `
+                    <div class="empty-view">
+                        <i class="fas fa-check-double" style="color:var(--success); opacity:0.8;"></i>
+                        <p>All clear. No pending task requests.</p>
+                    </div>`;
+                return;
+            }
+
+            feedContainer.innerHTML = ""; // Refresh Area
+            const nowTime = Date.now();
+
+            snapshot.forEach(child => {
+                const reqData = child.val();
+                const reqKey = child.key;
+
+                // AUTO-CLEANUP: If older than 2 minutes
+                if (nowTime - reqData.timestamp > REQUEST_LIFETIME) {
+                    db.ref('task_requests/' + reqKey).remove();
+                    return;
+                }
+
+                // Building the Dispatch Card
                 const card = document.createElement('div');
-                card.className = 'task-card';
+                card.className = 'dispatch-card';
+
+                // Format Detailed Timestamp with Seconds
+                const detailedDate = new Date(reqData.timestamp).toLocaleString('en-GB', {
+                    day: '2-digit', month: '2-digit', year: 'numeric',
+                    hour: '2-digit', minute: '2-digit', second: '2-digit',
+                    hour12: true
+                });
+
                 card.innerHTML = `
-                    <b>${d.name} (${d.phone})</b><br><br>
-                    <textarea class="raw-input" id="raw_${k}" placeholder="Paste Text Block"></textarea>
-                    <div class="field-grid">
-                        <input type="text" id="fn_${k}" placeholder="First Name">
-                        <input type="text" id="ln_${k}" placeholder="Last Name">
-                        <input type="text" id="em_${k}" placeholder="Email">
-                        <input type="text" id="ps_${k}" placeholder="Password">
-                        <input type="text" id="bd_${k}" placeholder="Birthdate">
-                        <input type="text" id="re_${k}" placeholder="Recovery">
+                    <div class="card-meta">
+                        <div class="user-title">
+                            <div>
+                                <b>${reqData.name}</b>
+                                <p style="font-size:11px; color:var(--accent); font-weight:700; margin-top:3px;">ID: ${reqData.phone}</p>
+                            </div>
+                        </div>
+                        <div class="timestamp-label">
+                            <i class="fas fa-clock"></i> Applied: ${detailedDate}
+                        </div>
                     </div>
-                    <div style="display:flex; gap:10px;">
-                        <button class="btn-ui btn-parse" onclick="doParse('${k}')">AUTO FILL</button>
-                        <button class="btn-ui btn-dispatch" id="ds_${k}" onclick="sendTask('${k}', '${d.phone}')">DISPATCH</button>
+
+                    <div class="parser-zone">
+                        <span class="parser-label">Gmail Detail Engine (Paste Block)</span>
+                        <textarea class="raw-textarea" id="raw_text_${reqKey}" placeholder="Paste the Gmail detail block here for auto-parsing..."></textarea>
+                    </div>
+
+                    <div class="grid-data">
+                        <div class="input-unit"><label>First Name</label><input type="text" id="fn_${reqKey}"></div>
+                        <div class="input-unit"><label>Last Name</label><input type="text" id="ln_${reqKey}"></div>
+                        <div class="input-unit"><label>Email Address</label><input type="text" id="em_${reqKey}"></div>
+                        <div class="input-unit"><label>Secure Password</label><input type="text" id="ps_${reqKey}"></div>
+                        <div class="input-unit"><label>Birthdate</label><input type="text" id="bd_${reqKey}"></div>
+                        <div class="input-unit"><label>Recovery Email</label><input type="text" id="re_${reqKey}"></div>
+                    </div>
+
+                    <div class="action-tray">
+                        <button class="btn-ui btn-cancel" id="btnCancel_${reqKey}" onclick="cancelUserRequest('${reqKey}')">
+                            <i class="fas fa-trash-can"></i>
+                        </button>
+                        <button class="btn-ui btn-autofill" onclick="autoParseBlock('${reqKey}')">
+                            <i class="fas fa-magic-wand-sparkles"></i> AUTO FILL
+                        </button>
+                        <button class="btn-ui btn-dispatch" id="btnSend_${reqKey}" onclick="dispatchTaskToUser('${reqKey}', '${reqData.phone}')">
+                            <i class="fas fa-paper-plane"></i> SEND TASK
+                        </button>
                     </div>
                 `;
-                feed.appendChild(card);
+                feedContainer.appendChild(card);
             });
         });
 
-        function doParse(id) {
-            const val = document.getElementById('raw_'+id).value;
-            const find = (tag) => { const r = new RegExp(`${tag}:\\s*(.*)`, 'i'); const m = val.match(r); return m ? m[1].trim() : ""; };
-            document.getElementById('fn_'+id).value = find("First name");
-            document.getElementById('ln_'+id).value = find("Last name");
-            document.getElementById('em_'+id).value = find("Email");
-            document.getElementById('ps_'+id).value = find("Password");
-            document.getElementById('bd_'+id).value = find("Birthdate");
-            document.getElementById('re_'+id).value = find("Recovery email");
+        /**
+         * 5. REGEX PARSING LOGIC
+         */
+        function autoParseBlock(id) {
+            const rawValue = document.getElementById('raw_text_'+id).value;
+            if(!rawValue) return alert("Please paste the data block first!");
+
+            const parse = (label) => {
+                const regex = new RegExp(`${label}:\\s*(.*)`, 'i');
+                const match = rawValue.match(regex);
+                return match ? match[1].trim() : "";
+            };
+
+            // Mapping found values to inputs
+            document.getElementById('fn_'+id).value = parse("First name");
+            document.getElementById('ln_'+id).value = parse("Last name");
+            document.getElementById('em_'+id).value = parse("Email");
+            document.getElementById('ps_'+id).value = parse("Password");
+            document.getElementById('bd_'+id).value = parse("Birthdate");
+            document.getElementById('re_'+id).value = parse("Recovery email");
+            
+            console.log("Parsing Engine: Logic executed for ID", id);
         }
 
-        async function sendTask(key, phone) {
-            const btn = document.getElementById('ds_'+key);
-            const expireAt = Date.now() + (13 * 60 * 1000);
-            const data = {
+        /**
+         * 6. CANCEL REQUEST LOGIC
+         */
+        async function cancelUserRequest(key) {
+            if(!confirm("Are you sure you want to REJECT this request?")) return;
+            
+            const btn = document.getElementById('btnCancel_' + key);
+            btn.disabled = true;
+
+            try {
+                await db.ref('task_requests/' + key).remove();
+                console.warn("Dispatch Hub: Request manually canceled for", key);
+            } catch (err) {
+                alert("Cancel Failed!");
+                btn.disabled = false;
+            }
+        }
+
+        /**
+         * 7. TASK DISPATCHER (Strict 13-Min Server-Sync)
+         */
+        async function dispatchTaskToUser(key, phone) {
+            const sendBtn = document.getElementById('btnSend_'+key);
+            
+            // SERVER DEADLINE CALCULATION
+            const startTime = Date.now();
+            const expireTimestamp = startTime + (13 * 60 * 1000); 
+
+            const taskData = {
                 firstName: document.getElementById('fn_'+key).value,
                 lastName: document.getElementById('ln_'+key).value,
                 email: document.getElementById('em_'+key).value,
                 password: document.getElementById('ps_'+key).value,
                 birthdate: document.getElementById('bd_'+key).value,
                 recoveryEmail: document.getElementById('re_'+key).value,
-                expireAt: expireAt
+                expireAt: expireTimestamp // Locked server deadline for user terminal
             };
-            if(!data.email || !data.password) return alert("Fill Email/Pass!");
-            btn.disabled = true;
+
+            // Basic Field Validation
+            if(!taskData.email || !taskData.password) {
+                return alert("Critical Fields (Email/Password) are empty!");
+            }
+
+            // SAFETY LOCK: 2 Seconds
+            sendBtn.disabled = true;
+
             try {
-                await db.ref('active_tasks/' + phone).set(data);
+                // 1. Move to User's Active Session
+                await db.ref('active_tasks/' + phone).set(taskData);
+                
+                // 2. Erase from Request Queue
                 await db.ref('task_requests/' + phone).remove();
-            } catch (e) { alert(e.message); btn.disabled = false; }
-            setTimeout(() => { if(btn) btn.disabled = false; }, 2000);
+                
+                console.info("Terminal: Task successfully synced with user terminal.");
+            } catch (error) {
+                alert("Internal Database Error: " + error.message);
+                sendBtn.disabled = false;
+            }
+
+            // Restore after 2 seconds
+            setTimeout(() => {
+                if(sendBtn) sendBtn.disabled = false;
+            }, 2000);
         }
+
+        console.log("Unlimited Dispatch Hub: Operational.");
+
     </script>
 </body>
-</html>
+    </html>
