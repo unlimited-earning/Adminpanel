@@ -2,556 +2,275 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TNMINING Admin Panel - Initializing</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>TNMINING - Administrative Terminal Boot</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
   <style>
-    /* ==========================================================================
-       1. Design System & CSS Variables
-       ========================================================================== */
     :root {
-      --bg-base: #06050c;
-      --bg-panel: rgba(13, 11, 24, 0.65);
-      --border-color: rgba(255, 255, 255, 0.07);
-      
-      --color-purple: #9d4edd;
-      --color-purple-glow: rgba(157, 78, 221, 0.4);
-      --color-cyan: #00f2fe;
-      --color-cyan-glow: rgba(0, 242, 254, 0.4);
-      
-      --text-primary: #f8f9fa;
-      --text-secondary: #a0aec0;
-      --text-muted: #64748b;
-      
-      --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --bg-primary: #020009;
+      --bg-secondary: #09041a;
+      --bg-card: rgba(13, 6, 30, 0.65);
+      --border-color: rgba(168, 85, 247, 0.18);
+      --primary: #a855f7;
+      --secondary: #06b6d4;
+      --primary-glow: rgba(168, 85, 247, 0.35);
+      --secondary-glow: rgba(6, 182, 212, 0.2);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --success: #10b981;
+      --radius-premium: 24px;
     }
 
-    /* ==========================================================================
-       2. Global Resets & Base Styles
-       ========================================================================== */
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      -webkit-tap-highlight-color: transparent;
     }
 
-    html, body {
-      width: 100%;
-      height: 100%;
-      background-color: var(--bg-base);
-      color: var(--text-primary);
-      font-family: var(--font-family);
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    /* ==========================================================================
-       3. Dynamic Background Elements
-       ========================================================================== */
-    /* Animated Radial Gradient Orbs */
-    .bg-orbs {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 1;
-      overflow: hidden;
-      pointer-events: none;
-    }
-
-    .orb {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(140px);
-      opacity: 0.25;
-      mix-blend-mode: screen;
-    }
-
-    .orb-purple {
-      width: 500px;
-      height: 500px;
-      background: radial-gradient(circle, var(--color-purple) 0%, rgba(0,0,0,0) 70%);
-      top: -10%;
-      left: -10%;
-      animation: floatOrb 18s ease-in-out infinite alternate;
-    }
-
-    .orb-cyan {
-      width: 600px;
-      height: 600px;
-      background: radial-gradient(circle, var(--color-cyan) 0%, rgba(0,0,0,0) 70%);
-      bottom: -15%;
-      right: -10%;
-      animation: floatOrb 22s ease-in-out infinite alternate-reverse;
-    }
-
-    @keyframes floatOrb {
-      0% {
-        transform: translate(0, 0) scale(1);
-      }
-      50% {
-        transform: translate(5%, 8%) scale(1.1);
-      }
-      100% {
-        transform: translate(-3%, -5%) scale(0.9);
-      }
-    }
-
-    /* Moving Tech Grid Overlay */
-    .bg-grid {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 2;
-      pointer-events: none;
+    body {
+      background-color: var(--bg-primary);
       background-image: 
-        linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
-      background-size: 50px 50px;
-      background-position: center center;
-      mask-image: radial-gradient(circle, rgba(0,0,0,0.85) 30%, rgba(0,0,0,0) 80%);
-      -webkit-mask-image: radial-gradient(circle, rgba(0,0,0,0.85) 30%, rgba(0,0,0,0) 80%);
-      animation: gridShift 45s linear infinite;
+        radial-gradient(circle at 50% 50%, var(--primary-glow) 0%, transparent 60%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+      overflow: hidden;
     }
 
-    @keyframes gridShift {
-      0% {
-        background-position: 0px 0px;
-      }
-      100% {
-        background-position: 50px 100px;
-      }
-    }
-
-    /* Particle Canvas overlay */
-    #particleCanvas {
-      position: absolute;
-      top: 0;
-      left: 0;
+    /* Outer Loader Shield */
+    .loader-container {
       width: 100%;
-      height: 100%;
-      z-index: 3;
+      max-width: 420px;
+      background: rgba(13, 6, 30, 0.85);
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--radius-premium);
+      padding: 40px 30px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 
+                  inset 0 0 15px rgba(168, 85, 247, 0.05);
+      text-align: center;
+      position: relative;
+    }
+
+    .loader-container::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: var(--radius-premium);
+      padding: 1.5px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary), transparent);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
       pointer-events: none;
     }
 
-    /* ==========================================================================
-       4. Premium Glassmorphism Interface Container
-       ========================================================================== */
-    .loader-wrapper {
+    /* Core Spinner Animation */
+    .core-node-spinner {
       position: relative;
-      z-index: 10;
-      width: 90%;
-      max-width: 460px;
-      padding: 40px;
-      border-radius: 24px;
-      background: var(--bg-panel);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid var(--border-color);
-      box-shadow: 
-        0 24px 60px rgba(0, 0, 0, 0.6),
-        inset 0 1px 1px rgba(255, 255, 255, 0.05);
-      text-align: center;
-      transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.8s ease;
-    }
-
-    /* Outward transition on load completion */
-    .loader-wrapper.fade-out {
-      opacity: 0;
-      transform: scale(0.94) translateY(-10px);
-    }
-
-    /* ==========================================================================
-       5. Dynamic Logo & Glowing Ring Animations
-       ========================================================================== */
-    .logo-container {
-      position: relative;
-      width: 130px;
-      height: 130px;
-      margin: 0 auto 32px auto;
+      width: 110px;
+      height: 110px;
+      margin: 0 auto 30px;
       display: flex;
       align-items: center;
       justify-content: center;
     }
 
-    /* Outer Orbit Ring */
-    .orbit-ring {
+    .ring-outer {
       position: absolute;
-      top: 0;
-      left: 0;
       width: 100%;
       height: 100%;
+      border: 2px dashed rgba(6, 182, 212, 0.3);
       border-radius: 50%;
-      border: 2px solid transparent;
-      border-top-color: var(--color-cyan);
-      border-bottom-color: var(--color-cyan);
-      box-shadow: 
-        0 0 15px var(--color-cyan-glow),
-        inset 0 0 15px var(--color-cyan-glow);
-      animation: spinClockwise 4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+      animation: rotate-clockwise 12s linear infinite;
     }
 
-    /* Inner Orbit Ring */
-    .orbit-ring-inner {
+    .ring-inner {
       position: absolute;
-      top: 10px;
-      left: 10px;
-      width: calc(100% - 20px);
-      height: calc(100% - 20px);
+      width: 80%;
+      height: 80%;
+      border: 2.5px solid transparent;
+      border-top-color: var(--primary);
+      border-bottom-color: var(--secondary);
       border-radius: 50%;
-      border: 1px solid transparent;
-      border-left-color: var(--color-purple);
-      border-right-color: var(--color-purple);
-      box-shadow: 
-        0 0 12px var(--color-purple-glow),
-        inset 0 0 12px var(--color-purple-glow);
-      animation: spinCounterClockwise 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+      animation: rotate-counter 2.5s cubic-bezier(0.53, 0.21, 0.29, 0.67) infinite;
     }
 
-    /* Core TNMINING Hexagon Logo SVG */
-    .logo-core {
-      z-index: 5;
-      width: 60px;
-      height: 60px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      filter: drop-shadow(0 0 10px rgba(0, 242, 254, 0.6));
-      animation: logoPulse 2.5s ease-in-out infinite;
+    .center-cube {
+      font-size: 26px;
+      color: #fff;
+      animation: heartbeat 1.8s infinite ease-in-out;
+      z-index: 2;
     }
 
-    @keyframes spinClockwise {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+    @keyframes rotate-clockwise {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
     }
 
-    @keyframes spinCounterClockwise {
-      0% { transform: rotate(360deg); }
-      100% { transform: rotate(0deg); }
+    @keyframes rotate-counter {
+      from { transform: rotate(360deg); }
+      to { transform: rotate(0deg); }
     }
 
-    @keyframes logoPulse {
-      0%, 100% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(0, 242, 254, 0.6)); }
-      50% { transform: scale(1.06); filter: drop-shadow(0 0 18px rgba(157, 78, 221, 0.8)); }
+    @keyframes heartbeat {
+      0%, 100% { transform: scale(1); opacity: 0.8; }
+      50% { transform: scale(1.1); opacity: 1; text-shadow: 0 0 15px var(--secondary-glow); }
     }
 
-    /* ==========================================================================
-       6. Typography & Brand Titles
-       ========================================================================== */
-    .brand-title {
-      font-size: 1.5rem;
-      font-weight: 700;
-      letter-spacing: 4px;
-      text-transform: uppercase;
-      background: linear-gradient(135deg, var(--text-primary) 30%, var(--text-secondary) 100%);
+    .brand-name {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      background: linear-gradient(to right, #ffffff, #a855f7, #06b6d4);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      margin-bottom: 4px;
+      margin-bottom: 6px;
     }
 
-    .brand-subtitle {
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: var(--color-cyan);
-      text-transform: uppercase;
-      letter-spacing: 3px;
-      margin-bottom: 35px;
-      text-shadow: 0 0 8px var(--color-cyan-glow);
-    }
-
-    /* ==========================================================================
-       7. Linear Progress Bar & Indicators
-       ========================================================================== */
-    .progress-section {
-      width: 100%;
-      margin-bottom: 24px;
-    }
-
-    .progress-meta {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-      font-size: 0.8rem;
-    }
-
-    .progress-label {
-      color: var(--text-secondary);
-      font-weight: 500;
+    .brand-status {
+      font-size: 11px;
+      color: var(--text-muted);
       letter-spacing: 0.5px;
+      margin-bottom: 25px;
     }
 
-    .progress-percentage {
-      font-family: monospace;
-      font-weight: 700;
-      color: var(--color-cyan);
-      text-shadow: 0 0 6px var(--color-cyan-glow);
+    /* Terminal Boot lines */
+    .terminal-output {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      color: var(--secondary);
+      text-align: left;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255,255,255,0.03);
+      padding: 12px 16px;
+      border-radius: 12px;
+      height: 72px;
+      overflow-y: hidden;
+      margin-bottom: 20px;
+      line-height: 1.5;
     }
 
-    /* Linear track and progress fill */
-    .progress-bar-track {
+    .terminal-line {
+      display: flex;
+      gap: 6px;
+      opacity: 0;
+      transform: translateY(5px);
+      animation: line-slide 0.3s forwards ease;
+    }
+
+    @keyframes line-slide {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .line-ok { color: var(--success); }
+
+    /* Loading Progress Bar Row */
+    .progress-bar-row {
       width: 100%;
       height: 6px;
-      background: rgba(255, 255, 255, 0.04);
+      background: rgba(255, 255, 255, 0.03);
       border-radius: 10px;
       overflow: hidden;
       position: relative;
-      border: 1px solid rgba(255, 255, 255, 0.02);
     }
 
-    .progress-bar-fill {
-      height: 100%;
+    .progress-fill {
       width: 0%;
-      background: linear-gradient(90deg, var(--color-purple), var(--color-cyan));
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
       border-radius: 10px;
-      box-shadow: 0 0 10px var(--color-cyan-glow);
-      transition: width 0.15s cubic-bezier(0.1, 0.8, 0.25, 1);
-    }
-
-    /* ==========================================================================
-       8. Loading Messages
-       ========================================================================== */
-    .message-container {
-      height: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .loading-message {
-      font-size: 0.82rem;
-      color: var(--text-muted);
-      letter-spacing: 0.8px;
-      opacity: 0;
-      transform: translateY(6px);
-      transition: opacity 0.3s ease, transform 0.3s ease;
-    }
-
-    .loading-message.active {
-      opacity: 1;
-      transform: translateY(0);
+      transition: width 0.1s linear;
     }
   </style>
 </head>
 <body>
 
-  <!-- Background Orbs -->
-  <div class="bg-orbs">
-    <div class="orb orb-purple"></div>
-    <div class="orb orb-cyan"></div>
-  </div>
-
-  <!-- Tech Grid Background -->
-  <div class="bg-grid"></div>
-
-  <!-- Interactive Background Canvas Particles -->
-  <canvas id="particleCanvas"></canvas>
-
-  <!-- Central Glassmorphism Card -->
-  <div class="loader-wrapper" id="loaderWrapper">
-    
-    <!-- Premium Neon Logo Concept -->
-    <div class="logo-container">
-      <div class="orbit-ring"></div>
-      <div class="orbit-ring-inner"></div>
-      <div class="logo-core">
-        <!-- Styled Tech/Mining Symmetrical Monogram -->
-        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <polygon points="50,5 90,28 90,72 50,95 10,72 10,28" stroke="url(#logoGrad)" stroke-width="6" fill="none" />
-          <path d="M30 40 H70 M50 25 V75 M35 55 L50 70 L65 55" stroke="#f8f9fa" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
-          <defs>
-            <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#9d4edd" />
-              <stop offset="100%" stop-color="#00f2fe" />
-            </linearGradient>
-          </defs>
-        </svg>
-      </div>
+  <!-- Dynamic Boot Shield Loader Container -->
+  <div class="loader-container">
+    <div class="core-node-spinner">
+      <div class="ring-outer"></div>
+      <div class="ring-inner"></div>
+      <i class="fa-solid fa-cube center-cube"></i>
     </div>
 
-    <!-- Branding Titles -->
-    <div class="brand-title">TNMINING</div>
-    <div class="brand-subtitle">Admin System</div>
+    <h1 class="brand-name">TNMINING</h1>
+    <p class="brand-status">System Console Bootloader</p>
 
-    <!-- Progress Representation -->
-    <div class="progress-section">
-      <div class="progress-meta">
-        <span class="progress-label">System Initialization</span>
-        <span class="progress-percentage" id="percentText">0%</span>
-      </div>
-      <div class="progress-bar-track">
-        <div class="progress-bar-fill" id="barFill"></div>
-      </div>
+    <!-- Simulated Commandline Boot Outputs -->
+    <div class="terminal-output" id="terminalBox">
+      <div class="terminal-line" id="line1"><span class="line-ok">[SYS]</span> Mounting database trees...</div>
     </div>
 
-    <!-- Adaptive Loading Message Queue -->
-    <div class="message-container">
-      <div class="loading-message active" id="loadingMsg">Initializing TNMINING...</div>
+    <div class="progress-bar-row">
+      <div class="progress-fill" id="progressFill"></div>
     </div>
-
   </div>
 
   <script>
-    /* ==========================================================================
-       1. Particle Background System (Vanilla Canvas Performance Optimized)
-       ========================================================================== */
-    const canvas = document.getElementById('particleCanvas');
-    const ctx = canvas.getContext('2d');
+    const terminalBox = document.getElementById('terminalBox');
+    const progressFill = document.getElementById('progressFill');
 
-    let particles = [];
-    const particleCount = 35;
-
-    function resizeCanvas() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
-
-    class Particle {
-      constructor() {
-        this.reset();
-        // Give randomized starting positions on init
-        this.y = Math.random() * canvas.height;
-      }
-
-      reset() {
-        this.x = Math.random() * canvas.width;
-        this.y = canvas.height + 10;
-        this.size = Math.random() * 1.5 + 0.5;
-        this.speedY = -(Math.random() * 0.7 + 0.3);
-        this.opacity = Math.random() * 0.5 + 0.2;
-        this.color = Math.random() > 0.5 ? '157, 78, 221' : '0, 242, 254'; // Purple or Cyan
-      }
-
-      update() {
-        this.y += this.speedY;
-        if (this.y < -10) {
-          this.reset();
-        }
-      }
-
-      draw() {
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(${this.color}, ${this.opacity})`;
-        ctx.shadowBlur = 8;
-        ctx.shadowColor = `rgb(${this.color})`;
-        ctx.fill();
-        ctx.shadowBlur = 0; // Reset blur for speed
-      }
-    }
-
-    // Initialize particles array
-    for (let i = 0; i < particleCount; i++) {
-      particles.push(new Particle());
-    }
-
-    // Animation Loop
-    function animateParticles() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      for (let i = 0; i < particles.length; i++) {
-        particles[i].update();
-        particles[i].draw();
-      }
-      requestAnimationFrame(animateParticles);
-    }
-    animateParticles();
-
-    /* ==========================================================================
-       2. Precise Progress Progression & Dynamic Message States
-       ========================================================================== */
-    const progressMessages = [
-      { maxPercent: 12, text: "Initializing TNMINING..." },
-      { maxPercent: 26, text: "Connecting to Secure Gateway..." },
-      { maxPercent: 42, text: "Checking Cryptographic Handshake..." },
-      { maxPercent: 58, text: "Loading Secure Admin Resources..." },
-      { maxPercent: 72, text: "Synchronizing Distributed Ledger..." },
-      { maxPercent: 86, text: "Preparing Diagnostic Dashboard..." },
-      { maxPercent: 95, text: "Finalizing Security Sandboxing..." },
-      { maxPercent: 100, text: "Ready. Accessing Admin Terminal..." }
+    // List of dynamic Web3 system initialization lines
+    const bootSequences = [
+      { prefix: "OK", text: "Synced decentralised core metrics..." },
+      { prefix: "OK", text: "Compiled hash multi-session nodes..." },
+      { prefix: "OK", text: "Connected Realtime Database API..." },
+      { prefix: "OK", text: "Bypassing Authentication protocols..." },
+      { prefix: "OK", text: "Access Authenticated. Deploying Dashboard..." }
     ];
 
-    const percentText = document.getElementById('percentText');
-    const barFill = document.getElementById('barFill');
-    const loadingMsg = document.getElementById('loadingMsg');
-    const loaderWrapper = document.getElementById('loaderWrapper');
+    let currentStep = 0;
+    let progressPercentage = 0;
 
-    let currentProgress = 0;
-    let messageIndex = 0;
-
-    // Changes message container UI dynamically with micro-animations
-    function updateMessage(newMessage) {
-      if (loadingMsg.innerText !== newMessage) {
-        loadingMsg.classList.remove('active');
-        setTimeout(() => {
-          loadingMsg.innerText = newMessage;
-          loadingMsg.classList.add('active');
-        }, 220); // Syncs with transition times
-      }
-    }
-
-    // Progression Engine mimicking actual asynchronous validation states
-    function simulateLoading() {
-      if (currentProgress < 100) {
-        // Naturally varying progression intervals to simulate reality
-        let increment = 1;
-        if (currentProgress < 20) {
-          increment = Math.floor(Math.random() * 3) + 2; 
-        } else if (currentProgress < 50) {
-          increment = Math.floor(Math.random() * 4) + 1;
-        } else if (currentProgress < 85) {
-          increment = Math.floor(Math.random() * 2) + 1;
-        } else {
-          increment = Math.floor(Math.random() * 3) + 1;
-        }
-
-        currentProgress = Math.min(currentProgress + increment, 100);
-
-        // Update UI Text & Visual bar width
-        percentText.innerText = `${currentProgress}%`;
-        barFill.style.width = `${currentProgress}%`;
-
-        // Check and evaluate current loading stage messages
-        const targetState = progressMessages.find(state => currentProgress <= state.maxPercent);
-        if (targetState) {
-          updateMessage(targetState.text);
-        }
-
-        // Variable execution rate (speed drops slightly at major check steps)
-        let nextInterval = Math.floor(Math.random() * 90) + 40;
-        if (currentProgress === 40 || currentProgress === 70 || currentProgress === 85) {
-          nextInterval = 450; // Pause briefly at core stages
-        }
-
-        setTimeout(simulateLoading, nextInterval);
-      } else {
-        // Complete state execution
-        setTimeout(executeExitTransition, 400);
-      }
-    }
-
-    /* ==========================================================================
-       3. Elegant Screen Exit and Target Redirect
-       ========================================================================== */
-    function executeExitTransition() {
-      // Trigger scaling outward, fading background elements beautifully
-      loaderWrapper.classList.add('fade-out');
-      
-      // Auto-redirect to destination once transition classes resolve
-      setTimeout(() => {
-        window.location.href = 'admin-dashboard.html';
-      }, 750);
-    }
-
-    // Run system initiation process
     window.addEventListener('DOMContentLoaded', () => {
-      setTimeout(simulateLoading, 400);
+      startDynamicTerminalBoot();
     });
+
+    function startDynamicTerminalBoot() {
+      // Step-by-step progress and terminal logging trigger
+      const timer = setInterval(() => {
+        progressPercentage += 4;
+        progressFill.style.width = `${progressPercentage}%`;
+
+        // At specific milestones, append dynamic console outputs
+        if (progressPercentage === 20 || progressPercentage === 40 || progressPercentage === 60 || progressPercentage === 80 || progressPercentage === 96) {
+          const stepData = bootSequences[currentStep];
+          if (stepData) {
+            const newLine = document.createElement('div');
+            newLine.classList.add('terminal-line');
+            newLine.innerHTML = `<span class="line-ok">[${stepData.prefix}]</span> ${stepData.text}`;
+            
+            terminalBox.appendChild(newLine);
+            currentStep++;
+            
+            // Auto scroll console wrapper downward
+            terminalBox.scrollTop = terminalBox.scrollHeight;
+          }
+        }
+
+        if (progressPercentage >= 100) {
+          clearInterval(timer);
+          
+          // Absolute zero-latency redirect directly into Dashboard!
+          setTimeout(() => {
+            window.location.href = 'admin-dashboard.html';
+          }, 300);
+        }
+      }, 90); // Renders boot in ~2.2 seconds total
+    }
   </script>
 </body>
 </html>
