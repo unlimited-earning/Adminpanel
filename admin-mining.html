@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>TNMINING - Mining Management Console</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    :root {
+      --bg-primary: #020009;
+      --bg-secondary: #070314;
+      --bg-card: rgba(13, 6, 30, 0.65);
+      --border-color: rgba(168, 85, 247, 0.18);
+      --primary: #a855f7;
+      --secondary: #06b6d4;
+      --gold: #fbbf24;
+      --gold-glow: rgba(251, 191, 36, 0.35);
+      --primary-glow: rgba(168, 85, 247, 0.3);
+      --secondary-glow: rgba(6, 182, 212, 0.2);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --success: #10b981;
+      --error: #ef4444;
+      --radius-premium: 24px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(168, 85, 247, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(6, 182, 212, 0.08) 0%, transparent 40%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+    }
+
+    /* Collapsible Navigation Sidebar (17 Items) */
+    aside.sidebar {
+      width: 270px;
+      background: rgba(8, 3, 20, 0.95);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 1000;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    aside.sidebar.collapsed {
+      transform: translateX(-270px);
+    }
+
+    .sidebar-header {
+      padding: 24px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+
+    .sidebar-logo {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: white;
+      box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+    }
+
+    .sidebar-title {
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    .sidebar-title span {
+      display: block;
+      font-size: 9px;
+      font-family: 'Share Tech Mono', monospace;
+      color: var(--secondary);
+    }
+
+    .sidebar-menu {
+      flex: 1;
+      padding: 16px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      overflow-y: auto;
+    }
+
+    .menu-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 14px;
+      border-radius: 12px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 12.5px;
+      font-weight: 600;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+
+    .menu-link i {
+      font-size: 14px;
+      width: 18px;
+      text-align: center;
+    }
+
+    .menu-link:hover, .menu-link.active {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.03);
+      border-color: var(--border-color);
+    }
+
+    .menu-link.active {
+      background: linear-gradient(135deg, rgba(168, 85, 247, 0.12) 0%, rgba(6, 182, 212, 0.12) 100%);
+      border-color: var(--primary);
+    }
+
+    /* Main Content Wrapper */
+    main.main-viewport {
+      margin-left: 270px;
+      flex: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    main.main-viewport.expanded {
+      margin-left: 0;
+    }
+
+    /* Top Navbar Bar */
+    .top-navbar {
+      height: 72px;
+      background: rgba(13, 6, 30, 0.5);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 24px;
+      position: sticky;
+      top: 0;
+      z-index: 999;
+    }
+
+    .navbar-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .menu-toggle-btn {
+      font-size: 18px;
+      color: var(--text-main);
+      cursor: pointer;
+      background: none;
+      border: none;
+    }
+
+    .nav-title { font-size: 16px; font-weight: 800; }
+
+    .navbar-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .live-clock-wrapper {
+      text-align: right;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px;
+      color: var(--secondary);
+    }
+
+    /* Content Area */
+    .dashboard-content {
+      padding: 24px;
+      flex: 1;
+    }
+
+    /* Analytics Dashboard Grid */
+    .stats-matrix-8 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .stat-metric-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .stat-metric-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      color: var(--secondary);
+    }
+
+    .stat-metric-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .stat-metric-label {
+      font-size: 9.5px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .stat-metric-val {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .stat-metric-val.purple { color: var(--primary); }
+    .stat-metric-val.cyan { color: var(--secondary); }
+    .stat-metric-val.gold { color: var(--gold); }
+
+    /* Action bar */
+    .action-toolbar-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.03);
+      border-radius: 20px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    @media (max-width: 600px) {
+      .action-toolbar-card { flex-direction: column; }
+    }
+
+    .search-input-wrapper {
+      flex: 1;
+      position: relative;
+    }
+
+    .search-input-wrapper i {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 13px 16px 13px 44px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      color: var(--text-main);
+      font-size: 13px;
+      outline: none;
+    }
+
+    .search-input:focus { border-color: var(--secondary); }
+
+    .select-filter {
+      background: rgba(13, 6, 30, 0.95);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 0 16px;
+      border-radius: 14px;
+      font-size: 13px;
+      font-weight: 600;
+      outline: none;
+      height: 44px;
+    }
+
+    /* Core Directory List Table Grid */
+    .table-container-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-premium);
+      padding: 20px;
+      overflow-x: auto;
+      margin-bottom: 20px;
+    }
+
+    .mining-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 12.5px;
+    }
+
+    .mining-table th {
+      color: var(--text-muted);
+      font-weight: 600;
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      text-transform: uppercase;
+      font-size: 9.5px;
+    }
+
+    .mining-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+      vertical-align: middle;
+    }
+
+    .mining-table tbody tr:hover { background: rgba(255,255,255,0.01); }
+
+    .avatar-cell {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 12px;
+    }
+
+    .status-badge {
+      font-size: 8.5px;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 20px;
+      text-transform: uppercase;
+    }
+
+    .status-badge.active { background: rgba(6, 182, 212, 0.08); color: var(--secondary); border: 1px solid rgba(6,182,212,0.2); }
+    .status-badge.completed { background: rgba(16, 185, 129, 0.08); color: var(--success); border: 1px solid rgba(16,185,129,0.2); }
+
+    /* Progress indicators */
+    .table-progress-track {
+      width: 100px;
+      height: 5px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+
+    .table-progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      border-radius: 10px;
+    }
+
+    .completed .table-progress-bar {
+      background: linear-gradient(90deg, var(--gold), #d97706);
+    }
+
+    /* Action buttons in columns */
+    .btn-panel-action {
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 800;
+      border: none;
+      cursor: pointer;
+      margin-right: 4px;
+      transition: all 0.2s;
+    }
+
+    .btn-panel-action.view { background: rgba(6, 182, 212, 0.12); color: var(--secondary); border: 1px solid rgba(6,182,212,0.2); }
+    .btn-panel-action.view:hover { background: var(--secondary); color: white; }
+
+    .btn-panel-action.complete { background: rgba(16, 185, 129, 0.12); color: var(--success); border: 1px solid rgba(16,185,129,0.2); }
+    .btn-panel-action.complete:hover { background: var(--success); color: white; }
+
+    .btn-panel-action.force-claim { background: rgba(251, 191, 36, 0.12); color: var(--gold); border: 1px solid rgba(251,191,36,0.2); }
+    .btn-panel-action.force-claim:hover { background: var(--gold); color: black; }
+
+    .btn-panel-action.delete { background: rgba(239, 68, 68, 0.12); color: var(--error); border: 1px solid rgba(239,68,68,0.2); }
+    .btn-panel-action.delete:hover { background: var(--error); color: white; }
+
+    /* Hashing configuration settings box (Rule 14 settings) */
+    .mining-configs-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-premium);
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+
+    .config-title {
+      font-size: 13.5px;
+      font-weight: 800;
+      margin-bottom: 15px;
+    }
+
+    .config-inputs-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    /* Modals elements */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 2, 12, 0.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease;
+    }
+
+    .modal-overlay.active { opacity: 1; pointer-events: all; }
+
+    .modal-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-premium);
+      width: 100%;
+      max-width: 480px;
+      padding: 24px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+    }
+
+    .modal-title {
+      font-size: 15px;
+      font-weight: 800;
+      margin-bottom: 18px;
+      text-align: center;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .detail-item-card {
+      background: rgba(255,255,255,0.01);
+      border: 1px solid rgba(255,255,255,0.03);
+      padding: 10px;
+      border-radius: 12px;
+    }
+
+    .detail-item-label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; }
+    .detail-item-val { font-family: 'Share Tech Mono', monospace; font-size: 13px; font-weight: 700; color: #fff; margin-top: 3px; }
+
+    .modal-buttons-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .btn-modal {
+      flex: 1;
+      padding: 12.5px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-cancel { background: rgba(255,255,255,0.04); color: var(--text-main); border: 1px solid var(--border-color); }
+
+    /* Skeletons */
+    .skeleton-box { height: 74px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; position: relative; overflow: hidden; margin-bottom: 10px; }
+    .skeleton-box::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.02), transparent); transform: translateX(-100%); animation: shim 1.5s infinite; }
+    @keyframes shim { 100% { transform: translateX(100%); } }
+
+    .empty-state-card {
+      background: var(--bg-card);
+      border: 1.5px dashed var(--border-color);
+      border-radius: var(--radius-premium);
+      padding: 50px 24px;
+      text-align: center;
+      grid-column: span 3;
+    }
+
+    .empty-state-card i {
+      font-size: 38px;
+      color: rgba(168, 85, 247, 0.3);
+      margin-bottom: 14px;
+    }
+
+    .empty-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 6px;
+    }
+
+    .empty-subtitle {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Footer */
+    footer.terminal-footer {
+      background: rgba(13, 6, 30, 0.3);
+      border-top: 1px solid rgba(255,255,255,0.03);
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar menu lists (17 items) -->
+  <aside class="sidebar" id="terminalSidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo"><i class="fa-solid fa-circle-nodes"></i></div>
+      <div class="sidebar-title">
+        TNMINING <span>Administrative Console</span>
+      </div>
+    </div>
+    <div class="sidebar-menu">
+      <a href="admin-dashboard.html" class="menu-link"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+      <a href="admin-users.html" class="menu-link"><i class="fa-solid fa-users"></i> Users</a>
+      <a href="admin-mining.html" class="menu-link active"><i class="fa-solid fa-cube"></i> Mining</a>
+      <a href="admin-withdraw.html" class="menu-link"><i class="fa-solid fa-money-check-dollar"></i> Withdraw</a>
+      <a href="admin-buy-power.html" class="menu-link"><i class="fa-solid fa-bolt"></i> Buy Power</a>
+      <a href="admin-task.html" class="menu-link"><i class="fa-solid fa-list-check"></i> Tasks</a>
+      <a href="admin-referral.html" class="menu-link"><i class="fa-solid fa-people-roof"></i> Referral</a>
+      <a href="admin-announcement.html" class="menu-link"><i class="fa-solid fa-bullhorn"></i> Announcements</a>
+      <a href="admin-statistics.html" class="menu-link"><i class="fa-solid fa-database"></i> Statistics</a>
+      <a href="admin-package-orders.html" class="menu-link"><i class="fa-solid fa-cart-shopping"></i> Package Orders</a>
+      <a href="admin-wallet.html" class="menu-link"><i class="fa-solid fa-wallet"></i> Wallet</a>
+      <a href="admin-notification.html" class="menu-link"><i class="fa-solid fa-bell"></i> Notifications</a>
+      <a href="admin-report.html" class="menu-link"><i class="fa-solid fa-flag"></i> Reports</a>
+      <a href="admin-logs.html" class="menu-link"><i class="fa-solid fa-clock-rotate-left"></i> Logs</a>
+      <a href="admin-settings.html" class="menu-link"><i class="fa-solid fa-sliders"></i> Settings</a>
+      <a href="admin-security.html" class="menu-link"><i class="fa-solid fa-user-shield"></i> Security</a>
+      <a href="admin-profile.html" class="menu-link"><i class="fa-solid fa-user-gear"></i> Profile</a>
+    </div>
+  </aside>
+
+  <!-- Main Administrative Viewport -->
+  <main class="main-viewport" id="mainViewport">
+    
+    <!-- Top Nav -->
+    <nav class="top-navbar">
+      <div class="navbar-left">
+        <button class="menu-toggle-btn" id="sidebarToggle"><i class="fa-solid fa-bars-staggered"></i></button>
+        <span class="nav-title">Multi-Session Streams Control Terminal</span>
+      </div>
+      <div class="navbar-right">
+        <div class="live-clock-wrapper">
+          <div id="navLiveDate">--- --, ----</div>
+          <div id="navLiveTime" style="font-weight:700;">--:--:-- UTC</div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Content Workspace -->
+    <div class="dashboard-content">
+      
+      <!-- Metrics deck (8 dynamic cards) -->
+      <section class="stats-matrix-8">
+        
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-microchip"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Active Streams</span>
+            <span class="stat-metric-val purple" id="cardActiveSessions">0</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-circle-check"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Completed sessions</span>
+            <span class="stat-metric-val cyan" id="cardCompletedCount">0</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-bolt-lightning"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Active Hashing HP</span>
+            <span class="stat-metric-val gold" id="cardActivePower">0 HP</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-coins"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Total Gained claims</span>
+            <span class="stat-metric-val" id="cardClaimsCount">0</span>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Advanced global Hashing Configuration panel (Rule 14 Parameters settings) -->
+      <section class="mining-configs-card">
+        <h3 class="config-title"><i class="fa-solid fa-sliders" style="color:var(--secondary); margin-right:8px;"></i> Hashing System Settings</h3>
+        <div class="config-inputs-row">
+          <div class="form-group">
+            <label class="form-label">Session Duration (Hrs)</label>
+            <input type="number" class="form-input" id="cfgDuration" value="5" readonly>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Reward Rate per 1K HP ($)</label>
+            <input type="number" step="any" class="form-input" id="cfgRate" value="0.00025" readonly>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Min. Hashing block ($)</label>
+            <input type="number" class="form-input" id="cfgMinPower" value="1000" readonly>
+          </div>
+          <div class="form-group" style="display:flex; align-items:flex-end;">
+            <button class="btn-trigger-modal" style="width:100%; height:44px; background:rgba(6,182,212,0.06); border:1.5px solid var(--secondary); color:var(--secondary);" onclick="showToast('Hashing equations locked. Modifying requires structural changes.', 'warning')">Save Engine Config</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Advanced Filter action bar -->
+      <section class="action-toolbar-card">
+        <div class="search-input-wrapper">
+          <input type="text" class="search-input" id="searchField" placeholder="Search by Username, User UID, Session ID...">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </div>
+
+        <select class="select-filter" id="filterStatusSelect">
+          <option value="all">All streaming sessions</option>
+          <option value="active">Active/Running</option>
+          <option value="completed">Completed/Ready</option>
+        </select>
+      </section>
+
+      <!-- Shimmer skeletons wrapper -->
+      <div id="skeletonsContainer">
+        <div class="skeleton-box"></div>
+        <div class="skeleton-box"></div>
+      </div>
+
+      <!-- Main Mining Streams Table ledger card -->
+      <div class="table-container-card" id="miningTableCard" style="display:none;">
+        <table class="mining-table">
+          <thead>
+            <tr>
+              <th>Stream ID</th>
+              <th>Username</th>
+              <th>Deducted Core block</th>
+              <th>Real-time countdown</th>
+              <th>Accumulated Yield</th>
+              <th>Verified Status</th>
+              <th>Actions panel</th>
+            </tr>
+          </thead>
+          <tbody id="miningTableBody">
+            <!-- Compiled dynamically inside loop -->
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+    <!-- Panel Footer -->
+    <footer class="terminal-footer">
+      <span>TNMINING SYSTEM CONTROL CORE - HASHING STREAMS</span>
+      <span style="font-family:'Share Tech Mono', monospace; color:var(--secondary);">Realtime Monitoring: Sync</span>
+    </footer>
+
+  </main>
+
+  <!-- ==================== PREMIUM DETAILS VIEW MODAL DRAWER ==================== -->
+
+  <!-- Modal: Session Deep View -->
+  <div class="modal-overlay" id="viewSessionModal">
+    <div class="modal-card">
+      <h3 class="modal-title"><i class="fa-solid fa-microchip" style="color:var(--secondary);"></i> Stream Core Node Parameters</h3>
+      
+      <div class="detail-grid">
+        <div class="detail-item-card" style="grid-column: span 2;">
+          <span class="detail-item-label">Dynamic Session ID Reference</span>
+          <div class="detail-item-val" id="viewSessionId" style="font-size:11px; color:var(--secondary);">-----------</div>
+        </div>
+        <div class="detail-item-card">
+          <span class="detail-item-label">Alphanumeric Username</span>
+          <div class="detail-item-val" id="viewUsername">@username</div>
+        </div>
+        <div class="detail-item-card">
+          <span class="detail-item-label">Verified UID</span>
+          <div class="detail-item-val" id="viewUid" style="font-size:11px;">uid</div>
+        </div>
+        <div class="detail-item-card">
+          <span class="detail-item-label">Core Block Power</span>
+          <div class="detail-item-val" id="viewPower" style="color:var(--primary);">0 HP</div>
+        </div>
+        <div class="detail-item-card">
+          <span class="detail-item-label">Target session yield</span>
+          <div class="detail-item-val" id="viewEstimatedReward" style="color:var(--gold);">$0.00000000</div>
+        </div>
+        <div class="detail-item-card">
+          <span class="detail-item-label">Core Stream start time</span>
+          <div class="detail-item-val" id="viewStartTime" style="font-size:11px;">--/--/---- --:--</div>
+        </div>
+        <div class="detail-item-card">
+          <span class="detail-item-label">Expected expiration limit</span>
+          <div class="detail-item-val" id="viewEndTime" style="font-size:11px;">--/--/---- --:--</div>
+        </div>
+      </div>
+
+      <div class="modal-buttons-row">
+        <button class="btn-modal btn-cancel" onclick="closeModal('viewSessionModal')" style="flex:auto;">Close telemetry board</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Firebase Legacy Compat SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+  <script>
+    // Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDuQICVoC10i62PQMS6cX37t1eoeTg5zsc",
+      authDomain: "mining-c7b26.firebaseapp.com",
+      databaseURL: "https://mining-c7b26-default-rtdb.firebaseio.com",
+      projectId: "mining-c7b26",
+      storageBucket: "mining-c7b26.firebasestorage.app",
+      messagingSenderId: "873757658723",
+      appId: "1:873757658723:web:18a4af95953a08b440b256"
+    };
+
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.database();
+
+    // DOM selectors
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const terminalSidebar = document.getElementById('terminalSidebar');
+    const mainViewport = document.getElementById('mainViewport');
+    const navLiveDate = document.getElementById('navLiveDate');
+    const navLiveTime = document.getElementById('navLiveTime');
+
+    // Stats Card Displays
+    const cardActiveSessions = document.getElementById('cardActiveSessions');
+    const cardCompletedCount = document.getElementById('cardCompletedCount');
+    const cardActivePower = document.getElementById('cardActivePower');
+    const cardClaimsCount = document.getElementById('cardClaimsCount');
+
+    const searchField = document.getElementById('searchField');
+    const filterStatusSelect = document.getElementById('filterStatusSelect');
+
+    const skeletonsContainer = document.getElementById('skeletonsContainer');
+    const miningTableCard = document.getElementById('miningTableCard');
+    const miningTableBody = document.getElementById('miningTableBody');
+
+    // Modal elements
+    const viewSessionModal = document.getElementById('viewSessionModal');
+    const viewSessionId = document.getElementById('viewSessionId');
+    const viewUsername = document.getElementById('viewUsername');
+    const viewUid = document.getElementById('viewUid');
+    const viewPower = document.getElementById('viewPower');
+    const viewEstimatedReward = document.getElementById('viewEstimatedReward');
+    const viewStartTime = document.getElementById('viewStartTime');
+    const viewEndTime = document.getElementById('viewEndTime');
+    const toastContainer = document.getElementById('toastContainer');
+
+    let globalActiveStreamsList = [];
+    let localGlobalUsersList = {};
+    let streamsTickerInterval = null;
+
+    const CYCLE_DURATION_MS = 5 * 60 * 60 * 1000; // 5 Hours (18,000,000 ms)
+    const CYCLE_SECS = 5 * 60 * 60; // 18,000 Seconds
+
+    window.addEventListener('DOMContentLoaded', () => {
+      // Toggle collapsible navigation sidebar drawer
+      sidebarToggle.addEventListener('click', () => {
+        terminalSidebar.classList.toggle('collapsed');
+        terminalSidebar.classList.toggle('mobile-open');
+        mainViewport.classList.toggle('expanded');
+      });
+
+      startTerminalTimerClock();
+      initializeMiningStreamsListener();
+    });
+
+    function showToast(message, type = 'success') {
+      const toast = document.createElement('div');
+      toast.classList.add('toast', type);
+      const icon = type === 'success' ? 'fa-circle-check' : 'fa-triangle-exclamation';
+      toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${message}</span>`;
+      toastContainer.appendChild(toast);
+      setTimeout(() => toast.classList.add('show'), 50);
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    function startTerminalTimerClock() {
+      setInterval(() => {
+        const utcDate = new Date();
+        navLiveDate.textContent = utcDate.toLocaleDateString('en-US', {
+          year: 'numeric', month: 'long', day: 'numeric'
+        });
+        navLiveTime.textContent = utcDate.toUTCString().replace("GMT", "UTC");
+      }, 1000);
+    }
+
+    // Connect Mining listener sweeping user active sessions nested arrays (Rule 10 & 15)
+    function initializeMiningStreamsListener() {
+      db.ref('Users').on('value', (snapshot) => {
+        skeletonsContainer.style.display = 'none';
+        miningTableCard.style.display = 'block';
+
+        if (!snapshot.exists()) {
+          miningTableBody.innerHTML = `<tr><td colspan="7" class="empty-state">No mining sessions active on platform.</td></tr>`;
+          return;
+        }
+
+        localGlobalUsersList = snapshot.val();
+        
+        collateGlobalStreamsList();
+        calculateMiningStreamsStats();
+        processSortingAndFiltering();
+      });
+    }
+
+    // Collate all nested activeSessions maps from database users lists
+    function collateGlobalStreamsList() {
+      globalActiveStreamsList = [];
+      
+      Object.keys(localGlobalUsersList).forEach((uid) => {
+        const user = localGlobalUsersList[uid];
+        
+        if (user.activeSessions) {
+          Object.keys(user.activeSessions).forEach((sessionId) => {
+            const session = user.activeSessions[sessionId];
+            
+            globalActiveStreamsList.push({
+              ...session,
+              uid: uid,
+              username: user.username || "Miner",
+              userPowerTotal: user.power || 1000
+            });
+          });
+        }
+      });
+    }
+
+    // Calculate aggregated stats (Rule 3)
+    function calculateMiningStreamsStats() {
+      let activeSessionsCount = 0;
+      let completedSessionsCount = 0;
+      let netActivePowerHP = 0;
+      let totalClaimsCount = 0;
+
+      const now = Date.now();
+
+      globalActiveStreamsList.forEach((session) => {
+        netActivePowerHP += parseInt(session.powerAllocated || 0);
+        
+        const elapsed = now - parseInt(session.startTime);
+        if (elapsed >= CYCLE_DURATION_MS) {
+          completedSessionsCount++;
+        } else {
+          activeSessionsCount++;
+        }
+      });
+
+      // Scan complete users profile logs to compile claims totals count
+      Object.values(localGlobalUsersList).forEach((u) => {
+        totalClaimsCount += parseInt(u.completedMiningCycles || 0);
+      });
+
+      cardActiveSessions.textContent = activeSessionsCount;
+      cardCompletedCount.textContent = completedSessionsCount;
+      cardActivePower.textContent = `${Number(netActivePowerHP).toLocaleString()} HP`;
+      cardClaimsCount.textContent = totalClaimsCount;
+    }
+
+    // Process searches and filters on active streams arrays
+    function processSortingAndFiltering() {
+      const query = searchField.value.trim().toLowerCase();
+      const statusFilter = filterStatusSelect.value;
+
+      let list = [...globalActiveStreamsList];
+      const now = Date.now();
+
+      // 1. Apply Search query filter
+      if (query) {
+        list = list.filter(s => 
+          (s.id && s.id.toLowerCase().includes(query)) ||
+          (s.username && s.username.toLowerCase().includes(query)) ||
+          (s.uid && s.uid.toLowerCase().includes(query))
+        );
+      }
+
+      // 2. Apply Status Selectors filter
+      if (statusFilter !== 'all') {
+        if (statusFilter === 'active') {
+          list = list.filter(s => (now - parseInt(s.startTime)) < CYCLE_DURATION_MS);
+        } else if (statusFilter === 'completed') {
+          list = list.filter(s => (now - parseInt(s.startTime)) >= CYCLE_DURATION_MS);
+        }
+      }
+
+      renderStreamsTableGrid(list);
+    }
+
+    // Render Table
+    function renderStreamsTableGrid(list) {
+      if (streamsTickerInterval) clearInterval(streamsTickerInterval);
+      miningTableBody.innerHTML = "";
+
+      if (list.length === 0) {
+        miningTableBody.innerHTML = `<tr><td colspan="7" class="empty-state">No matching mining sessions found.</td></tr>`;
+        return;
+      }
+
+      list.forEach((item) => {
+        const tr = document.createElement('tr');
+        tr.id = `row_${item.id}`;
+
+        const shortId = item.id.substring(1, 8).toUpperCase();
+        const initials = (item.username || "U").charAt(0).toUpperCase();
+
+        tr.innerHTML = `
+          <td><strong style="font-family:'Share Tech Mono', monospace; color:var(--secondary);">${shortId}</strong></td>
+          <td>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <div class="avatar-cell">${initials}</div>
+              <strong>@${item.username}</strong>
+            </div>
+          </td>
+          <td style="font-family:'Share Tech Mono', monospace; color:var(--primary); font-weight:700;">${Number(item.powerAllocated).toLocaleString()} HP</td>
+          <td style="font-family:'Share Tech Mono', monospace;" id="timer_${item.id}">--:--:--</td>
+          <td style="font-family:'Share Tech Mono', monospace; font-weight:700;" id="ticker_${item.id}">$0.00000000</td>
+          <td><span class="status-badge" id="badge_${item.id}">Pending</span></td>
+          <td>
+            <button class="btn-panel-action view" onclick="openSessionDeepView('${item.id}')">View</button>
+            <button class="btn-panel-action complete" onclick="completeSessionTimer('${item.uid}', '${item.id}')">Complete</button>
+            <button class="btn-panel-action force-claim" onclick="forceSessionClaim('${item.uid}', '${item.id}')">Force Claim</button>
+            <button class="btn-panel-action delete" onclick="cancelSessionNode('${item.uid}', '${item.id}')"><i class="fa-solid fa-trash-can"></i></button>
+          </td>
+        `;
+        miningTableBody.appendChild(tr);
+      });
+
+      // Launch real-time ticking loops inside table rows (Rule 13 visual clocks)
+      const tickTableStreams = () => {
+        const now = Date.now();
+
+        list.forEach((item) => {
+          const timerEl = document.getElementById(`timer_${item.id}`);
+          const tickerEl = document.getElementById(`ticker_${item.id}`);
+          const badgeEl = document.getElementById(`badge_${item.id}`);
+
+          if (!timerEl || !tickerEl || !badgeEl) return;
+
+          let elapsedSecs = Math.max(0, Math.floor((now - parseInt(item.startTime)) / 1000));
+          const allocatedPower = parseFloat(item.powerAllocated || 1000);
+          
+          // Formula: 1,000 POWER = $0.00025 per completed session
+          const maxCycleReward = allocatedPower * 0.00000025; 
+
+          if (elapsedSecs >= CYCLE_SECS) {
+            timerEl.textContent = "Finished";
+            timerEl.style.color = "var(--success)";
+            
+            tickerEl.textContent = `$${maxCycleReward.toFixed(8)}`;
+            tickerEl.style.color = "var(--gold)";
+
+            badgeEl.className = "status-badge completed";
+            badgeEl.textContent = "Completed";
+          } else {
+            // Live ticks computations
+            const progressPct = (elapsedSecs / CYCLE_SECS) * 100;
+            const dynamicYield = elapsedSecs * (maxCycleReward / CYCLE_SECS);
+
+            tickerEl.textContent = `$${dynamicYield.toFixed(8)}`;
+            
+            const remaining = CYCLE_SECS - elapsedSecs;
+            const hours = Math.floor(remaining / 3600).toString().padStart(2, '0');
+            const mins = Math.floor((remaining % 3600) / 60).toString().padStart(2, '0');
+            const secs = (remaining % 60).toString().padStart(2, '0');
+
+            timerEl.textContent = `${hours}:${mins}:${secs}`;
+            badgeEl.className = "status-badge active";
+            badgeEl.textContent = "Mining";
+          }
+        });
+      };
+
+      tickTableStreams();
+      streamsTickerInterval = setInterval(tickTableStreams, 1000);
+    }
+
+    // Modal viewer Deep analytics details
+    window.openSessionDeepView = function(sessionId) {
+      const match = globalActiveStreamsList.find(s => s.id === sessionId);
+      if (!match) return;
+
+      viewSessionId.textContent = match.id;
+      viewUsername.textContent = `@${match.username}`;
+      viewUid.textContent = match.uid;
+      
+      viewPower.textContent = `${Number(match.powerAllocated).toLocaleString()} HP`;
+      
+      const maxReward = parseFloat(match.powerAllocated || 1000) * 0.00000025;
+      viewEstimatedReward.textContent = `$${maxReward.toFixed(8)}`;
+
+      viewStartTime.textContent = new Date(match.startTime).toLocaleString();
+      viewEndTime.textContent = new Date(parseInt(match.startTime) + CYCLE_DURATION_MS).toLocaleString();
+
+      document.getElementById('viewSessionModal').classList.add('active');
+    };
+
+    window.closeModal = function(modalId) {
+      document.getElementById(modalId).classList.remove('active');
+    };
+
+    // Skip remaining countdown timer (Rule 11 Complete Session)
+    window.completeSessionTimer = function(uid, sessionId) {
+      if (confirm("Skip remaining session timer? This skips remaining hours so user can immediately claim their rewards.")) {
+        // Set the start time artificially to 5.5 hours ago so countdown ends
+        const completeStartTime = Date.now() - (CYCLE_DURATION_MS + 60000);
+        
+        db.ref(`Users/${uid}/activeSessions/${sessionId}`).update({
+          startTime: completeStartTime
+        }).then(() => showToast("Stream timeline updated! Status marked as Completed.", "success"));
+      }
+    };
+
+    // Perform manual transactional claim in user's dashboard (Rule 11 Force Claim)
+    window.forceSessionClaim = function(uid, sessionId) {
+      const session = globalActiveStreamsList.find(s => s.id === sessionId);
+      if (!session) return;
+
+      if (confirm(`Execute administrative override payouts: Force claim earnings for stream #${sessionId.substring(1,7)}?`)) {
+        
+        const now = Date.now();
+        const elapsedSecs = Math.floor((now - parseInt(session.startTime)) / 1000);
+        const allocatedPower = parseFloat(session.powerAllocated || 1000);
+        const maxCycleReward = allocatedPower * 0.00000025;
+
+        // Compute reward proportional to elapsed (capped at maximum session duration limit)
+        let finalRewardVal = elapsedSecs * (maxCycleReward / CYCLE_SECS);
+        if (elapsedSecs >= CYCLE_SECS) finalRewardVal = maxCycleReward;
+
+        const userRef = db.ref(`Users/${uid}`);
+        userRef.transaction((curr) => {
+          if (curr) {
+            curr.balance = parseFloat(curr.balance || 0) + finalRewardVal;
+            curr.totalEarnings = parseFloat(curr.totalEarnings || 0) + finalRewardVal;
+            curr.completedMiningCycles = (curr.completedMiningCycles || 0) + 1;
+          }
+          return curr;
+        }, async (error, committed) => {
+          if (committed) {
+            // Success! Flush session record from database
+            await db.ref(`Users/${uid}/activeSessions/${sessionId}`).remove();
+            showToast(`Force claim successful! +$${finalRewardVal.toFixed(6)} credited to user's wallet.`, "success");
+          } else {
+            showToast("Failed to complete write transaction.", "error");
+          }
+        });
+      }
+    };
+
+    // Cancel Session without crediting (Rule 11 Delete option)
+    window.cancelSessionNode = function(uid, sessionId) {
+      if (confirm("Delete this mining stream completely? POWER will be unlocked, but no accumulated earnings will be saved. Continue?")) {
+        db.ref(`Users/${uid}/activeSessions/${sessionId}`).remove()
+          .then(() => showToast("Mining session permanently canceled and deleted.", "success"));
+      }
+    };
+
+    // Trigger Search
+    searchField.addEventListener('input', () => {
+      processSortingAndFiltering();
+    });
+
+    filterStatusSelect.addEventListener('change', () => {
+      processSortingAndFiltering();
+    });
+  </script>
+</body>
+</html>
