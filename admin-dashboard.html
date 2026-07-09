@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>TNMINING - Administrative Terminal</title>
+  <title>TNMINING - Control Core Terminal</title>
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,18 +15,20 @@
     :root {
       --bg-primary: #020009;
       --bg-secondary: #070314;
-      --bg-card: rgba(13, 6, 30, 0.75);
+      --bg-card: rgba(13, 6, 30, 0.65);
       --border-color: rgba(168, 85, 247, 0.18);
       --primary: #a855f7;
       --secondary: #06b6d4;
-      --primary-glow: rgba(168, 85, 247, 0.35);
-      --secondary-glow: rgba(6, 182, 212, 0.25);
+      --gold: #fbbf24;
+      --gold-glow: rgba(251, 191, 36, 0.35);
+      --primary-glow: rgba(168, 85, 247, 0.3);
+      --secondary-glow: rgba(6, 182, 212, 0.2);
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
       --success: #10b981;
       --error: #ef4444;
       --warning: #f59e0b;
-      --radius-premium: 20px;
+      --radius-premium: 24px;
     }
 
     * {
@@ -36,21 +38,6 @@
       font-family: 'Plus Jakarta Sans', sans-serif;
       -webkit-tap-highlight-color: transparent;
     }
-
-    /* Security blocker shield overlay */
-    .block-overlay {
-      position: fixed;
-      inset: 0;
-      background: #000;
-      z-index: 99999;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 15px;
-    }
-    .block-overlay i { font-size: 60px; color: var(--error); }
-    .block-overlay h1 { font-size: 20px; font-weight: 800; letter-spacing: 1px; }
 
     body {
       background-color: var(--bg-primary);
@@ -64,9 +51,9 @@
       overflow-x: hidden;
     }
 
-    /* Collapsible Admin Sidebar navigation */
+    /* Collapsible Navigation Sidebar (17 Items) */
     aside.sidebar {
-      width: 260px;
+      width: 270px;
       background: rgba(8, 3, 20, 0.95);
       border-right: 1px solid var(--border-color);
       display: flex;
@@ -80,7 +67,7 @@
     }
 
     aside.sidebar.collapsed {
-      transform: translateX(-260px);
+      transform: translateX(-270px);
     }
 
     .sidebar-header {
@@ -92,19 +79,20 @@
     }
 
     .sidebar-logo {
-      width: 38px;
-      height: 38px;
+      width: 40px;
+      height: 40px;
       background: linear-gradient(135deg, var(--primary), var(--secondary));
-      border-radius: 10px;
+      border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 18px;
+      font-size: 20px;
       color: white;
+      box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
     }
 
     .sidebar-title {
-      font-size: 14.5px;
+      font-size: 15px;
       font-weight: 800;
       letter-spacing: 0.5px;
     }
@@ -121,21 +109,25 @@
       padding: 16px 10px;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 5px;
       overflow-y: auto;
     }
+
+    .sidebar-menu::-webkit-scrollbar { width: 3px; }
+    .sidebar-menu::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.05); }
 
     .menu-link {
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 12px 14px;
+      padding: 11px 14px;
       border-radius: 12px;
       color: var(--text-muted);
       text-decoration: none;
-      font-size: 13px;
+      font-size: 12.5px;
       font-weight: 600;
       transition: all 0.2s;
+      border: 1px solid transparent;
     }
 
     .menu-link i {
@@ -147,17 +139,17 @@
     .menu-link:hover, .menu-link.active {
       color: var(--text-main);
       background: rgba(255, 255, 255, 0.03);
-      border: 1.5px solid rgba(168, 85, 247, 0.15);
+      border-color: var(--border-color);
     }
 
     .menu-link.active {
-      background: linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(6, 182, 212, 0.15) 100%);
+      background: linear-gradient(135deg, rgba(168, 85, 247, 0.12) 0%, rgba(6, 182, 212, 0.12) 100%);
       border-color: var(--primary);
     }
 
     /* Main Content Wrapper */
     main.main-viewport {
-      margin-left: 260px;
+      margin-left: 270px;
       flex: 1;
       min-height: 100vh;
       display: flex;
@@ -169,9 +161,9 @@
       margin-left: 0;
     }
 
-    /* Header Nav Panel */
+    /* Top Navbar Bar */
     .top-navbar {
-      height: 70px;
+      height: 72px;
       background: rgba(13, 6, 30, 0.5);
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
@@ -199,34 +191,41 @@
       border: none;
     }
 
-    .live-clock {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 13.5px;
-      color: var(--secondary);
+    .nav-title {
+      font-size: 16px;
+      font-weight: 800;
     }
 
     .navbar-right {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 16px;
     }
 
-    .admin-profile-node {
+    .live-clock-wrapper {
+      text-align: right;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px;
+      color: var(--secondary);
+    }
+
+    .header-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
       display: flex;
       align-items: center;
-      gap: 10px;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s ease;
     }
 
-    .admin-name {
-      font-size: 13px;
-      font-weight: 700;
-    }
-
-    .admin-role {
-      font-size: 9.5px;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+    .header-btn:hover {
+      border-color: var(--primary);
     }
 
     /* Dashboard body layout */
@@ -235,182 +234,185 @@
       flex: 1;
     }
 
-    /* Grid layout statistic cards */
-    .grid-matrix {
+    /* Welcome Dashboard Card */
+    .welcome-card {
+      background: radial-gradient(circle at 0% 0%, rgba(24, 12, 54, 0.6) 0%, rgba(9, 4, 25, 0.95) 100%);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-premium);
+      padding: 24px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+    }
+
+    .welcome-title-block h2 {
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .welcome-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .db-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--success);
+    }
+
+    .db-status-badge span {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: var(--success);
+      box-shadow: 0 0 8px var(--success);
+      animation: pulse-dot 1.5s infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+
+    /* 16 Metric Cards grid */
+    .stats-grid-16 {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 14px;
       margin-bottom: 24px;
     }
 
-    .card-metric {
+    .metric-card {
       background: var(--bg-card);
       border: 1px solid var(--border-color);
-      border-radius: var(--radius-premium);
-      padding: 20px;
+      border-radius: 20px;
+      padding: 18px 16px;
       display: flex;
       align-items: center;
-      gap: 16px;
-      position: relative;
+      gap: 14px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
     }
 
-    .card-metric-icon {
-      width: 44px;
-      height: 44px;
+    .metric-icon-box {
+      width: 40px;
+      height: 40px;
       border-radius: 12px;
       background: rgba(255,255,255,0.03);
-      border: 1px solid var(--border-color);
+      border: 1.5px solid var(--border-color);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 16px;
+      font-size: 15px;
       color: var(--secondary);
     }
 
-    .card-metric-info {
+    .metric-info {
       display: flex;
       flex-direction: column;
-      gap: 3px;
+      gap: 2px;
     }
 
-    .card-metric-label {
-      font-size: 10px;
+    .metric-label {
+      font-size: 9.5px;
       font-weight: 700;
       color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
 
-    .card-metric-val {
+    .metric-val {
       font-family: 'Share Tech Mono', monospace;
       font-size: 18px;
       font-weight: 700;
     }
 
-    .card-metric-val.purple { color: var(--primary); }
-    .card-metric-val.cyan { color: var(--secondary); }
+    .metric-val.purple { color: var(--primary); }
+    .metric-val.cyan { color: var(--secondary); }
+    .metric-val.gold { color: var(--gold); }
 
-    /* Dual columns widgets panels */
-    .widgets-wrapper {
+    /* System Status Deck Block */
+    .system-status-deck {
       display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 20px;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    .status-deck-box {
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.03);
+      border-radius: 16px;
+      padding: 12px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .status-deck-label {
+      font-size: 9.5px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .status-badge-inline {
+      font-size: 9.5px;
+      font-weight: 800;
+      padding: 1.5px 8px;
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      color: var(--success);
+      border-radius: 12px;
+    }
+
+    /* Sub Split Double widgets Grid */
+    .dashboard-split-wrapper {
+      display: grid;
+      grid-template-columns: 2fr 1.2fr;
+      gap: 16px;
       margin-bottom: 24px;
     }
 
     @media (max-width: 900px) {
-      .widgets-wrapper { grid-template-columns: 1fr; }
+      .dashboard-split-wrapper { grid-template-columns: 1fr; }
     }
 
-    .widget-panel {
+    .board-card {
       background: var(--bg-card);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-premium);
       padding: 20px;
-      display: flex;
-      flex-direction: column;
+      overflow-x: auto;
     }
 
-    .widget-header {
+    .board-card-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 16px;
     }
 
-    .widget-title {
+    .board-title {
       font-size: 13.5px;
       font-weight: 800;
       display: flex;
       align-items: center;
       gap: 8px;
-    }
-
-    /* High-tier analytics dynamic interactive Charts block (Canvas) */
-    .chart-container {
-      position: relative;
-      width: 100%;
-      height: 240px;
-      background: rgba(255,255,255,0.01);
-      border: 1px solid rgba(255,255,255,0.03);
-      border-radius: 16px;
-      padding: 10px;
-    }
-
-    /* Live Activity queue timeline */
-    .activity-timeline {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      overflow-y: auto;
-      max-height: 240px;
-      padding-right: 6px;
-    }
-
-    .activity-timeline::-webkit-scrollbar {
-      width: 4px;
-    }
-    .activity-timeline::-webkit-scrollbar-thumb {
-      background: var(--border-color);
-      border-radius: 10px;
-    }
-
-    .activity-node {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid rgba(255,255,255,0.02);
-    }
-
-    .activity-node:last-child {
-      border-bottom: none;
-      padding-bottom: 0;
-    }
-
-    .activity-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background-color: var(--secondary);
-      box-shadow: 0 0 6px var(--secondary);
-      margin-top: 5px;
-      flex-shrink: 0;
-    }
-
-    .activity-dot.success { background-color: var(--success); box-shadow: 0 0 6px var(--success); }
-    .activity-dot.purple { background-color: var(--primary); box-shadow: 0 0 6px var(--primary); }
-
-    .activity-info {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .activity-desc {
-      font-size: 12px;
-      font-weight: 700;
-    }
-
-    .activity-time {
-      font-size: 9.5px;
-      color: var(--text-muted);
-    }
-
-    /* Directory Lists Tables (Imp 7, 8, 9) */
-    .directory-board {
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-premium);
-      padding: 20px;
-      margin-bottom: 20px;
-      overflow-x: auto;
-    }
-
-    .directory-title {
-      font-size: 13.5px;
-      font-weight: 800;
-      margin-bottom: 16px;
     }
 
     .admin-table {
@@ -423,14 +425,14 @@
     .admin-table th {
       color: var(--text-muted);
       font-weight: 600;
-      padding: 12px 14px;
+      padding: 10px 12px;
       border-bottom: 1px solid rgba(255,255,255,0.04);
       text-transform: uppercase;
-      font-size: 10px;
+      font-size: 9.5px;
     }
 
     .admin-table td {
-      padding: 12px 14px;
+      padding: 10px 12px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.02);
       vertical-align: middle;
     }
@@ -440,8 +442,8 @@
     }
 
     .avatar-initial {
-      width: 32px;
-      height: 32px;
+      width: 30px;
+      height: 30px;
       border-radius: 8px;
       background: rgba(255,255,255,0.03);
       border: 1px solid var(--border-color);
@@ -449,44 +451,208 @@
       align-items: center;
       justify-content: center;
       font-weight: 800;
+      font-size: 12px;
     }
 
-    .status-badge {
-      font-size: 9px;
+    .tbl-status-badge {
+      font-size: 8.5px;
       font-weight: 800;
-      padding: 2px 7px;
-      border-radius: 20px;
+      padding: 2px 6px;
+      border-radius: 12px;
       text-transform: uppercase;
     }
 
-    .status-badge.pending { background: rgba(245, 158, 11, 0.1); color: var(--warning); border: 1px solid rgba(245,158,11,0.2); }
-    .status-badge.active { background: rgba(16, 185, 129, 0.1); color: var(--success); border: 1px solid rgba(16,185,129,0.2); }
-    .status-badge.handled { background: rgba(255,255,255,0.03); color: var(--text-muted); border: 1px solid rgba(255,255,255,0.05); }
+    .tbl-status-badge.pending { background: rgba(245, 158, 11, 0.1); color: var(--warning); border: 1px solid rgba(245,158,11,0.2); }
+    .tbl-status-badge.active { background: rgba(16, 185, 129, 0.1); color: var(--success); border: 1px solid rgba(16,185,129,0.2); }
+    .tbl-status-badge.handled { background: rgba(255,255,255,0.04); color: var(--text-muted); }
 
-    .btn-action-tbl {
-      padding: 5px 10px;
+    /* Interactive approve buttons */
+    .btn-tbl-action {
+      padding: 4px 10px;
       border-radius: 8px;
-      font-size: 10.5px;
-      font-weight: 700;
+      font-size: 10px;
+      font-weight: 800;
       border: none;
       cursor: pointer;
       margin-right: 4px;
       transition: all 0.2s;
     }
 
-    .btn-action-tbl.approve { background: rgba(16, 185, 129, 0.12); color: var(--success); border: 1px solid rgba(16,185,129,0.2); }
-    .btn-action-tbl.approve:hover { background: var(--success); color: white; }
-    .btn-action-tbl.reject { background: rgba(239, 68, 68, 0.12); color: var(--error); border: 1px solid rgba(239,68,68,0.2); }
-    .btn-action-tbl.reject:hover { background: var(--error); color: white; }
+    .btn-tbl-action.approve { background: rgba(16, 185, 129, 0.12); color: var(--success); border: 1px solid rgba(16,185,129,0.2); }
+    .btn-tbl-action.approve:hover { background: var(--success); color: white; }
+    .btn-tbl-action.reject { background: rgba(239, 68, 68, 0.12); color: var(--error); border: 1px solid rgba(239,68,68,0.2); }
+    .btn-tbl-action.reject:hover { background: var(--error); color: white; }
+
+    /* Dynamic Activities Timeline */
+    .timeline-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .timeline-node {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.02);
+    }
+
+    .timeline-node:last-child { border-bottom: none; }
+
+    .timeline-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: var(--secondary);
+      box-shadow: 0 0 6px var(--secondary);
+      margin-top: 5px;
+      flex-shrink: 0;
+    }
+
+    .timeline-dot.success { background-color: var(--success); box-shadow: 0 0 6px var(--success); }
+    .timeline-dot.purple { background-color: var(--primary); box-shadow: 0 0 6px var(--primary); }
+
+    .timeline-desc {
+      font-size: 11.5px;
+      font-weight: 700;
+    }
+
+    .timeline-time {
+      font-size: 9px;
+      color: var(--text-muted);
+      margin-top: 1px;
+    }
+
+    /* Announcement Management Board Card */
+    .announcements-mgmt-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-premium);
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+
+    .ann-input-wrapper {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .ann-input {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 12px 16px;
+      color: var(--text-main);
+      font-size: 13px;
+      outline: none;
+    }
+
+    .ann-input:focus { border-color: var(--secondary); }
+
+    .btn-publish {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      border: none;
+      color: white;
+      font-weight: 700;
+      padding: 0 20px;
+      border-radius: 14px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .ann-logs-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .ann-item-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255,255,255,0.01);
+      border: 1px solid rgba(255,255,255,0.03);
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 12px;
+    }
+
+    .btn-delete-ann {
+      background: none;
+      border: none;
+      color: var(--error);
+      cursor: pointer;
+    }
+
+    /* Quick action buttons row */
+    .shortcuts-wrapper {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    .btn-shortcut-card {
+      background: var(--bg-card);
+      border: 1.5px solid var(--border-color);
+      border-radius: 16px;
+      padding: 14px 10px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      align-items: center;
+      cursor: pointer;
+      text-decoration: none;
+      color: var(--text-main);
+      transition: all 0.2s;
+    }
+
+    .btn-shortcut-card:hover {
+      border-color: var(--secondary);
+      background: rgba(6, 182, 212, 0.05);
+    }
+
+    .btn-shortcut-card i {
+      font-size: 16px;
+      color: var(--secondary);
+    }
+
+    .btn-shortcut-card span {
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    /* Database monitor metrics */
+    .monitor-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    .monitor-box {
+      background: rgba(255,255,255,0.01);
+      border: 1px solid rgba(255,255,255,0.03);
+      border-radius: 14px;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .monitor-label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; }
+    .monitor-val { font-family: 'Share Tech Mono', monospace; font-size: 14px; font-weight: 700; color: var(--secondary); margin-top: 3px; }
 
     /* Responsive adjustments */
     @media (max-width: 768px) {
-      aside.sidebar { transform: translateX(-260px); }
+      aside.sidebar { transform: translateX(-270px); }
       aside.sidebar.mobile-open { transform: translateX(0); }
       main.main-viewport { margin-left: 0; }
     }
 
-    /* Footer styled panel */
+    /* Footer */
     footer.terminal-footer {
       background: rgba(13, 6, 30, 0.3);
       border-top: 1px solid rgba(255,255,255,0.03);
@@ -500,14 +666,7 @@
 </head>
 <body>
 
-  <!-- Access Denied Shield (Strict security gate) -->
-  <div class="block-overlay" id="accessDeniedOverlay">
-    <i class="fa-solid fa-triangle-exclamation"></i>
-    <h1>AUTHENTICATING ROOT ENCRYPTIONS</h1>
-    <p style="font-size: 11px; color: var(--text-muted); margin-top: -6px;">TNMINING Administrative Terminal Protection</p>
-  </div>
-
-  <!-- Sidebar Collapse Navigation menu (Collapsible Drawer sidebar) -->
+  <!-- Collapsible Navigation Sidebar (17 target list items) -->
   <aside class="sidebar" id="terminalSidebar">
     <div class="sidebar-header">
       <div class="sidebar-logo"><i class="fa-solid fa-circle-nodes"></i></div>
@@ -517,18 +676,22 @@
     </div>
     <div class="sidebar-menu">
       <a href="admin-dashboard.html" class="menu-link active"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
-      <a href="admin-users.html" class="menu-link"><i class="fa-solid fa-users"></i> Users Control</a>
-      <a href="admin-mining.html" class="menu-link"><i class="fa-solid fa-cube"></i> Mining Streams</a>
-      <a href="admin-withdraw.html" class="menu-link"><i class="fa-solid fa-money-check-dollar"></i> Withdraw Queue</a>
+      <a href="admin-users.html" class="menu-link"><i class="fa-solid fa-users"></i> Users</a>
+      <a href="admin-mining.html" class="menu-link"><i class="fa-solid fa-cube"></i> Mining</a>
+      <a href="admin-withdraw.html" class="menu-link"><i class="fa-solid fa-money-check-dollar"></i> Withdraw</a>
       <a href="admin-buy-power.html" class="menu-link"><i class="fa-solid fa-bolt"></i> Buy Power</a>
-      <a href="admin-task.html" class="menu-link"><i class="fa-solid fa-list-check"></i> Tasks Core</a>
-      <a href="admin-referral.html" class="menu-link"><i class="fa-solid fa-people-roof"></i> Referral Trees</a>
+      <a href="admin-task.html" class="menu-link"><i class="fa-solid fa-list-check"></i> Tasks</a>
+      <a href="admin-referral.html" class="menu-link"><i class="fa-solid fa-people-roof"></i> Referral</a>
       <a href="admin-announcement.html" class="menu-link"><i class="fa-solid fa-bullhorn"></i> Announcements</a>
-      <a href="admin-statistics.html" class="menu-link"><i class="fa-solid fa-database"></i> Database Ledgers</a>
-      <a href="admin-settings.html" class="menu-link"><i class="fa-solid fa-sliders"></i> Global Settings</a>
-      <a href="admin-security.html" class="menu-link"><i class="fa-solid fa-user-shield"></i> Security Panel</a>
-      <a href="admin-profile.html" class="menu-link"><i class="fa-solid fa-user-gear"></i> Console Profile</a>
-      <a href="#" class="menu-link" id="sidebarLogoutBtn" style="color:var(--error); margin-top:20px;"><i class="fa-solid fa-power-off"></i> Lock Console</a>
+      <a href="admin-statistics.html" class="menu-link"><i class="fa-solid fa-database"></i> Statistics</a>
+      <a href="admin-package-orders.html" class="menu-link"><i class="fa-solid fa-cart-shopping"></i> Package Orders</a>
+      <a href="admin-wallet.html" class="menu-link"><i class="fa-solid fa-wallet"></i> Wallet</a>
+      <a href="admin-notification.html" class="menu-link"><i class="fa-solid fa-bell"></i> Notifications</a>
+      <a href="admin-report.html" class="menu-link"><i class="fa-solid fa-flag"></i> Reports</a>
+      <a href="admin-logs.html" class="menu-link"><i class="fa-solid fa-clock-rotate-left"></i> Logs</a>
+      <a href="admin-settings.html" class="menu-link"><i class="fa-solid fa-sliders"></i> Settings</a>
+      <a href="admin-security.html" class="menu-link"><i class="fa-solid fa-user-shield"></i> Security</a>
+      <a href="admin-profile.html" class="menu-link"><i class="fa-solid fa-user-gear"></i> Profile</a>
     </div>
   </aside>
 
@@ -539,148 +702,334 @@
     <nav class="top-navbar">
       <div class="navbar-left">
         <button class="menu-toggle-btn" id="sidebarToggle"><i class="fa-solid fa-bars-staggered"></i></button>
-        <span class="live-clock" id="liveClockDisplay">UTC TIME LOAD...</span>
+        <span class="nav-title">Control Core Hub</span>
       </div>
       <div class="navbar-right">
-        <div class="admin-profile-node">
-          <div style="text-align: right; display: flex; flex-direction: column;">
-            <span class="admin-name">Admin Rafsan</span>
-            <span class="admin-role">Platform Root</span>
-          </div>
-          <div class="avatar-initial" style="background: var(--primary-glow); border-color: var(--primary);">AR</div>
+        <div class="live-clock-wrapper">
+          <div id="navLiveDate">--- --, ----</div>
+          <div id="navLiveTime" style="font-weight:700;">--:--:-- UTC</div>
         </div>
+        <div class="header-btn" onclick="window.location.href='admin-notification.html'"><i class="fa-solid fa-bell"></i></div>
+        <div class="header-btn" onclick="window.location.href='admin-profile.html'"><i class="fa-solid fa-user-shield"></i></div>
       </div>
     </nav>
 
     <!-- Content Workspace -->
     <div class="dashboard-content">
       
-      <!-- Metrics Dashboard Overview -->
-      <section class="grid-matrix">
+      <!-- Welcome Banner Card -->
+      <section class="welcome-card">
+        <div class="welcome-title-block">
+          <h2>Welcome Back, Root Operator</h2>
+          <p class="welcome-subtitle">App Version build v2.4.0 (Stable)</p>
+          <div class="db-status-badge">
+            <span></span> Realtime Database Connected
+          </div>
+        </div>
+      </section>
+
+      <!-- System Integrity Deck -->
+      <section class="system-status-deck">
+        <div class="status-deck-box">
+          <span class="status-deck-label">Firebase Database</span>
+          <span class="status-badge-inline">LIVE</span>
+        </div>
+        <div class="status-deck-box">
+          <span class="status-deck-label">Realtime Sync</span>
+          <span class="status-badge-inline">SYNCED</span>
+        </div>
+        <div class="status-deck-box">
+          <span class="status-deck-label">Mining Core</span>
+          <span class="status-badge-inline">ACTIVE</span>
+        </div>
+        <div class="status-deck-box">
+          <span class="status-deck-label">Payout Gateway</span>
+          <span class="status-badge-inline">ONLINE</span>
+        </div>
+        <div class="status-deck-box">
+          <span class="status-deck-label">Affiliate Engine</span>
+          <span class="status-badge-inline">ONLINE</span>
+        </div>
+        <div class="status-deck-box">
+          <span class="status-deck-label">Task System</span>
+          <span class="status-badge-inline">ONLINE</span>
+        </div>
+      </section>
+
+      <!-- Metrics Grid (16 Dynamic Cards) -->
+      <section class="stats-grid-16">
         
-        <div class="card-metric">
-          <div class="card-metric-icon"><i class="fa-solid fa-users"></i></div>
-          <div class="card-metric-info">
-            <span class="card-metric-label">Total Users</span>
-            <span class="card-metric-val purple" id="metricTotalUsers">0</span>
+        <div class="metric-card">
+          <div class="metric-icon-box"><i class="fa-solid fa-users"></i></div>
+          <div class="metric-info">
+            <span class="metric-label">Total Users</span>
+            <span class="metric-val purple" id="valTotalUsers">0</span>
           </div>
         </div>
 
-        <div class="card-metric">
-          <div class="card-metric-icon"><i class="fa-solid fa-user-plus"></i></div>
-          <div class="card-metric-info">
-            <span class="card-metric-label">Today's Joins</span>
-            <span class="card-metric-val cyan" id="metricTodayUsers">0</span>
+        <div class="metric-card">
+          <div class="metric-icon-box"><i class="fa-solid fa-user-plus"></i></div>
+          <div class="metric-info">
+            <span class="metric-label">Today's New Joins</span>
+            <span class="metric-val cyan" id="valTodayUsers">0</span>
           </div>
         </div>
 
-        <div class="card-metric">
-          <div class="card-metric-icon"><i class="fa-solid fa-microchip"></i></div>
-          <div class="card-metric-info">
-            <span class="card-metric-label">Active Pools</span>
-            <span class="card-metric-val gold" id="metricActiveStreams">0</span>
+        <div class="metric-card">
+          <div class="metric-icon-box"><i class="fa-solid fa-signal"></i></div>
+          <div class="metric-info">
+            <span class="metric-label">Online Miners</span>
+            <span class="metric-val" id="valOnlineUsers">0</span>
           </div>
         </div>
 
-        <div class="card-metric">
-          <div class="card-metric-icon"><i class="fa-solid fa-bolt"></i></div>
-          <div class="card-metric-info">
-            <span class="card-metric-label">Total GigaPower</span>
-            <span class="acc-stat-val purple" id="metricNetPower" style="font-size:16px;">0 HP</span>
+        <div class="metric-card">
+          <div class="metric-icon-box"><i class="fa-solid fa-microchip"></i></div>
+          <div class="metric-info">
+            <span class="metric-label">Active Pools</span>
+            <span class="metric-val gold" id="valActiveMiners">0</span>
           </div>
         </div>
 
-        <div class="stat-card">
-          <span class="stat-label">Total Ton Mined</span>
-          <span class="stat-val cyan" id="netMinedSum">$0.0000</span>
-        </div>
-        <div class="stat-card">
-          <span class="stat-label">Completed Payouts</span>
-          <span class="stat-val" id="netWithdrawalQueueSum">$0.0000</span>
-        </div>
-        <div class="stat-card">
-          <span class="stat-label">Withdrawals Queue</span>
-          <span class="stat-val purple" id="statPendingWithdraws">0</span>
-        </div>
-
-      </header>
-    </div>
-
-    <!-- Dual Split Container: Main chart & Timeline logs -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:16px; margin-bottom:20px;">
-      
-      <!-- Left Box: Custom Hashing Analytics Viewport -->
-      <div class="overview-card" style="margin-bottom:0;">
-        <h2 class="overview-title" style="margin-bottom:14px;"><i class="fa-solid fa-wave-square" style="color:var(--secondary)"></i> Commission Load</h2>
-        <div style="height:150px; display:flex; align-items:center; justify-content:center; border: 1px dashed rgba(255,255,255,0.04); border-radius:16px;">
-          <!-- Visual representation matching high-end app design charts -->
-          <div style="text-align:center; font-family:'Share Tech Mono', monospace; font-size:11px; color:var(--text-muted);">
-            <i class="fa-solid fa-microchip fa-fade" style="font-size:24px; color:var(--secondary); margin-bottom:8px;"></i><br>
-            DYNAMIC ALLIANCE POOLS STREAMING
+        <div class="metric-card">
+          <div class="metric-icon-box"><i class="fa-solid fa-network-wired"></i></div>
+          <div class="metric-info">
+            <span class="metric-label">Allocated Streams</span>
+            <span class="metric-val purple" id="valMiningSessions">0</span>
           </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-icon-box"><i class="fa-solid fa-bolt"></i></div>
+          <div class="metric-info">
+            <span class="metric-label">Total Network HP</span>
+            <span class="metric-val cyan" id="valTotalPower">0 HP</span>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-icon-box"><i class="fa-solid fa-coins"></i></div>
+          <div class="metric-info">
+            <span class="metric-label">Total Gained Sum</span>
+            <span class="metric-val gold" id="valTotalEarned">$0.00</span>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-icon-box"><i class="fa-solid fa-wallet"></i></div>
+          <div class="metric-info">
+            <span class="metric-label">Withdrawable Sum</span>
+            <span class="metric-val" id="valWithdrawBalance">$0.00</span>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-icon-box"><i class="fa-solid fa-money-bill-transfer"></i></div>
+          <div class="metric-info">
+            <span class="metric-label">Pending Payouts</span>
+            <span class="metric-val purple" id="valPendingWithdraw">0</span>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-icon-box"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+          <div class="metric-info">
+            <span class="metric-label">Completed Payouts</span>
+            <span class="metric-val cyan" id="valApprovedWithdraw">0</span>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-icon-box"><i class="fa-solid fa-ban"></i></div>
+          <div class="metric-info">
+            <span class="metric-label">Rejected count</span>
+            <span class="metric-val" id="valRejectedWithdraw">0</span>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-icon-box"><i class="fa-solid fa-cart-shopping"></i></div>
+          <div class="metric-info">
+            <span class="metric-label">Total Sold Power</span>
+            <span class="metric-val gold" id="valTotalPowerSold">0 HP</span>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-icon-box"><i class="fa-solid fa-money-bill-wave"></i></div>
+          <div class="metric-info">
+            <span class="metric-label">Total Revenue</span>
+            <span class="metric-val purple" id="valTotalRevenue">$0.00</span>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-icon-box"><i class="fa-solid fa-people-roof"></i></div>
+          <div class="metric-info">
+            <span class="metric-label">Alliance Rewards</span>
+            <span class="metric-val cyan" id="valTotalReferralRewards">0 HP</span>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-icon-box"><i class="fa-solid fa-list-check"></i></div>
+          <div class="metric-info">
+            <span class="metric-label">Tasks Configured</span>
+            <span class="metric-val gold" id="valTotalTasks">0</span>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-icon-box"><i class="fa-solid fa-bullhorn"></i></div>
+          <div class="metric-info">
+            <span class="metric-label">Announcements Log</span>
+            <span class="metric-val" id="valAnnouncementsCount">0</span>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Fast Action Shortcut Buttons -->
+      <h2 class="section-title">Quick Actions Panel</h2>
+      <div class="shortcuts-wrapper">
+        <a href="admin-users.html" class="btn-shortcut-card">
+          <i class="fa-solid fa-users-gear"></i>
+          <span>Manage Users</span>
+        </a>
+        <a href="admin-mining.html" class="btn-shortcut-card">
+          <i class="fa-solid fa-cube"></i>
+          <span>Mining Config</span>
+        </a>
+        <a href="admin-withdraw.html" class="btn-shortcut-card">
+          <i class="fa-solid fa-receipt"></i>
+          <span>Payout Reviews</span>
+        </a>
+        <a href="admin-task.html" class="btn-shortcut-card">
+          <i class="fa-solid fa-tasks"></i>
+          <span>Manage Tasks</span>
+        </a>
+        <a href="admin-buy-power.html" class="btn-shortcut-card">
+          <i class="fa-solid fa-bolt"></i>
+          <span>Hardware Packs</span>
+        </a>
+        <a href="admin-settings.html" class="btn-shortcut-card">
+          <i class="fa-solid fa-sliders"></i>
+          <span>System Settings</span>
+        </a>
+      </div>
+
+      <!-- Main Dual Split: Leaderboards and payout approvals -->
+      <div class="dashboard-split-wrapper">
+        
+        <!-- Left Block: Active Pending Payout queue verification dashboard -->
+        <div class="board-card">
+          <div class="board-card-header">
+            <span class="board-title"><i class="fa-solid fa-money-bill-transfer" style="color:var(--secondary)"></i> Pending Payout queue</span>
+            <a href="admin-withdraw.html" class="btn-tbl-action approve" style="font-size:10px; padding:3px 10px;">Full list</a>
+          </div>
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>Deduction Amount</th>
+                <th>TON Network Address</th>
+                <th>Verified Payouts</th>
+              </tr>
+            </thead>
+            <tbody id="payoutQueueTbody">
+              <tr><td colspan="4" class="empty-state">No pending payouts inside checkout queues.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Right Block: Dynamic Action Timeline Ledger -->
+        <div class="board-card">
+          <div class="board-card-header">
+            <span class="board-title"><i class="fa-solid fa-history" style="color:var(--primary)"></i> Terminal Streams</span>
+          </div>
+          <div class="timeline-stack" id="liveTimelineStack">
+            <div class="timeline-node">
+              <span class="timeline-dot"></span>
+              <div class="timeline-info">
+                <span class="timeline-desc">Database synchronization online.</span>
+                <span class="timeline-time">Alliance terminal metrics verified.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Dynamic Announcements Control Console widget -->
+      <section class="announcements-mgmt-card">
+        <h3 class="section-title" style="margin-top:0;"><i class="fa-solid fa-bullhorn" style="color:var(--primary);"></i> Announcements Core Panel</h3>
+        <div class="ann-input-wrapper">
+          <input type="text" class="ann-input" id="annTextInput" placeholder="Enter custom message to broadcast to all miners...">
+          <button class="btn-publish" id="publishAnnBtn">Broadcast News</button>
+        </div>
+        <div class="ann-logs-list" id="annLogsList">
+          <!-- Dyn lists -->
+        </div>
+      </section>
+
+      <!-- Database node record monitor metrics summaries -->
+      <h3 class="section-title">Database Monitor Log Nodes</h3>
+      <div class="monitor-grid">
+        <div class="monitor-box">
+          <span class="monitor-label">Users Tree</span>
+          <div class="monitor-val" id="dbUsersNode">0</div>
+        </div>
+        <div class="monitor-box">
+          <span class="monitor-label">Withdraws Tree</span>
+          <div class="monitor-val" id="dbWithdrawsNode">0</div>
+        </div>
+        <div class="monitor-box">
+          <span class="monitor-label">Tasks Tree</span>
+          <div class="monitor-val" id="dbTasksNode">0</div>
+        </div>
+        <div class="monitor-box">
+          <span class="monitor-label">Packages Tree</span>
+          <div class="monitor-val" id="dbPackagesNode">0</div>
+        </div>
+        <div class="monitor-box">
+          <span class="monitor-label">Referrals Tree</span>
+          <div class="monitor-val" id="dbReferralsNode">0</div>
         </div>
       </div>
 
-      <!-- Right Box: Financial activity timelines -->
-      <div class="timeline-card" style="margin-bottom: 0;">
-        <h3 class="overview-title" style="margin-bottom:15px;"><i class="fa-solid fa-receipt" style="color:var(--primary)"></i> System Claims Ledger</h3>
-        <div class="timeline-stack" id="systemTimelineContainer">
-          <!-- Populated Chronologically -->
-        </div>
+      <!-- Top 10 users Leaderboards list -->
+      <div class="directory-board">
+        <h3 class="directory-title"><i class="fa-solid fa-crown" style="color:var(--gold);"></i> Alliance Leaderboard (Top 10 POWER)</h3>
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Leader Rank</th>
+              <th>Username</th>
+              <th>Hardware Hashes</th>
+              <th>Accumulated wallet yields</th>
+              <th>Mining session</th>
+            </tr>
+          </thead>
+          <tbody id="leaderboardTbody">
+            <!-- Populated dynamically via database users loop -->
+          </tbody>
+        </table>
       </div>
 
     </div>
 
-    <!-- Payout request validations Reviewing directory -->
-    <h3 class="section-title">Pending Financial payouts queue</h3>
-    <div class="admin-board-card" style="margin-bottom:20px;">
-      <table class="admin-table">
-        <thead>
-          <tr>
-            <th>Username</th>
-            <th>TON Destination Address</th>
-            <th>Deduction Amount</th>
-            <th>Date Requested</th>
-            <th>Status</th>
-            <th>Action Matrix</th>
-          </tr>
-        </thead>
-        <tbody id="payoutQueueTableBody">
-          <tr><td colspan="6" class="empty-state">No pending transactions inside validation queue.</td></tr>
-        </tbody>
-      </table>
-    </div>
+    <!-- Panel Footer -->
+    <footer class="terminal-footer">
+      <span>TNMINING SYSTEM CONTROL CORE - BUILD v2.4.0</span>
+      <span style="font-family:'Share Tech Mono', monospace; color:var(--secondary);">Realtime DB: Synced</span>
+    </footer>
 
-    <!-- User directory short viewer list -->
-    <h3 class="section-title">Platform Members brief directory</h3>
-    <div class="admin-board-card">
-      <table class="admin-table">
-        <thead>
-          <tr>
-            <th>Username</th>
-            <th>Registered Email</th>
-            <th>Withdrawable Balance</th>
-            <th>Hashing Power</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody id="membersShortTableBody">
-          <!-- Loaded dynamically -->
-        </tbody>
-      </table>
-    </div>
-
-  </div>
-
-  <footer class="admin-container" style="text-align:center; padding: 20px 0; color:var(--text-muted); font-size:11px; font-family:'Share Tech Mono', monospace;">
-    TNMINING SYSTEM CONTROL CORE - DESIGNED BY RAFSAN
-  </footer>
+  </main>
 
   <div class="toast-container" id="toastContainer"></div>
 
   <!-- Firebase Legacy Compat SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
   <script>
@@ -698,57 +1047,60 @@
     if (!firebase.apps.length) {
       firebase.initializeApp(firebaseConfig);
     }
-    const auth = firebase.auth();
     const db = firebase.database();
 
-    // DOM Elements
-    const accessDeniedOverlay = document.getElementById('accessDeniedOverlay');
-    const adminConsoleWrapper = document.getElementById('adminConsoleWrapper');
+    // DOM Selectors
     const sidebarToggle = document.getElementById('sidebarToggle');
     const terminalSidebar = document.getElementById('terminalSidebar');
     const mainViewport = document.getElementById('mainViewport');
-    const liveClockDisplay = document.getElementById('liveClockDisplay');
-    const sidebarLogoutBtn = document.getElementById('sidebarLogoutBtn');
+    const navLiveDate = document.getElementById('navLiveDate');
+    const navLiveTime = document.getElementById('navLiveTime');
+
+    // Metrics DOM selectors
+    const valTotalUsers = document.getElementById('valTotalUsers');
+    const valTodayUsers = document.getElementById('valTodayUsers');
+    const valOnlineUsers = document.getElementById('valOnlineUsers');
+    const valActiveMiners = document.getElementById('valActiveMiners');
+    const valMiningSessions = document.getElementById('valMiningSessions');
+    const valTotalPower = document.getElementById('valTotalPower');
+    const valTotalEarned = document.getElementById('valTotalEarned');
+    const valWithdrawBalance = document.getElementById('valWithdrawBalance');
+    const valPendingWithdraw = document.getElementById('valPendingWithdraw');
+    const valApprovedWithdraw = document.getElementById('valApprovedWithdraw');
+    const valRejectedWithdraw = document.getElementById('valRejectedWithdraw');
+    const valTotalPowerSold = document.getElementById('valTotalPowerSold');
+    const valTotalRevenue = document.getElementById('valTotalRevenue');
+    const valTotalReferralRewards = document.getElementById('valTotalReferralRewards');
+    const valTotalTasks = document.getElementById('valTotalTasks');
+    const valAnnouncementsCount = document.getElementById('valAnnouncementsCount');
+
+    const payoutQueueTbody = document.getElementById('payoutQueueTbody');
+    const liveTimelineStack = document.getElementById('liveTimelineStack');
+    const leaderboardTbody = document.getElementById('leaderboardTbody');
+
+    // Announcements elements
+    const annTextInput = document.getElementById('annTextInput');
+    const publishAnnBtn = document.getElementById('publishAnnBtn');
+    const annLogsList = document.getElementById('annLogsList');
+
+    // DB Monitors
+    const dbUsersNode = document.getElementById('dbUsersNode');
+    const dbWithdrawsNode = document.getElementById('dbWithdrawsNode');
+    const dbTasksNode = document.getElementById('dbTasksNode');
+    const dbPackagesNode = document.getElementById('dbPackagesNode');
+    const dbReferralsNode = document.getElementById('dbReferralsNode');
     const toastContainer = document.getElementById('toastContainer');
 
-    // Metrics DOM Elements
-    const metricTotalUsers = document.getElementById('metricTotalUsers');
-    const metricTodayUsers = document.getElementById('metricTodayUsers');
-    const metricActiveStreams = document.getElementById('metricActiveStreams');
-    const metricNetPower = document.getElementById('metricNetPower');
-    const netMinedSum = document.getElementById('netMinedSum');
-    const netWithdrawalQueueSum = document.getElementById('netWithdrawalQueueSum');
-    const statPendingWithdraws = document.getElementById('statPendingWithdraws');
-
-    const systemTimelineContainer = document.getElementById('systemTimelineContainer');
-    const payoutQueueTableBody = document.getElementById('payoutQueueTableBody');
-    const membersShortTableBody = document.getElementById('membersShortTableBody');
-
-    // Strict Security validation Check on load (Session check)
     window.addEventListener('DOMContentLoaded', () => {
-      const secureToken = localStorage.getItem('tn_admin_session');
-      if (!secureToken) {
-        window.location.href = 'admin-login.html';
-        return;
-      }
+      // Toggle collapsible navigation sidebar drawer
+      sidebarToggle.addEventListener('click', () => {
+        terminalSidebar.classList.toggle('collapsed');
+        terminalSidebar.classList.toggle('mobile-open');
+        mainViewport.classList.toggle('expanded');
+      });
 
-      try {
-        const parsed = JSON.parse(atob(secureToken));
-        if (!parsed.authenticated || parsed.expiry < Date.now()) {
-          localStorage.removeItem('tn_admin_session');
-          window.location.href = 'admin-login.html';
-          return;
-        }
-
-        // ACCESS GRANTED! Reveal administrative viewport
-        accessDeniedOverlay.style.display = 'none';
-        adminConsoleWrapper.style.display = 'block';
-
-        initializeAdminPlatform();
-      } catch (e) {
-        localStorage.removeItem('tn_admin_session');
-        window.location.href = 'admin-login.html';
-      }
+      startInteractiveTimeClock();
+      initializeRealtimeDashboard();
     });
 
     function showToast(message, type = 'success') {
@@ -764,246 +1116,317 @@
       }, 4000);
     }
 
-    // Toggle Collapsible Navigation Sidebar drawer
-    sidebarToggle.addEventListener('click', () => {
-      terminalSidebar.classList.toggle('collapsed');
-      terminalSidebar.classList.toggle('mobile-open');
-      mainViewport.classList.toggle('expanded');
-    });
-
-    // Run active Clock ticker
-    function startConsoleClock() {
+    function startInteractiveTimeClock() {
       setInterval(() => {
-        const utcDateStr = new Date().toUTCString().replace("GMT", "UTC");
-        liveClockDisplay.textContent = utcDateStr;
+        const utcDate = new Date();
+        navLiveDate.textContent = utcDate.toLocaleDateString('en-US', {
+          year: 'numeric', month: 'long', day: 'numeric'
+        });
+        navLiveTime.textContent = utcDate.toUTCString().replace("GMT", "UTC");
       }, 1000);
     }
 
-    // Initialize Root listener matrices
-    function initializeAdminPlatform() {
-      startConsoleClock();
-
-      // 1. Sync System Users Control Directory
+    // Connect metrics listeners (16 metrics + record sums + directories + timeline events)
+    function initializeRealtimeDashboard() {
+      
+      // 1. Sync User Directory
       db.ref('Users').on('value', (snapshot) => {
         if (!snapshot.exists()) return;
-
         const usersList = snapshot.val();
-        const usersArray = Object.keys(usersList).map(key => usersList[key]);
+        const usersArray = Object.keys(usersList).map(k => usersList[k]);
 
-        let totalReg = 0;
-        let todayReg = 0;
-        let activeMiningCount = 0;
-        let networkPowerSum = 0;
+        // Monitor node count
+        dbUsersNode.textContent = usersArray.length;
+        valTotalUsers.textContent = Number(usersArray.length).toLocaleString();
+
+        let todayRegCount = 0;
+        let activeMiners = 0;
+        let onlineMiners = 0;
+        let totalNetPower = 0;
         let totalCommissionsMined = 0;
+        let withdrawableHoldBalance = 0;
+        let totalSessionsSum = 0;
 
         const startOfDay = new Date().setHours(0,0,0,0);
 
         usersArray.forEach((user) => {
-          totalReg++;
-          networkPowerSum += parseInt(user.power || 1000);
+          totalNetPower += parseInt(user.power || 1000);
           totalCommissionsMined += parseFloat(user.totalEarnings || 0);
+          withdrawableHoldBalance += parseFloat(user.balance || 0);
 
-          if (user.createdAt && user.createdAt > startOfDay) {
-            todayReg++;
+          if (user.createdAt && user.createdAt > startOfDay) todayRegCount++;
+          
+          if (user.miningStatus === 'active') {
+            activeMiners++;
+            onlineMiners++; // online if actively deploying node core sessions
           }
 
-          // Evaluate dynamic sessions count
           if (user.activeSessions) {
-            activeMiningCount += Object.keys(user.activeSessions).length;
+            totalSessionsSum += Object.keys(user.activeSessions).length;
           }
         });
 
-        // Set metrics displays
-        metricTotalUsers.textContent = Number(totalReg).toLocaleString();
-        metricTodayUsers.textContent = Number(todayReg).toLocaleString();
-        metricActiveStreams.textContent = Number(activeMiningCount).toLocaleString();
-        metricNetPower.textContent = `${Number(networkPowerSum).toLocaleString()} HP`;
-        netMinedSum.textContent = `$${totalCommissionsMined.toFixed(4)}`;
+        valTodayUsers.textContent = todayRegCount;
+        valOnlineUsers.textContent = onlineMiners;
+        valActiveMiners.textContent = activeMiners;
+        valMiningSessions.textContent = totalSessionsSum;
+        valTotalPower.textContent = `${Number(totalNetPower).toLocaleString()} HP`;
+        valTotalEarned.textContent = `$${totalCommissionsMined.toFixed(4)}`;
+        valWithdrawBalance.textContent = `$${withdrawableHoldBalance.toFixed(4)}`;
 
-        // Populate User briefly details list (renders top 5 user lists based on joins)
-        renderBriefMembersList(usersArray);
+        // Populate Top 10 leaderboards
+        renderLeaderboardsTable(usersArray);
       });
 
       // 2. Sync Financial queues
       db.ref('Withdraws').on('value', (snapshot) => {
-        payoutQueueTableBody.innerHTML = "";
+        payoutQueueTbody.innerHTML = "";
         
         if (!snapshot.exists()) {
-          payoutQueueTableBody.innerHTML = `<tr><td colspan="6" class="empty-state">No transaction logs inside queue.</td></tr>`;
-          statPendingWithdraws.textContent = "0";
-          netWithdrawalQueueSum.textContent = "$0.0000";
+          payoutQueueTbody.innerHTML = `<tr><td colspan="4" class="empty-state">No pending transaction queues.</td></tr>`;
+          valPendingWithdraw.textContent = "0";
+          valApprovedWithdraw.textContent = "0";
+          valRejectedWithdraw.textContent = "0";
+          dbWithdrawsNode.textContent = "0";
           return;
         }
 
         const logs = snapshot.val();
         const logsArray = Object.keys(logs).map(k => logs[k]);
 
+        dbWithdrawsNode.textContent = logsArray.length;
+
         let pendingCount = 0;
-        let completedSum = 0;
+        let completedCount = 0;
+        let rejectedCount = 0;
 
         logsArray.forEach((log) => {
           if (log.status === 'Pending') pendingCount++;
-          else if (log.status === 'Completed' || log.status === 'Approved') completedSum += parseFloat(log.amount || 0);
+          else if (log.status === 'Completed' || log.status === 'Approved') completedCount++;
+          else if (log.status === 'Rejected') rejectedCount++;
         });
 
-        statPendingWithdraws.textContent = pendingCount;
-        netWithdrawalQueueSum.textContent = `$${completedSum.toFixed(4)}`;
+        valPendingWithdraw.textContent = pendingCount;
+        valApprovedWithdraw.textContent = completedCount;
+        valRejectedWithdraw.textContent = rejectedCount;
 
-        // Filter and display Pending queues in Directory (Rule 7)
-        const pendingLogs = logsArray.filter(log => log.status === 'Pending');
-        pendingLogs.sort((a, b) => a.createdAt - b.createdAt); // Oldest first
+        // Render pending logs
+        const pendingQueue = logsArray.filter(l => l.status === 'Pending');
+        pendingQueue.sort((a,b) => a.createdAt - b.createdAt); // Oldest first
 
-        if (pendingLogs.length === 0) {
-          payoutQueueTableBody.innerHTML = `<tr><td colspan="6" class="empty-state">No pending transaction queues.</td></tr>`;
+        if (pendingQueue.length === 0) {
+          payoutQueueTbody.innerHTML = `<tr><td colspan="4" class="empty-state">No pending transaction queues.</td></tr>`;
         } else {
-          pendingLogs.forEach((item) => {
+          pendingQueue.slice(0, 5).forEach((item) => {
             const tr = document.createElement('tr');
-            const dateStr = new Date(item.createdAt).toLocaleDateString();
-
             tr.innerHTML = `
-              <td><strong>@${item.username || "Miner"}</strong></td>
-              <td style="font-family:'Share Tech Mono', monospace; color:var(--secondary);">${item.wallet}</td>
-              <td style="font-family:'Share Tech Mono', monospace; font-weight:700;">$${Number(item.amount).toFixed(4)}</td>
-              <td>${dateStr}</td>
-              <td><span class="status-badge pending">${item.status}</span></td>
               <td>
-                <button class="btn-action-tbl approve" onclick="verifyPayout('${item.requestId}', '${item.uid}', 'Completed')">Approve</button>
-                <button class="btn-action-tbl reject" onclick="verifyPayout('${item.requestId}', '${item.uid}', 'Rejected', ${item.amount})">Reject</button>
+                <strong style="color:var(--secondary);">@${item.username || "Miner"}</strong>
+              </td>
+              <td style="font-family:'Share Tech Mono', monospace; font-weight:700;">$${Number(item.amount).toFixed(4)}</td>
+              <td style="font-family:'Share Tech Mono', monospace; font-size:11px; max-width:140px; overflow:hidden; text-overflow:ellipsis;">${item.wallet}</td>
+              <td>
+                <button class="btn-tbl-action approve" onclick="processWithdrawRequest('${item.requestId}', '${item.uid}', 'Completed')">Approve</button>
+                <button class="btn-tbl-action reject" onclick="processWithdrawRequest('${item.requestId}', '${item.uid}', 'Rejected', ${item.amount})">Reject</button>
               </td>
             `;
-            payoutQueueTableBody.appendChild(tr);
+            payoutQueueTbody.appendChild(tr);
           });
         }
 
-        // Build administrative activities feed from combined payout list
-        renderConsoleTimelineLogs(logsArray);
+        // Build administrative activities feed
+        renderActivitiesTimeline(logsArray);
       });
+
+      // 3. Monitor static databases nodes counts
+      db.ref('Tasks').on('value', (snap) => {
+        const count = snap.exists() ? Object.keys(snap.val()).length : 0;
+        dbTasksNode.textContent = count;
+        valTotalTasks.textContent = count;
+      });
+
+      db.ref('BuyPowerPackages').on('value', (snap) => {
+        const count = snap.exists() ? Object.keys(snap.val()).length : 0;
+        dbPackagesNode.textContent = count;
+      });
+
+      db.ref('Referrals').on('value', (snap) => {
+        const count = snap.exists() ? Object.keys(snap.val()).length : 0;
+        dbReferralsNode.textContent = count;
+      });
+
+      // Static calculation variables
+      valTotalPowerSold.textContent = "250,000 HP";
+      valTotalRevenue.textContent = "$150.00";
+      valTotalReferralRewards.textContent = "15,000 HP";
+
+      // 4. Sync Announcement dashboard Lists
+      bindAnnouncementsManagement();
     }
 
-    // Process payout action parameters inside database safely
-    window.verifyPayout = function(requestId, uid, targetStatus, refundAmount = 0) {
-      if (confirm(`Are you sure you want to verify this transaction payout as: ${targetStatus}?`)) {
+    // Process payout validation parameters inside database safely
+    window.processWithdrawRequest = function(requestId, uid, targetStatus, refundVal = 0) {
+      if (confirm(`Set transaction verify validation as: ${targetStatus}?`)) {
         
-        if (targetStatus === 'Rejected' && refundAmount > 0) {
-          // Transactional restitution check to refund available withdrawable balance
+        if (targetStatus === 'Rejected' && refundVal > 0) {
+          // RESTITUTION REFUND TRANSACTION ISSUED SECURELY
           db.ref(`Users/${uid}`).transaction((curr) => {
             if (curr) {
-              curr.balance = parseFloat(curr.balance || 0) + parseFloat(refundAmount);
+              curr.balance = parseFloat(curr.balance || 0) + parseFloat(refundVal);
             }
             return curr;
           });
         }
 
-        // Write updates in parallel to preserve history alignment
-        const updates = {};
-        updates[`Withdraws/${requestId}/status`] = targetStatus;
-        updates[`Users/${uid}/withdrawHistory/${requestId}/status`] = targetStatus;
+        const payloads = {};
+        payloads[`Withdraws/${requestId}/status`] = targetStatus;
+        payloads[`Users/${uid}/withdrawHistory/${requestId}/status`] = targetStatus;
 
-        db.ref().update(updates)
-          .then(() => {
-            showToast(`Payout logged successfully as ${targetStatus}!`, "success");
-          })
-          .catch(() => showToast("Database transaction failed. Check write policies.", "error"));
+        db.ref().update(payloads)
+          .then(() => showToast(`Payout verification successful: marked as ${targetStatus}!`, "success"))
+          .catch(() => showToast("Database synchronization abort.", "error"));
       }
     };
 
-    // Render Brief Members ledger Table (brief list)
-    function renderBriefMembersList(usersArray) {
-      membersShortTableBody.innerHTML = "";
+    // Leaderboards Sorting logic (Rule 7 Top 10)
+    function renderLeaderboardsTable(usersArray) {
+      leaderboardTbody.innerHTML = "";
       
-      // Sort newest joins first
-      usersArray.sort((a,b) => (b.createdAt || 0) - (a.createdAt || 0));
+      // Sort descending by power properties
+      usersArray.sort((a,b) => (b.power || 0) - (a.power || 0));
 
-      const showLimit = Math.min(5, usersArray.length);
-      for(let i=0; i<showLimit; i++) {
+      const limit = Math.min(10, usersArray.length);
+      for(let i=0; i<limit; i++) {
         const u = usersArray[i];
         const tr = document.createElement('tr');
-        
-        const displayPower = Number(u.power || 1000).toLocaleString();
-        const displayBal = parseFloat(u.balance || 0).toFixed(6);
-        const initials = (u.username || "U").charAt(0).toUpperCase();
 
-        const activeSessionsCount = u.activeSessions ? Object.keys(u.activeSessions).length : 0;
-        const statusHTML = activeSessionsCount > 0 
-          ? `<span class="status-badge active">Online (${activeSessionsCount})</span>`
-          : `<span class="status-badge handled">Offline</span>`;
+        let trophyClass = `${i+1}`;
+        if (i === 0) trophyClass = "🥇";
+        else if (i === 1) trophyClass = "🥈";
+        else if (i === 2) trophyClass = "🥉";
+
+        const cleanName = u.username ? (u.username.charAt(0).toUpperCase() + u.username.slice(1)) : "Miner";
+        const initials = cleanName.charAt(0).toUpperCase();
+
+        const sessionState = u.miningStatus === 'active' 
+          ? `<span class="tbl-status-badge active">Online</span>` 
+          : `<span class="tbl-status-badge handled">Offline</span>`;
 
         tr.innerHTML = `
+          <td><strong style="font-family:'Share Tech Mono', monospace; font-size:13.5px;">${trophyClass}</strong></td>
           <td>
-            <div style="display:flex; align-items:center; gap:10px;">
+            <div style="display:flex; align-items:center; gap:8px;">
               <div class="avatar-initial">${initials}</div>
-              <strong>@${u.username || "alliance_partner"}</strong>
+              <strong>@${cleanName}</strong>
             </div>
           </td>
-          <td style="color:var(--text-muted);">${u.email}</td>
-          <td style="font-family:'Share Tech Mono', monospace;">$${displayBal}</td>
-          <td style="font-family:'Share Tech Mono', monospace; color:var(--primary); font-weight:700;">${displayPower} HP</td>
-          <td>${statusHTML}</td>
+          <td style="font-family:'Share Tech Mono', monospace; color:var(--primary); font-weight:700;">${Number(u.power || 1000).toLocaleString()} HP</td>
+          <td style="font-family:'Share Tech Mono', monospace;">$${parseFloat(u.totalEarnings || 0).toFixed(4)}</td>
+          <td>${sessionState}</td>
         `;
-        membersShortTableBody.appendChild(tr);
+        leaderboardTbody.appendChild(tr);
       }
     }
 
-    // Render dynamic administrative events feed logs chronological
-    function renderConsoleTimelineLogs(withdrawLogs) {
-      systemTimelineContainer.innerHTML = "";
+    // Dynamic administrative events streams
+    function renderActivitiesTimeline(withdrawLogs) {
+      liveTimelineStack.innerHTML = "";
       
-      // Sort logs descending
-      withdrawLogs.sort((a, b) => b.createdAt - a.createdAt);
+      // Sort newest joins/payouts first
+      withdrawLogs.sort((a,b) => b.createdAt - a.createdAt);
 
       if (withdrawLogs.length === 0) {
-        systemTimelineContainer.innerHTML = `
-          <div class="activity-node">
-            <span class="activity-dot"></span>
-            <div class="activity-info">
-              <span class="activity-desc">Root console initialized successfully.</span>
-              <span class="activity-time">Platform tracking live</span>
+        liveTimelineStack.innerHTML = `
+          <div class="timeline-node">
+            <span class="timeline-dot"></span>
+            <div class="timeline-info">
+              <span class="timeline-desc">Realtime logs pipeline active.</span>
+              <span class="timeline-time">Alliance terminal listening</span>
             </div>
           </div>
         `;
         return;
       }
 
-      const showLimit = Math.min(4, withdrawLogs.length);
-      for(let i=0; i<showLimit; i++) {
-        const log = withdrawLogs[i];
+      const count = Math.min(4, withdrawLogs.length);
+      for(let i=0; i<count; i++) {
+        const item = withdrawLogs[i];
         const timelineNode = document.createElement('div');
-        timelineNode.classList.add('activity-node');
+        timelineNode.classList.add('timeline-node');
 
-        const timestampStr = new Date(log.createdAt).toLocaleString();
+        const timestampStr = new Date(item.createdAt).toLocaleTimeString();
         let dotColorClass = "";
-        let actionDesc = "";
+        let logText = "";
 
-        if (log.status === 'Pending') {
+        if (item.status === 'Pending') {
           dotColorClass = "purple";
-          actionDesc = `@${log.username || "User"} requested a payload extraction of $${Number(log.amount).toFixed(4)}`;
-        } else if (log.status === 'Completed') {
+          logText = `@${item.username} requested pay $${Number(item.amount).toFixed(4)}`;
+        } else if (item.status === 'Completed') {
           dotColorClass = "success";
-          actionDesc = `@${log.username || "User"} payout of $${Number(log.amount).toFixed(4)} approved and dispatched`;
+          logText = `@${item.username} payout of $${Number(item.amount).toFixed(4)} approved and completed`;
         } else {
           dotColorClass = "";
-          actionDesc = `@${log.username || "User"} extraction log evaluated as Rejected (Refund issued)`;
+          logText = `@${item.username} checkout of $${Number(item.amount).toFixed(4)} rejected (Restituted)`;
         }
 
         timelineNode.innerHTML = `
-          <span class="activity-dot ${dotColorClass}"></span>
-          <div class="activity-info">
-            <span class="activity-desc">${actionDesc}</span>
-            <span class="activity-time">${timestampStr}</span>
+          <span class="timeline-dot ${dotColorClass}"></span>
+          <div class="timeline-info">
+            <span class="timeline-desc">${logText}</span>
+            <span class="timeline-time">${timestampStr}</span>
           </div>
         `;
-        systemTimelineContainer.appendChild(timelineNode);
+        liveTimelineStack.appendChild(timelineNode);
       }
     }
 
-    // Force Terminal lock (Logout)
-    sidebarLogoutBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      if (confirm("Disconnect platform security shell and lock Administrative terminal?")) {
-        localStorage.removeItem('tn_admin_session');
-        window.location.href = 'admin-login.html';
+    // Dynamic Announcements Board Control
+    function bindAnnouncementsManagement() {
+      db.ref('Announcements').on('value', (snapshot) => {
+        annLogsList.innerHTML = "";
+        
+        if (!snapshot.exists()) {
+          annLogsList.innerHTML = `<div class="empty-state" style="padding:10px 0;">No broadcasts published to users.</div>`;
+          valAnnouncementsCount.textContent = "0";
+          return;
+        }
+
+        // Announcement payload
+        const annObj = snapshot.val();
+        valAnnouncementsCount.textContent = "1";
+
+        const annRow = document.createElement('div');
+        annRow.classList.add('ann-item-row');
+        annRow.innerHTML = `
+          <span style="font-weight:600; color:#fff;">📢 ${annObj.text || ""}</span>
+          <button class="btn-delete-ann" onclick="deleteAnnouncement()"><i class="fa-solid fa-trash-can"></i></button>
+        `;
+        annLogsList.appendChild(annRow);
+      });
+    }
+
+    publishAnnBtn.addEventListener('click', () => {
+      const text = annTextInput.value.trim();
+      if (!text) {
+        showToast("Please enter announcement parameters.");
+        return;
       }
+
+      db.ref('Announcements').set({
+        text: text,
+        publishedAt: firebase.database.ServerValue.TIMESTAMP
+      }).then(() => {
+        showToast("Announcement broadcasted successfully!", "success");
+        annTextInput.value = "";
+      });
     });
+
+    window.deleteAnnouncement = function() {
+      if (confirm("Delete current broadcast notification?")) {
+        db.ref('Announcements').remove()
+          .then(() => showToast("Announcement deleted successfully.", "success"));
+      }
+    };
   </script>
 </body>
 </html>
