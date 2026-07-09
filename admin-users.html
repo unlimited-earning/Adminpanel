@@ -1,0 +1,1284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>TNMINING - Users Control Terminal</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    :root {
+      --bg-primary: #020009;
+      --bg-secondary: #070314;
+      --bg-card: rgba(13, 6, 30, 0.75);
+      --border-color: rgba(168, 85, 247, 0.18);
+      --primary: #a855f7;
+      --secondary: #06b6d4;
+      --gold: #fbbf24;
+      --gold-glow: rgba(251, 191, 36, 0.35);
+      --primary-glow: rgba(168, 85, 247, 0.3);
+      --secondary-glow: rgba(6, 182, 212, 0.2);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --success: #10b981;
+      --error: #ef4444;
+      --warning: #f59e0b;
+      --radius-premium: 24px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(168, 85, 247, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(6, 182, 212, 0.08) 0%, transparent 40%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+    }
+
+    /* Collapsible Navigation Sidebar (17 Items) */
+    aside.sidebar {
+      width: 270px;
+      background: rgba(8, 3, 20, 0.95);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 1000;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    aside.sidebar.collapsed {
+      transform: translateX(-270px);
+    }
+
+    .sidebar-header {
+      padding: 24px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+
+    .sidebar-logo {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: white;
+      box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+    }
+
+    .sidebar-title {
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    .sidebar-title span {
+      display: block;
+      font-size: 9px;
+      font-family: 'Share Tech Mono', monospace;
+      color: var(--secondary);
+    }
+
+    .sidebar-menu {
+      flex: 1;
+      padding: 16px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      overflow-y: auto;
+    }
+
+    .menu-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 14px;
+      border-radius: 12px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 12.5px;
+      font-weight: 600;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+
+    .menu-link i {
+      font-size: 14px;
+      width: 18px;
+      text-align: center;
+    }
+
+    .menu-link:hover, .menu-link.active {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.03);
+      border-color: var(--border-color);
+    }
+
+    .menu-link.active {
+      background: linear-gradient(135deg, rgba(168, 85, 247, 0.12) 0%, rgba(6, 182, 212, 0.12) 100%);
+      border-color: var(--primary);
+    }
+
+    /* Main Content Wrapper */
+    main.main-viewport {
+      margin-left: 270px;
+      flex: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    main.main-viewport.expanded {
+      margin-left: 0;
+    }
+
+    /* Top Navbar Bar */
+    .top-navbar {
+      height: 72px;
+      background: rgba(13, 6, 30, 0.5);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 24px;
+      position: sticky;
+      top: 0;
+      z-index: 999;
+    }
+
+    .navbar-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .menu-toggle-btn {
+      font-size: 18px;
+      color: var(--text-main);
+      cursor: pointer;
+      background: none;
+      border: none;
+    }
+
+    .nav-title {
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .navbar-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .live-clock-wrapper {
+      text-align: right;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px;
+      color: var(--secondary);
+    }
+
+    .header-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s ease;
+    }
+
+    .header-btn:hover {
+      border-color: var(--primary);
+    }
+
+    /* Content Area */
+    .dashboard-content {
+      padding: 24px;
+      flex: 1;
+    }
+
+    /* Analytics Dashboard Grid */
+    .stats-matrix-9 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .stat-metric-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .stat-metric-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      color: var(--secondary);
+    }
+
+    .stat-metric-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .stat-metric-label {
+      font-size: 9.5px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .stat-metric-val {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    /* Search & Filter Toolbars */
+    .search-filter-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.03);
+      border-radius: 20px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+    }
+
+    .toolbar-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    @media (max-width: 600px) {
+      .toolbar-row { flex-direction: column; }
+    }
+
+    .search-input-wrapper {
+      flex: 1;
+      position: relative;
+    }
+
+    .search-input-wrapper i {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 13px 16px 13px 44px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      color: var(--text-main);
+      font-size: 13px;
+      outline: none;
+    }
+
+    .search-input:focus { border-color: var(--secondary); }
+
+    .select-filter {
+      background: rgba(13, 6, 30, 0.95);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 0 16px;
+      border-radius: 14px;
+      font-size: 13px;
+      font-weight: 600;
+      outline: none;
+      height: 44px;
+    }
+
+    .export-btn {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      border: none;
+      color: white;
+      font-weight: 700;
+      padding: 0 20px;
+      border-radius: 14px;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      height: 44px;
+    }
+
+    /* Core Directory List Table Grid */
+    .table-container-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-premium);
+      padding: 20px;
+      overflow-x: auto;
+      margin-bottom: 20px;
+    }
+
+    .members-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 12.5px;
+    }
+
+    .members-table th {
+      color: var(--text-muted);
+      font-weight: 600;
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      text-transform: uppercase;
+      font-size: 9.5px;
+    }
+
+    .members-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+      vertical-align: middle;
+    }
+
+    .members-table tbody tr:hover { background: rgba(255,255,255,0.01); }
+
+    .avatar-cell {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 12px;
+    }
+
+    .status-badge {
+      font-size: 8.5px;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 20px;
+      text-transform: uppercase;
+    }
+
+    .status-badge.active { background: rgba(16, 185, 129, 0.08); color: var(--success); border: 1px solid rgba(16,185,129,0.2); }
+    .status-badge.banned { background: rgba(239, 68, 68, 0.08); color: var(--error); border: 1px solid rgba(239,68,68,0.2); }
+
+    /* Custom interaction list buttons */
+    .btn-panel-action {
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 800;
+      border: none;
+      cursor: pointer;
+      margin-right: 4px;
+      transition: all 0.2s;
+    }
+
+    .btn-panel-action.view { background: rgba(6, 182, 212, 0.12); color: var(--secondary); border: 1px solid rgba(6,182,212,0.2); }
+    .btn-panel-action.view:hover { background: var(--secondary); color: white; }
+
+    .btn-panel-action.edit { background: rgba(168, 85, 247, 0.12); color: var(--primary); border: 1px solid rgba(168,85,247,0.2); }
+    .btn-panel-action.edit:hover { background: var(--primary); color: white; }
+
+    .btn-panel-action.ban { background: rgba(239, 68, 68, 0.12); color: var(--error); border: 1px solid rgba(239,68,68,0.2); }
+    .btn-panel-action.ban:hover { background: var(--error); color: white; }
+
+    .btn-panel-action.unban { background: rgba(16, 185, 129, 0.12); color: var(--success); border: 1px solid rgba(16,185,129,0.2); }
+    .btn-panel-action.unban:hover { background: var(--success); color: white; }
+
+    /* Unified Premium Modal Overlay Drawer */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 2, 12, 0.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-premium);
+      width: 100%;
+      max-width: 520px;
+      padding: 24px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-title {
+      font-size: 15px;
+      font-weight: 800;
+      margin-bottom: 18px;
+      text-align: center;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 12px 14px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      color: var(--text-main);
+      font-size: 13px;
+      outline: none;
+    }
+
+    .form-input:focus { border-color: var(--secondary); }
+
+    .modal-buttons-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .btn-modal {
+      flex: 1;
+      padding: 12px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-cancel { background: rgba(255,255,255,0.04); color: var(--text-main); border: 1px solid var(--border-color); }
+    .btn-save { background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); color: white; }
+
+    /* Table row short descriptors and detail badges */
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .detail-item-card {
+      background: rgba(255,255,255,0.01);
+      border: 1px solid rgba(255,255,255,0.03);
+      padding: 10px;
+      border-radius: 12px;
+    }
+
+    .detail-item-label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; }
+    .detail-item-val { font-family: 'Share Tech Mono', monospace; font-size: 13px; font-weight: 700; color: #fff; margin-top: 3px; }
+
+    /* Custom Pagination row design */
+    .pagination-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 20px;
+    }
+
+    .pagination-btn {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 8px 16px;
+      border-radius: 12px;
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .pagination-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+    .page-index-label { font-size: 12px; color: var(--text-muted); font-weight: 600; }
+
+    /* Skeletons */
+    .skeleton-box { height: 74px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; position: relative; overflow: hidden; margin-bottom: 10px; }
+    .skeleton-box::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.02), transparent); transform: translateX(-100%); animation: shim 1.5s infinite; }
+    @keyframes shim { 100% { transform: translateX(100%); } }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      aside.sidebar { transform: translateX(-270px); }
+      aside.sidebar.mobile-open { transform: translateX(0); }
+      main.main-viewport { margin-left: 0; }
+    }
+
+    /* Footer */
+    footer.terminal-footer {
+      background: rgba(13, 6, 30, 0.3);
+      border-top: 1px solid rgba(255,255,255,0.03);
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* Alerts */
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 11000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .toast {
+      background: rgba(18, 10, 36, 0.95);
+      border: 1px solid var(--border-color);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      padding: 12px 20px;
+      border-radius: 12px;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      transform: translateX(120%);
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .toast.show { transform: translateX(0); }
+    .toast.error { border-left: 4px solid var(--error); }
+    .toast.success { border-left: 4px solid var(--success); }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar Drawer Navigation Bar (17 items) -->
+  <aside class="sidebar" id="terminalSidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo"><i class="fa-solid fa-circle-nodes"></i></div>
+      <div class="sidebar-title">
+        TNMINING <span>Administrative Console</span>
+      </div>
+    </div>
+    <div class="sidebar-menu">
+      <a href="admin-dashboard.html" class="menu-link"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+      <a href="admin-users.html" class="menu-link active"><i class="fa-solid fa-users"></i> Users</a>
+      <a href="admin-mining.html" class="menu-link"><i class="fa-solid fa-cube"></i> Mining</a>
+      <a href="admin-withdraw.html" class="menu-link"><i class="fa-solid fa-money-check-dollar"></i> Withdraw</a>
+      <a href="admin-buy-power.html" class="menu-link"><i class="fa-solid fa-bolt"></i> Buy Power</a>
+      <a href="admin-task.html" class="menu-link"><i class="fa-solid fa-list-check"></i> Tasks</a>
+      <a href="admin-referral.html" class="menu-link"><i class="fa-solid fa-people-roof"></i> Referral</a>
+      <a href="admin-announcement.html" class="menu-link"><i class="fa-solid fa-bullhorn"></i> Announcements</a>
+      <a href="admin-statistics.html" class="menu-link"><i class="fa-solid fa-database"></i> Statistics</a>
+      <a href="admin-package-orders.html" class="menu-link"><i class="fa-solid fa-cart-shopping"></i> Package Orders</a>
+      <a href="admin-wallet.html" class="menu-link"><i class="fa-solid fa-wallet"></i> Wallet</a>
+      <a href="admin-notification.html" class="menu-link"><i class="fa-solid fa-bell"></i> Notifications</a>
+      <a href="admin-report.html" class="menu-link"><i class="fa-solid fa-flag"></i> Reports</a>
+      <a href="admin-logs.html" class="menu-link"><i class="fa-solid fa-clock-rotate-left"></i> Logs</a>
+      <a href="admin-settings.html" class="menu-link"><i class="fa-solid fa-sliders"></i> Settings</a>
+      <a href="admin-security.html" class="menu-link"><i class="fa-solid fa-user-shield"></i> Security</a>
+      <a href="admin-profile.html" class="menu-link"><i class="fa-solid fa-user-gear"></i> Profile</a>
+    </div>
+  </aside>
+
+  <!-- Main Viewport -->
+  <main class="main-viewport" id="mainViewport">
+    
+    <!-- Top Nav -->
+    <nav class="top-navbar">
+      <div class="navbar-left">
+        <button class="menu-toggle-btn" id="sidebarToggle"><i class="fa-solid fa-bars-staggered"></i></button>
+        <span class="nav-title">Platform Members Control Console</span>
+      </div>
+      <div class="navbar-right">
+        <div class="live-clock-wrapper">
+          <div id="navLiveDate">--- --, ----</div>
+          <div id="navLiveTime" style="font-weight:700;">--:--:-- UTC</div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Content workspace area -->
+    <div class="dashboard-content">
+      
+      <!-- Statistics deck (9 metric cards) -->
+      <section class="stats-matrix-9">
+        
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-users"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Total Users</span>
+            <span class="stat-metric-val purple" id="cardTotalUsers">0</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-user-plus"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Today's Joins</span>
+            <span class="stat-metric-val cyan" id="cardTodayUsers">0</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-signal"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Online Miners</span>
+            <span class="stat-metric-val" id="cardOnlineUsers">0</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-microchip"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Active Mining</span>
+            <span class="stat-metric-val gold" id="cardActiveMiners">0</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-cart-shopping"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Buyers HP</span>
+            <span class="stat-metric-val purple" id="cardBuyers">0 HP</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-people-roof"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Alliance Tree</span>
+            <span class="stat-metric-val cyan" id="cardReferrers">0</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card" style="border-color: rgba(239, 68, 68, 0.2);">
+          <div class="stat-metric-icon" style="color:var(--error); border-color:var(--error);"><i class="fa-solid fa-user-slash"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Banned nodes</span>
+            <span class="stat-metric-val" id="cardBannedUsers" style="color:var(--error);">0</span>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Advanced Multi-functional Search/Filter bar (Rule 6 & 7) -->
+      <section class="search-filter-card">
+        <div class="toolbar-row">
+          
+          <div class="search-input-wrapper">
+            <input type="text" class="search-input" id="searchField" placeholder="Search by Username, Email, UID, Wallet Address...">
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </div>
+
+          <select class="select-filter" id="filterStatusSelect">
+            <option value="all">All Members</option>
+            <option value="online">Online</option>
+            <option value="offline">Offline</option>
+            <option value="mining">Mining Active</option>
+            <option value="banned">Suspended Accounts</option>
+          </select>
+
+          <select class="select-filter" id="filterSortingSelect">
+            <option value="newest">Sort: Newest joins</option>
+            <option value="oldest">Sort: Oldest joins</option>
+            <option value="power">Sort: Hashing power</option>
+            <option value="balance">Sort: Available balance</option>
+          </select>
+
+          <button class="export-btn" id="exportCsvBtn"><i class="fa-solid fa-file-csv"></i> Export CSV</button>
+
+        </div>
+      </section>
+
+      <!-- Directory skeletons loading state container -->
+      <div id="skeletonsContainer">
+        <div class="skeleton-box"></div>
+        <div class="skeleton-box"></div>
+        <div class="skeleton-box"></div>
+      </div>
+
+      <!-- Main Directory Listings table card -->
+      <div class="table-container-card" id="membersTableCard" style="display:none;">
+        <table class="members-table">
+          <thead>
+            <tr>
+              <th>Profile</th>
+              <th>Username</th>
+              <th>Email Address</th>
+              <th>Permanent hashrate</th>
+              <th>Wallet Balance</th>
+              <th>Mining status</th>
+              <th>Account status</th>
+              <th>Administrative action ledger</th>
+            </tr>
+          </thead>
+          <tbody id="usersTableBody">
+            <!-- Rendered in script -->
+          </tbody>
+        </table>
+
+        <!-- Custom Pagination layout (Rule 10) -->
+        <div class="pagination-bar">
+          <button class="pagination-btn" id="prevPageBtn" disabled><i class="fa-solid fa-angle-left"></i> Previous</button>
+          <span class="page-index-label" id="pageIndexDisplay">Page 1 of 1</span>
+          <button class="pagination-btn" id="nextPageBtn" disabled>Next <i class="fa-solid fa-angle-right"></i></button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Panel Footer -->
+    <footer class="terminal-footer">
+      <span>TNMINING SYSTEM CONTROL CORE - USERS DIRECTORY</span>
+      <span style="font-family:'Share Tech Mono', monospace; color:var(--secondary);">Realtime Sync: Online</span>
+    </footer>
+
+  </main>
+
+  <!-- ==================== ADMINISTRATIVE DETAIL MODAL DRAWERS ==================== -->
+
+  <!-- Modal A: Deep View Dialog (Rule 11) -->
+  <div class="modal-overlay" id="viewUserModal">
+    <div class="modal-card">
+      <h3 class="modal-title"><i class="fa-solid fa-user-shield" style="color:var(--secondary);"></i> Member Deep Analytics</h3>
+      
+      <div class="detail-grid">
+        <div class="detail-item-card">
+          <span class="detail-item-label">Alphanumeric Username</span>
+          <div class="detail-item-val" id="viewUsername">@username</div>
+        </div>
+        <div class="detail-item-card">
+          <span class="detail-item-label">Verified Email</span>
+          <div class="detail-item-val" id="viewEmail">email@example.com</div>
+        </div>
+        <div class="detail-item-card" style="grid-column: span 2;">
+          <span class="detail-item-label">Platform Firebase UID</span>
+          <div class="detail-item-val" id="viewUid" style="font-size:11px;">uid</div>
+        </div>
+        <div class="detail-item-card">
+          <span class="detail-item-label">Total GigaPower</span>
+          <div class="detail-item-val" id="viewTotalPower" style="color:var(--primary);">0 HP</div>
+        </div>
+        <div class="detail-item-card">
+          <span class="detail-item-label">Withdrawable Balance</span>
+          <div class="detail-item-val" id="viewWithdrawable" style="color:var(--secondary);">$0.0000</div>
+        </div>
+        <div class="detail-item-card">
+          <span class="detail-item-label">Completed Mining Cycles</span>
+          <div class="detail-item-val" id="viewCompletedMining">0 Completed</div>
+        </div>
+        <div class="detail-item-card">
+          <span class="detail-item-label">Active Streams Running</span>
+          <div class="detail-item-val" id="viewActiveStreams">0 active</div>
+        </div>
+      </div>
+
+      <div class="modal-buttons-row">
+        <button class="btn-modal btn-cancel" onclick="closeModal('viewUserModal')" style="flex:auto;">Close analytics board</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal B: Edit Profile Credentials Dialog (Rule 12) -->
+  <div class="modal-overlay" id="editUserModal">
+    <div class="modal-card">
+      <h3 class="modal-title"><i class="fa-solid fa-user-pen" style="color:var(--primary);"></i> Edit Profile Details</h3>
+      
+      <div class="form-group">
+        <label class="form-label">Available Balance ($)</label>
+        <input type="number" step="any" class="form-input" id="editBalanceInput" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Permanent Hashing Power (HP)</label>
+        <input type="number" class="form-input" id="editPowerInput" required>
+      </div>
+
+      <div class="modal-buttons-row">
+        <button class="btn-modal btn-cancel" onclick="closeModal('editUserModal')">Cancel</button>
+        <button class="btn-modal btn-save" id="saveEditBtn">Commit Updates</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Firebase Legacy Compat SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+  <script>
+    // Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDuQICVoC10i62PQMS6cX37t1eoeTg5zsc",
+      authDomain: "mining-c7b26.firebaseapp.com",
+      databaseURL: "https://mining-c7b26-default-rtdb.firebaseio.com",
+      projectId: "mining-c7b26",
+      storageBucket: "mining-c7b26.firebasestorage.app",
+      messagingSenderId: "873757658723",
+      appId: "1:873757658723:web:18a4af95953a08b440b256"
+    };
+
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.database();
+
+    // DOM selectors
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const terminalSidebar = document.getElementById('terminalSidebar');
+    const mainViewport = document.getElementById('mainViewport');
+    const navLiveDate = document.getElementById('navLiveDate');
+    const navLiveTime = document.getElementById('navLiveTime');
+
+    // Cards displays selectors
+    const cardTotalUsers = document.getElementById('cardTotalUsers');
+    const cardTodayUsers = document.getElementById('cardTodayUsers');
+    const cardOnlineUsers = document.getElementById('cardOnlineUsers');
+    const cardActiveMiners = document.getElementById('cardActiveMiners');
+    const cardBuyers = document.getElementById('cardBuyers');
+    const cardReferrers = document.getElementById('cardReferrers');
+    const cardBannedUsers = document.getElementById('cardBannedUsers');
+
+    const searchField = document.getElementById('searchField');
+    const filterStatusSelect = document.getElementById('filterStatusSelect');
+    const filterSortingSelect = document.getElementById('filterSortingSelect');
+    const exportCsvBtn = document.getElementById('exportCsvBtn');
+
+    const skeletonsContainer = document.getElementById('skeletonsContainer');
+    const membersTableCard = document.getElementById('membersTableCard');
+    const usersTableBody = document.getElementById('usersTableBody');
+
+    // Pagination DOM
+    const prevPageBtn = document.getElementById('prevPageBtn');
+    const nextPageBtn = document.getElementById('nextPageBtn');
+    const pageIndexDisplay = document.getElementById('pageIndexDisplay');
+
+    // Modals elements View
+    const viewUserModal = document.getElementById('viewUserModal');
+    const viewUsername = document.getElementById('viewUsername');
+    const viewEmail = document.getElementById('viewEmail');
+    const viewUid = document.getElementById('viewUid');
+    const viewTotalPower = document.getElementById('viewTotalPower');
+    const viewWithdrawable = document.getElementById('viewWithdrawable');
+    const viewCompletedMining = document.getElementById('viewCompletedMining');
+    const viewActiveStreams = document.getElementById('viewActiveStreams');
+
+    // Modals elements Edit
+    const editUserModal = document.getElementById('editUserModal');
+    const editBalanceInput = document.getElementById('editBalanceInput');
+    const editPowerInput = document.getElementById('editPowerInput');
+    const saveEditBtn = document.getElementById('saveEditBtn');
+    const toastContainer = document.getElementById('toastContainer');
+
+    let globalUsersList = {};
+    let filteredUsersArray = [];
+    let activeEditUid = null;
+
+    // Pagination tracking config (Rule 10 20 items/page)
+    const ITEMS_PER_PAGE = 20;
+    let currentPage = 1;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      // Toggle collapsible navigation sidebar drawer
+      sidebarToggle.addEventListener('click', () => {
+        terminalSidebar.classList.toggle('collapsed');
+        terminalSidebar.classList.toggle('mobile-open');
+        mainViewport.classList.toggle('expanded');
+      });
+
+      startTerminalTimerClock();
+      initializeUsersListener();
+    });
+
+    function showToast(message, type = 'success') {
+      const toast = document.createElement('div');
+      toast.classList.add('toast', type);
+      const icon = type === 'success' ? 'fa-circle-check' : 'fa-triangle-exclamation';
+      toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${message}</span>`;
+      toastContainer.appendChild(toast);
+      setTimeout(() => toast.classList.add('show'), 50);
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    function startTerminalTimerClock() {
+      setInterval(() => {
+        const utcDate = new Date();
+        navLiveDate.textContent = utcDate.toLocaleDateString('en-US', {
+          year: 'numeric', month: 'long', day: 'numeric'
+        });
+        navLiveTime.textContent = utcDate.toUTCString().replace("GMT", "UTC");
+      }, 1000);
+    }
+
+    // Connect User database listeners (Rule 1 & 14)
+    function initializeUsersListener() {
+      db.ref('Users').on('value', (snapshot) => {
+        skeletonsContainer.style.display = 'none';
+        membersTableCard.style.display = 'block';
+
+        if (!snapshot.exists()) {
+          usersTableBody.innerHTML = `<tr><td colspan="8" class="empty-state">No users loaded in project database.</td></tr>`;
+          return;
+        }
+
+        globalUsersList = snapshot.val();
+        
+        calculateMetricsAverages();
+        processSortingAndFiltering();
+      });
+    }
+
+    // Calculate aggregated dynamic stat cards (Rule 3)
+    function calculateMetricsAverages() {
+      const users = Object.values(globalUsersList);
+      
+      let totalCount = users.length;
+      let todayCount = 0;
+      let activeMiners = 0;
+      let onlineMiners = 0;
+      let bannedCount = 0;
+      let totalBuyersPower = 0;
+      let referrersCount = 0;
+
+      const startOfToday = new Date().setHours(0,0,0,0);
+
+      users.forEach((u) => {
+        if (u.createdAt && u.createdAt > startOfToday) todayCount++;
+        if (u.banned) bannedCount++;
+        if (u.miningStatus === 'active') {
+          activeMiners++;
+          onlineMiners++; // online if actively streaming mining pools
+        }
+        if (u.referredBy) referrersCount++;
+        totalBuyersPower += parseInt(u.power || 1000);
+      });
+
+      cardTotalUsers.textContent = Number(totalCount).toLocaleString();
+      cardTodayUsers.textContent = todayCount;
+      cardOnlineUsers.textContent = onlineMiners;
+      cardActiveMiners.textContent = activeMiners;
+      cardBannedUsers.textContent = bannedCount;
+      cardBuyers.textContent = `${Number(totalBuyersPower).toLocaleString()} HP`;
+      cardReferrers.textContent = referrersCount;
+    }
+
+    // Filter, Search, and Sort dynamic users directory lists (Rule 6, 7 & 10)
+    function processSortingAndFiltering() {
+      const query = searchField.value.trim().toLowerCase();
+      const statusFilter = filterStatusSelect.value;
+      const sortingFilter = filterSortingSelect.value;
+
+      let usersArray = Object.keys(globalUsersList).map(key => globalUsersList[key]);
+
+      // 1. Apply multi search queries (Rule 6)
+      if (query) {
+        usersArray = usersArray.filter(u => 
+          (u.uid && u.uid.toLowerCase().includes(query)) ||
+          (u.username && u.username.toLowerCase().includes(query)) ||
+          (u.email && u.email.toLowerCase().includes(query))
+        );
+      }
+
+      // 2. Apply quick selectors status filters (Rule 7)
+      if (statusFilter === 'online') {
+        usersArray = usersArray.filter(u => u.miningStatus === 'active');
+      } else if (statusFilter === 'offline') {
+        usersArray = usersArray.filter(u => u.miningStatus !== 'active');
+      } else if (statusFilter === 'mining') {
+        usersArray = usersArray.filter(u => u.activeSessions && Object.keys(u.activeSessions).length > 0);
+      } else if (statusFilter === 'banned') {
+        usersArray = usersArray.filter(u => u.banned === true);
+      }
+
+      // 3. Apply sorters filters
+      if (sortingFilter === 'newest') {
+        usersArray.sort((a,b) => (b.createdAt || 0) - (a.createdAt || 0));
+      } else if (sortingFilter === 'oldest') {
+        usersArray.sort((a,b) => (a.createdAt || 0) - (b.createdAt || 0));
+      } else if (sortingFilter === 'power') {
+        usersArray.sort((a,b) => (b.power || 0) - (a.power || 0));
+      } else if (sortingFilter === 'balance') {
+        usersArray.sort((a,b) => (b.balance || 0) - (a.balance || 0));
+      }
+
+      filteredUsersArray = usersArray;
+      renderPaginatedTable();
+    }
+
+    // Apply strict pagination parameters (Rule 10)
+    function renderPaginatedTable() {
+      usersTableBody.innerHTML = "";
+
+      if (filteredUsersArray.length === 0) {
+        usersTableBody.innerHTML = `<tr><td colspan="8" class="empty-state">No matching users found.</td></tr>`;
+        pageIndexDisplay.textContent = "Page 0 of 0";
+        prevPageBtn.disabled = true;
+        nextPageBtn.disabled = true;
+        return;
+      }
+
+      const totalPages = Math.ceil(filteredUsersArray.length / ITEMS_PER_PAGE);
+      if (currentPage > totalPages) currentPage = totalPages;
+      if (currentPage < 1) currentPage = 1;
+
+      pageIndexDisplay.textContent = `Page ${currentPage} of ${totalPages}`;
+
+      // Set disabled states
+      prevPageBtn.disabled = currentPage === 1;
+      nextPageBtn.disabled = currentPage === totalPages;
+
+      const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+      const paginatedList = filteredUsersArray.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+      paginatedList.forEach((user) => {
+        const tr = document.createElement('tr');
+        
+        const username = user.username ? (user.username.charAt(0).toUpperCase() + user.username.slice(1)) : "Miner";
+        const initials = username.charAt(0).toUpperCase();
+
+        const activeSessionsCount = user.activeSessions ? Object.keys(user.activeSessions).length : 0;
+        const onlineStatusHTML = activeSessionsCount > 0 
+          ? `<span class="status-badge active" style="font-size:8px;">Online (${activeSessionsCount})</span>`
+          : `<span class="status-badge handled">Offline</span>`;
+
+        const banButtonHTML = user.banned 
+          ? `<button class="btn-panel-action unban" onclick="toggleBanState('${user.uid}', false)">Unban</button>`
+          : `<button class="btn-panel-action ban" onclick="toggleBanState('${user.uid}', true)">Ban</button>`;
+
+        const displayPower = parseInt(user.power || 1000).toLocaleString();
+        const displayBal = parseFloat(user.balance || 0).toFixed(6);
+
+        tr.innerHTML = `
+          <td><div class="avatar-cell">${initials}</div></td>
+          <td><strong>@${username}</strong></td>
+          <td style="color:var(--text-muted);">${user.email}</td>
+          <td style="font-family:'Share Tech Mono', monospace; font-weight:700; color:var(--primary);">${displayPower} HP</td>
+          <td style="font-family:'Share Tech Mono', monospace; font-weight:700;">$${displayBal}</td>
+          <td>${onlineStatusHTML}</td>
+          <td>
+            <span class="status-badge ${user.banned ? 'banned' : 'active'}">${user.banned ? 'Banned' : 'Active'}</span>
+          </td>
+          <td>
+            <button class="btn-panel-action view" onclick="openViewUserModal('${user.uid}')">View</button>
+            <button class="btn-panel-action edit" onclick="openEditUserModal('${user.uid}')">Edit</button>
+            ${banButtonHTML}
+            <button class="btn-panel-action ban" onclick="purgeUserNode('${user.uid}')" style="background:rgba(239, 68, 68, 0.1); border-color:rgba(239, 68, 68, 0.2);"><i class="fa-solid fa-trash-can"></i></button>
+          </td>
+        `;
+        usersTableBody.appendChild(tr);
+      });
+    }
+
+    // Modal view actions (Rule 11)
+    window.openViewUserModal = function(uid) {
+      const user = globalUsersList[uid];
+      if (!user) return;
+
+      viewUsername.textContent = `@${user.username}`;
+      viewEmail.textContent = user.email;
+      viewUid.textContent = user.uid;
+      
+      const displayPower = parseInt(user.power || 1000).toLocaleString();
+      viewTotalPower.textContent = `${displayPower} HP`;
+      viewWithdrawable.textContent = `$${parseFloat(user.balance || 0).toFixed(6)}`;
+      viewCompletedMining.textContent = `${user.completedMiningCycles || 0} Cycles`;
+
+      const activeStreamsCount = user.activeSessions ? Object.keys(user.activeSessions).length : 0;
+      viewActiveStreams.textContent = `${activeStreamsCount} active streams`;
+
+      document.getElementById('viewUserModal').classList.add('active');
+    };
+
+    // Modal Edit Profile actions (Rule 12)
+    window.openEditUserModal = function(uid) {
+      activeEditUid = uid;
+      const user = globalUsersList[uid];
+      if (!user) return;
+
+      editBalanceInput.value = parseFloat(user.balance || 0);
+      editPowerInput.value = parseInt(user.power || 1000);
+
+      document.getElementById('editUserModal').classList.add('active');
+    };
+
+    saveEditBtn.addEventListener('click', () => {
+      if (!activeEditUid) return;
+
+      const newBal = parseFloat(editBalanceInput.value);
+      const newPower = parseInt(editPowerInput.value);
+
+      if (isNaN(newBal) || isNaN(newPower) || newPower < 0) {
+        showToast("Invalid metrics values entered.", "error");
+        return;
+      }
+
+      db.ref(`Users/${activeEditUid}`).update({
+        balance: newBal,
+        power: newPower
+      }).then(() => {
+        showToast("User profile metrics updated successfully!", "success");
+        closeModal('editUserModal');
+      });
+    });
+
+    window.closeModal = function(modalId) {
+      document.getElementById(modalId).classList.remove('active');
+    };
+
+    // Toggle Bannings triggers (Rule 13)
+    window.toggleBanState = function(uid, isBan) {
+      const action = isBan ? "Ban" : "Unban";
+      if (confirm(`Do you want to verify account security lock: ${action} user?`)) {
+        db.ref(`Users/${uid}`).update({ banned: isBan })
+          .then(() => showToast(`User is now successfully ${isBan ? 'banned' : 'unbanned'}!`, "success"));
+      }
+    };
+
+    // Dynamic full-purge deletion mechanism (Rule 14 Deletes associated nodes)
+    window.purgeUserNode = function(uid) {
+      if (confirm("WARNING: Purging member completely deletes profile, active streams, and claims from database tree. Recovering is impossible. Proceed?")) {
+        
+        const user = globalUsersList[uid];
+        const referralRef = user && user.referredBy ? `Referrals/${user.referredBy}/${uid}` : null;
+
+        const updatePurges = {};
+        updatePayload = {};
+        
+        // Remove standard user node and any connected affiliate reference mappings
+        updatePayload[`Users/${uid}`] = null;
+        if (referralRef) updatePayload[referralRef] = null;
+
+        db.ref().update(updatePayload)
+          .then(() => showToast("User profile and linked logs permanently purged from database.", "success"))
+          .catch(() => showToast("Failed to lock secure purge transaction.", "error"));
+      }
+    };
+
+    // Export Dynamic list as localized CSV string (Rule 15 CSV/Excel export)
+    exportCsvBtn.addEventListener('click', () => {
+      if (filteredUsersArray.length === 0) return;
+
+      let csvText = "Username,Email,UID,Power (HP),Balance ($),Status\n";
+
+      filteredUsersArray.forEach((u) => {
+        const uName = u.username || "Miner";
+        const state = u.banned ? "Banned" : "Active";
+        csvText += `@${uName},${u.email},${u.uid},${u.power || 1000},${parseFloat(u.balance || 0).toFixed(6)},${state}\n`;
+      });
+
+      const blob = new Blob([csvText], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.setAttribute("download", "tnmining_directory_ledger.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      showToast("CSV directory payload generated successfully!", "success");
+    });
+
+    // Pagination Click triggers
+    prevPageBtn.addEventListener('click', () => {
+      if (currentPage > 1) {
+        currentPage--;
+        renderPaginatedTable();
+      }
+    });
+
+    nextPageBtn.addEventListener('click', () => {
+      const totalPages = Math.ceil(filteredUsersArray.length / ITEMS_PER_PAGE);
+      if (currentPage < totalPages) {
+        currentPage++;
+        renderPaginatedTable();
+      }
+    });
+
+    // Handle Input change filters
+    searchField.addEventListener('input', () => {
+      currentPage = 1;
+      processSortingAndFiltering();
+    });
+
+    filterStatusSelect.addEventListener('change', () => {
+      currentPage = 1;
+      processSortingAndFiltering();
+    });
+
+    filterSortingSelect.addEventListener('change', () => {
+      currentPage = 1;
+      processSortingAndFiltering();
+    });
+  </script>
+</body>
+</html>
