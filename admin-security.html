@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>TNMINING - Security Control Core</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    :root {
+      --bg-primary: #020009;
+      --bg-secondary: #070314;
+      --bg-card: rgba(13, 6, 30, 0.65);
+      --border-color: rgba(168, 85, 247, 0.18);
+      --primary: #a855f7;
+      --secondary: #06b6d4;
+      --gold: #fbbf24;
+      --gold-glow: rgba(251, 191, 36, 0.35);
+      --primary-glow: rgba(168, 85, 247, 0.3);
+      --secondary-glow: rgba(6, 182, 212, 0.2);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --success: #10b981;
+      --error: #ef4444;
+      --warning: #f59e0b;
+      --radius-premium: 24px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(168, 85, 247, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(6, 182, 212, 0.08) 0%, transparent 40%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+    }
+
+    /* Collapsible Navigation Sidebar (17 Items) */
+    aside.sidebar {
+      width: 270px;
+      background: rgba(8, 3, 20, 0.95);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 1000;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    aside.sidebar.collapsed {
+      transform: translateX(-270px);
+    }
+
+    .sidebar-header {
+      padding: 24px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+
+    .sidebar-logo {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: white;
+      box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+    }
+
+    .sidebar-title {
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    .sidebar-title span {
+      display: block;
+      font-size: 9px;
+      font-family: 'Share Tech Mono', monospace;
+      color: var(--secondary);
+    }
+
+    .sidebar-menu {
+      flex: 1;
+      padding: 16px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      overflow-y: auto;
+    }
+
+    .menu-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 14px;
+      border-radius: 12px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 12.5px;
+      font-weight: 600;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+
+    .menu-link i {
+      font-size: 14px;
+      width: 18px;
+      text-align: center;
+    }
+
+    .menu-link:hover, .menu-link.active {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.03);
+      border-color: var(--border-color);
+    }
+
+    .menu-link.active {
+      background: linear-gradient(135deg, rgba(168, 85, 247, 0.12) 0%, rgba(6, 182, 212, 0.12) 100%);
+      border-color: var(--primary);
+    }
+
+    /* Main Content Wrapper */
+    main.main-viewport {
+      margin-left: 270px;
+      flex: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    main.main-viewport.expanded {
+      margin-left: 0;
+    }
+
+    /* Top Navbar Bar */
+    .top-navbar {
+      height: 72px;
+      background: rgba(13, 6, 30, 0.5);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 24px;
+      position: sticky;
+      top: 0;
+      z-index: 999;
+    }
+
+    .navbar-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .menu-toggle-btn {
+      font-size: 18px;
+      color: var(--text-main);
+      cursor: pointer;
+      background: none;
+      border: none;
+    }
+
+    .nav-title { font-size: 16px; font-weight: 800; }
+
+    .navbar-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .live-clock-wrapper {
+      text-align: right;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px;
+      color: var(--secondary);
+    }
+
+    /* Content Area */
+    .dashboard-content {
+      padding: 24px;
+      flex: 1;
+    }
+
+    /* Analytics Dashboard Grid */
+    .stats-matrix-8 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .stat-metric-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .stat-metric-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      color: var(--secondary);
+    }
+
+    .stat-metric-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .stat-metric-label {
+      font-size: 9.5px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .stat-metric-val {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .stat-metric-val.purple { color: var(--primary); }
+    .stat-metric-val.cyan { color: var(--secondary); }
+    .stat-metric-val.gold { color: var(--gold); }
+
+    /* Split Dashboard wrap */
+    .security-split-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 900px) {
+      .security-split-grid { grid-template-columns: 1fr; }
+    }
+
+    /* System protection toggles grid board card */
+    .protection-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-premium);
+      padding: 24px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    }
+
+    .protection-title {
+      font-size: 14px;
+      font-weight: 800;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .protection-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+    }
+
+    .protection-box {
+      background: rgba(255,255,255,0.01);
+      border: 1px solid rgba(255,255,255,0.03);
+      padding: 14px;
+      border-radius: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .protection-label { font-size: 11.5px; font-weight: 700; color: var(--text-muted); }
+
+    /* Custom Toggle Switch */
+    .switch-toggle {
+      position: relative;
+      display: inline-block;
+      width: 38px;
+      height: 20px;
+    }
+    .switch-toggle input { opacity: 0; width: 0; height: 0; }
+    .slider-round {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background-color: rgba(255,255,255,0.1);
+      transition: .3s;
+      border-radius: 20px;
+    }
+    .slider-round:before {
+      content: "";
+      position: absolute;
+      height: 14px;
+      width: 14px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+    }
+    input:checked + .slider-round { background-color: var(--success); }
+    input:checked + .slider-round:before { transform: translateX(18px); }
+
+    /* IP Blocklists management */
+    .blocklist-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.03);
+      border-radius: var(--radius-premium);
+      padding: 20px;
+    }
+
+    .blocklist-input-wrapper {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .block-input {
+      flex: 1;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 10px 14px;
+      color: #fff;
+      font-size: 12.5px;
+      outline: none;
+    }
+
+    .block-input:focus { border-color: var(--secondary); }
+
+    .btn-block-ip {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      border: none;
+      color: white;
+      font-weight: 700;
+      padding: 0 16px;
+      border-radius: 12px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .blocked-ips-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 180px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .blocked-ips-list::-webkit-scrollbar { width: 3px; }
+    .blocked-ips-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.05); }
+
+    .blocked-item-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(239,68,68,0.03);
+      border: 1px solid rgba(239,68,68,0.15);
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 11.5px;
+    }
+
+    .btn-unblock {
+      background: none;
+      border: none;
+      color: var(--success);
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    /* Backups & Database monitors card */
+    .backup-panel-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-premium);
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+
+    .backup-actions-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-backup {
+      flex: 1;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid var(--border-color);
+      background: rgba(255,255,255,0.02);
+      color: var(--text-main);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .btn-backup:hover { border-color: var(--secondary); background: rgba(6,182,212,0.05); }
+    .btn-backup:active { transform: scale(0.97); }
+
+    /* Chronological Security Logs timeline card */
+    .logs-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      border-radius: var(--radius-premium);
+      padding: 20px;
+    }
+
+    .timeline-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .timeline-node {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.02);
+    }
+
+    .timeline-node:last-child { border-bottom: none; }
+
+    .timeline-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: var(--error);
+      box-shadow: 0 0 6px var(--error);
+      margin-top: 5px;
+      flex-shrink: 0;
+    }
+
+    .timeline-dot.success { background-color: var(--success); box-shadow: 0 0 6px var(--success); }
+
+    .timeline-desc {
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .timeline-time {
+      font-size: 9px;
+      color: var(--text-muted);
+      margin-top: 1px;
+    }
+
+    .empty-state { text-align: center; color: var(--text-muted); font-size: 12px; padding: 10px 0; }
+
+    /* Skeletons */
+    .skeleton-box { height: 74px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; position: relative; overflow: hidden; margin-bottom: 10px; }
+    .skeleton-box::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.02), transparent); transform: translateX(-100%); animation: shim 1.5s infinite; }
+    @keyframes shim { 100% { transform: translateX(100%); } }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      aside.sidebar { transform: translateX(-270px); }
+      aside.sidebar.mobile-open { transform: translateX(0); }
+      main.main-viewport { margin-left: 0; }
+    }
+
+    /* Footer */
+    footer.terminal-footer {
+      background: rgba(13, 6, 30, 0.3);
+      border-top: 1px solid rgba(255,255,255,0.03);
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar drawers targets (17 Items) -->
+  <aside class="sidebar" id="terminalSidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo"><i class="fa-solid fa-circle-nodes"></i></div>
+      <div class="sidebar-title">
+        TNMINING <span>Administrative Console</span>
+      </div>
+    </div>
+    <div class="sidebar-menu">
+      <a href="admin-dashboard.html" class="menu-link"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+      <a href="admin-users.html" class="menu-link"><i class="fa-solid fa-users"></i> Users</a>
+      <a href="admin-mining.html" class="menu-link"><i class="fa-solid fa-cube"></i> Mining</a>
+      <a href="admin-withdraw.html" class="menu-link"><i class="fa-solid fa-money-check-dollar"></i> Withdraw</a>
+      <a href="admin-buy-power.html" class="menu-link"><i class="fa-solid fa-bolt"></i> Buy Power</a>
+      <a href="admin-task.html" class="menu-link"><i class="fa-solid fa-list-check"></i> Tasks</a>
+      <a href="admin-referral.html" class="menu-link"><i class="fa-solid fa-people-roof"></i> Referral</a>
+      <a href="admin-announcement.html" class="menu-link"><i class="fa-solid fa-bullhorn"></i> Announcements</a>
+      <a href="admin-statistics.html" class="menu-link"><i class="fa-solid fa-database"></i> Statistics</a>
+      <a href="admin-package-orders.html" class="menu-link"><i class="fa-solid fa-cart-shopping"></i> Package Orders</a>
+      <a href="admin-wallet.html" class="menu-link"><i class="fa-solid fa-wallet"></i> Wallet</a>
+      <a href="admin-notification.html" class="menu-link"><i class="fa-solid fa-bell"></i> Notifications</a>
+      <a href="admin-report.html" class="menu-link"><i class="fa-solid fa-flag"></i> Reports</a>
+      <a href="admin-logs.html" class="menu-link"><i class="fa-solid fa-clock-rotate-left"></i> Logs</a>
+      <a href="admin-settings.html" class="menu-link"><i class="fa-solid fa-sliders"></i> Settings</a>
+      <a href="admin-security.html" class="menu-link active"><i class="fa-solid fa-user-shield"></i> Security</a>
+      <a href="admin-profile.html" class="menu-link"><i class="fa-solid fa-user-gear"></i> Profile</a>
+    </div>
+  </aside>
+
+  <!-- Main Viewport wrap -->
+  <main class="main-viewport" id="mainViewport">
+    
+    <!-- Top Nav -->
+    <nav class="top-navbar">
+      <div class="navbar-left">
+        <button class="menu-toggle-btn" id="sidebarToggle"><i class="fa-solid fa-bars-staggered"></i></button>
+        <span class="nav-title">Platform Cyber-Security & Firewall Settings</span>
+      </div>
+      <div class="navbar-right">
+        <div class="live-clock-wrapper">
+          <div id="navLiveDate">--- --, ----</div>
+          <div id="navLiveTime" style="font-weight:700;">--:--:-- UTC</div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Content Workspace -->
+    <div class="dashboard-content">
+      
+      <!-- Metrics deck (8 dynamic cards) -->
+      <section class="stats-matrix-8">
+        
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-shield-halved"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Security Shield</span>
+            <span class="stat-metric-val success" style="font-size:14px; color:var(--success);">ACTIVE GUARD</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-window-restore"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Platform status</span>
+            <span class="stat-metric-val cyan" id="lblPlatformStatus" style="font-size:14px;">Online</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-database"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Database Sync</span>
+            <span class="stat-metric-val gold" style="font-size:14px; color:var(--gold);">Synced</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-ban"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Blocked IP Nodes</span>
+            <span class="stat-metric-val purple" id="cardBlockedIpsCount">0</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-history"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Total Alert Logs</span>
+            <span class="stat-metric-val" id="cardSecurityLogsCount">0</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-shield-virus"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Today's blocks</span>
+            <span class="stat-metric-val" id="cardTodayBlocks" style="color:var(--error);">0 hits</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card" style="grid-column: span 2;">
+          <div class="stat-metric-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Backup status</span>
+            <span class="stat-metric-val gold" id="lblLastBackup" style="font-size:11.5px;">Awaiting backup...</span>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Split Layout Columns -->
+      <div class="security-split-grid">
+        
+        <!-- Left Deck: Hashing Platforms Protection global toggle switches (System protection parameters) -->
+        <div class="protection-card">
+          <h3 class="protection-title"><i class="fa-solid fa-sliders" style="color:var(--primary);"></i> Platform Protection Modules</h3>
+          
+          <div class="protection-grid">
+            
+            <div class="protection-box">
+              <span class="protection-label">Public Access</span>
+              <label class="switch-toggle">
+                <input type="checkbox" id="togglePublicAccess" checked onchange="toggleSecurityVariable('publicAccess', this)">
+                <span class="slider-round"></span>
+              </label>
+            </div>
+
+            <div class="protection-box">
+              <span class="protection-label">Registrations</span>
+              <label class="switch-toggle">
+                <input type="checkbox" id="toggleRegistrations" checked onchange="toggleSecurityVariable('registrations', this)">
+                <span class="slider-round"></span>
+              </label>
+            </div>
+
+            <div class="protection-box">
+              <span class="protection-label">Mining Engine</span>
+              <label class="switch-toggle">
+                <input type="checkbox" id="toggleMiningEngine" checked onchange="toggleSecurityVariable('miningEngine', this)">
+                <span class="slider-round"></span>
+              </label>
+            </div>
+
+            <div class="protection-box">
+              <span class="protection-label">Withdraw Gateway</span>
+              <label class="switch-toggle">
+                <input type="checkbox" id="toggleWithdrawGateway" checked onchange="toggleSecurityVariable('withdrawGateway', this)">
+                <span class="slider-round"></span>
+              </label>
+            </div>
+
+            <div class="protection-box">
+              <span class="protection-label">Dynamic tasks</span>
+              <label class="switch-toggle">
+                <input type="checkbox" id="toggleTasks" checked onchange="toggleSecurityVariable('tasks', this)">
+                <span class="slider-round"></span>
+              </label>
+            </div>
+
+            <div class="protection-box">
+              <span class="protection-label">Alliance Tree</span>
+              <label class="switch-toggle">
+                <input type="checkbox" id="toggleAlliance" checked onchange="toggleSecurityVariable('alliance', this)">
+                <span class="slider-round"></span>
+              </label>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Right Deck: IP Firewall list management (IP blocklist) -->
+        <div class="blocklist-card">
+          <h3 class="protection-title" style="margin-top:0;"><i class="fa-solid fa-ban" style="color:var(--error);"></i> IP Firewall Rule list</h3>
+          
+          <div class="blocklist-input-wrapper">
+            <input type="text" class="block-input" id="ipBlockInput" placeholder="Enter IP address to block..." autocomplete="off">
+            <button class="btn-block-ip" id="btnBlockIp">Add Block</button>
+          </div>
+
+          <div class="blocked-ips-list" id="blockedIpsContainer">
+            <!-- Dyn items -->
+            <div class="empty-state">No IP addresses restricted.</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Backup control deck -->
+      <section class="backup-panel-card">
+        <h3 class="protection-title" style="margin-top:0;"><i class="fa-solid fa-cloud-arrow-down" style="color:var(--secondary);"></i> Realtime Database Backups (Simulated SNAPSHOTS)</h3>
+        <p style="font-size:12px; color:var(--text-muted); line-height:1.4; margin-bottom:16px;">Backup direct database trees into a compiled administrative JSON data payload. Restorations overrides existing data parameters.</p>
+        <div class="backup-actions-row">
+          <button class="btn-backup" id="btnCreateBackup"><i class="fa-solid fa-circle-plus"></i> Create JSON Snapshot</button>
+          <button class="btn-backup" id="btnDownloadBackup" style="color:var(--secondary); border-color:var(--secondary);"><i class="fa-solid fa-file-arrow-down"></i> Download Payload</button>
+          <button class="btn-backup" id="btnRestoreBackup" style="color:var(--gold); border-color:var(--gold);"><i class="fa-solid fa-rotate-left"></i> Restore Snapshot</button>
+        </div>
+      </section>
+
+      <!-- Chronological security threat alerts audit timeline -->
+      <div class="logs-card">
+        <h3 style="font-size:13px; font-weight:800; margin-bottom:15px;"><i class="fa-solid fa-shield-halved" style="color:var(--warning);"></i> Platform Security Alerts timeline</h3>
+        
+        <div class="timeline-stack" id="securityTimelineContainer">
+          <!-- Populated Chronological descending -->
+          <div class="timeline-node">
+            <span class="timeline-dot success"></span>
+            <div class="timeline-info">
+              <span class="timeline-desc">Secured monitoring stream listening. No breaches.</span>
+              <span class="timeline-time">System clockSynced</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Panel Footer -->
+    <footer class="terminal-footer">
+      <span>TNMINING SYSTEM CONTROL CORE - PROTECTION SHIELDS</span>
+      <span style="font-family:'Share Tech Mono', monospace; color:var(--secondary);">Realtime Monitoring: Sync</span>
+    </footer>
+
+  </main>
+
+  <!-- Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Firebase Legacy Compat SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+  <script>
+    // Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDuQICVoC10i62PQMS6cX37t1eoeTg5zsc",
+      authDomain: "mining-c7b26.firebaseapp.com",
+      databaseURL: "https://mining-c7b26-default-rtdb.firebaseio.com",
+      projectId: "mining-c7b26",
+      storageBucket: "mining-c7b26.firebasestorage.app",
+      messagingSenderId: "873757658723",
+      appId: "1:873757658723:web:18a4af95953a08b440b256"
+    };
+
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.database();
+
+    // DOM Selectors
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const terminalSidebar = document.getElementById('terminalSidebar');
+    const mainViewport = document.getElementById('mainViewport');
+    const navLiveDate = document.getElementById('navLiveDate');
+    const navLiveTime = document.getElementById('navLiveTime');
+
+    // Cards stats
+    const lblPlatformStatus = document.getElementById('lblPlatformStatus');
+    const cardBlockedIpsCount = document.getElementById('cardBlockedIpsCount');
+    const cardSecurityLogsCount = document.getElementById('cardSecurityLogsCount');
+    const cardTodayBlocks = document.getElementById('cardTodayBlocks');
+    const lblLastBackup = document.getElementById('lblLastBackup');
+
+    // Forms settings
+    const togglePublicAccess = document.getElementById('togglePublicAccess');
+    const toggleRegistrations = document.getElementById('toggleRegistrations');
+    const toggleMiningEngine = document.getElementById('toggleMiningEngine');
+    const toggleWithdrawGateway = document.getElementById('toggleWithdrawGateway');
+    const toggleTasks = document.getElementById('toggleTasks');
+    const toggleAlliance = document.getElementById('toggleAlliance');
+
+    // IP management selectors
+    const ipBlockInput = document.getElementById('ipBlockInput');
+    const btnBlockIp = document.getElementById('btnBlockIp');
+    const blockedIpsContainer = document.getElementById('blockedIpsContainer');
+
+    // Backups
+    const btnCreateBackup = document.getElementById('btnCreateBackup');
+    const btnDownloadBackup = document.getElementById('btnDownloadBackup');
+    const btnRestoreBackup = document.getElementById('btnRestoreBackup');
+
+    const securityTimelineContainer = document.getElementById('securityTimelineContainer');
+    const toastContainer = document.getElementById('toastContainer');
+
+    let globalSecuritySettings = {};
+    let globalBlockedIpsList = {};
+    let globalBackupsList = {};
+
+    window.addEventListener('DOMContentLoaded', () => {
+      // Toggle collapsible navigation sidebar drawer
+      sidebarToggle.addEventListener('click', () => {
+        terminalSidebar.classList.toggle('collapsed');
+        terminalSidebar.classList.toggle('mobile-open');
+        mainViewport.classList.toggle('expanded');
+      });
+
+      startTerminalTimerClock();
+      initializeSecurityListeners();
+    });
+
+    function showToast(message, type = 'success') {
+      const toast = document.createElement('div');
+      toast.classList.add('toast', type);
+      const icon = type === 'success' ? 'fa-circle-check' : 'fa-triangle-exclamation';
+      toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${message}</span>`;
+      toastContainer.appendChild(toast);
+      setTimeout(() => toast.classList.add('show'), 50);
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    function startTerminalTimerClock() {
+      setInterval(() => {
+        const utcDate = new Date();
+        navLiveDate.textContent = utcDate.toLocaleDateString('en-US', {
+          year: 'numeric', month: 'long', day: 'numeric'
+        });
+        navLiveTime.textContent = utcDate.toUTCString().replace("GMT", "UTC");
+      }, 1000);
+    }
+
+    // Default payload parameters settings for Security Shield configurations (Self-seeding)
+    const defaultSecurityPayload = {
+      systemProtection: {
+        publicAccess: true,
+        registrations: true,
+        miningEngine: true,
+        withdrawGateway: true,
+        tasks: true,
+        alliance: true
+      }
+    };
+
+    // Connect real-time security configurations listeners (Rule 1, 3, 10 & 15)
+    function initializeSecurityListeners() {
+      
+      // 1. Listen Settings Security branch
+      db.ref('SecuritySettings').on('value', (snapshot) => {
+        if (!snapshot.exists()) {
+          showToast("Security settings empty. Seeding templates configurations...", "warning");
+          db.ref('SecuritySettings').set(defaultSecurityPayload);
+          return;
+        }
+
+        globalSecuritySettings = snapshot.val();
+        
+        applySystemTogglesStatuses();
+        bindSecurityTimelineFeeds();
+      });
+
+      // 2. Listen Blocked IP listings
+      db.ref('BlockedIPs').on('value', (snapshot) => {
+        blockedIpsContainer.innerHTML = "";
+        
+        if (!snapshot.exists()) {
+          blockedIpsContainer.innerHTML = `<div class="empty-state">No IP addresses restricted inside platform firewall.</div>`;
+          cardBlockedIpsCount.textContent = "0";
+          return;
+        }
+
+        globalBlockedIpsList = snapshot.val();
+        const ipKeys = Object.keys(globalBlockedIpsList);
+        
+        cardBlockedIpsCount.textContent = ipKeys.length;
+
+        ipKeys.forEach((key) => {
+          const item = globalBlockedIpsList[key];
+          const div = document.createElement('div');
+          div.className = "blocked-item-row";
+          div.innerHTML = `
+            <span style="font-family:'Share Tech Mono', monospace; font-weight:700;">IP: ${item.ip}</span>
+            <button class="btn-unblock" onclick="removeIpBlockNode('${key}')">Unblock</button>
+          `;
+          blockedIpsContainer.appendChild(div);
+        });
+      });
+
+      // 3. Listen backups node state
+      db.ref('Backups').on('value', (snapshot) => {
+        if (snapshot.exists()) {
+          globalBackupsList = snapshot.val();
+          const backupsArray = Object.values(globalBackupsList);
+          backupsArray.sort((a,b) => b.timestamp - a.startTime); // Newest first
+          
+          const latest = backupsArray[0];
+          lblLastBackup.textContent = `Latest: ${new Date(latest.timestamp).toLocaleDateString()}`;
+        }
+      });
+    }
+
+    // Bind current dynamic statuses of toggle checkboxes
+    function applySystemTogglesStatuses() {
+      const sp = globalSecuritySettings.systemProtection || {};
+
+      togglePublicAccess.checked = sp.publicAccess !== false;
+      toggleRegistrations.checked = sp.registrations !== false;
+      toggleMiningEngine.checked = sp.miningEngine !== false;
+      toggleWithdrawGateway.checked = sp.withdrawGateway !== false;
+      toggleTasks.checked = sp.tasks !== false;
+      toggleAlliance.checked = sp.alliance !== false;
+
+      // Platform label
+      const isOnline = sp.publicAccess !== false;
+      lblPlatformStatus.textContent = isOnline ? "Active" : "Under Audits";
+      lblPlatformStatus.style.color = isOnline ? "var(--success)" : "var(--error)";
+    }
+
+    // Write changes dynamically back to Settings protection modules (Rule 11 System protection toggles)
+    window.toggleSecurityVariable = function(keyName, checkboxEl) {
+      const state = checkboxEl.checked;
+      
+      const payloadRef = db.ref(`SecuritySettings/systemProtection/${keyName}`);
+      payloadRef.set(state)
+        .then(() => {
+          showToast(`Protection variable "${keyName}" set to: ${state ? 'ENABLED' : 'DISABLED'}!`, "success");
+          
+          // Log action in chronological logs timeline
+          db.ref('SecurityLogs').push({
+            eventDesc: `Module protection parameter "${keyName}" was set to: ${state ? 'ENABLED' : 'DISABLED'} by operator`,
+            timestamp: firebase.database.ServerValue.TIMESTAMP,
+            isSuccess: true
+          });
+        });
+    };
+
+    // Add restricted IP address to Platform firewall Blocklist
+    btnBlockIp.addEventListener('click', () => {
+      const ip = ipBlockInput.value.trim();
+      
+      // Simple regex block check
+      const ipRegex = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/;
+      if (!ip || !ipRegex.test(ip)) {
+        showToast("Please enter a valid IPv4 address pattern.", "error");
+        return;
+      }
+
+      const key = db.ref('BlockedIPs').push().key;
+      db.ref(`BlockedIPs/${key}`).set({
+        id: key,
+        ip: ip,
+        timestamp: firebase.database.ServerValue.TIMESTAMP
+      }).then(() => {
+        showToast(`IP firewall restriction registered successfully!`, "success");
+        ipBlockInput.value = "";
+
+        db.ref('SecurityLogs').push({
+          eventDesc: `IP restriction rule issued: Blocked address ${ip}`,
+          timestamp: firebase.database.ServerValue.TIMESTAMP,
+          isSuccess: false // marked as danger event
+        });
+      });
+    });
+
+    window.removeIpBlockNode = function(key) {
+      const match = globalBlockedIpsList[key];
+      if (!match) return;
+
+      if (confirm(`Remove restrictions: Unblock IP address ${match.ip}?`)) {
+        db.ref(`BlockedIPs/${key}`).remove()
+          .then(() => {
+            showToast("IP restriction lifted successfully.", "success");
+            
+            db.ref('SecurityLogs').push({
+              eventDesc: `IP restriction lifted: Unblocked address ${match.ip}`,
+              timestamp: firebase.database.ServerValue.TIMESTAMP,
+              isSuccess: true
+            });
+          });
+      }
+    };
+
+    // Simulated Realtime Database Backup Creators (Rule 11 Backup Systems)
+    btnCreateBackup.addEventListener('click', () => {
+      // Pull complete users profile data and compile snapshot properties payload
+      db.ref('Users').once('value', (snapshot) => {
+        if (!snapshot.exists()) return;
+
+        const usersList = snapshot.val();
+        const backupId = db.ref('Backups').push().key;
+
+        const backupPayload = {
+          id: backupId,
+          timestamp: firebase.database.ServerValue.TIMESTAMP,
+          recordsCount: Object.keys(usersList).length,
+          compressedJsonString: JSON.stringify(usersList) // Compress raw data stream
+        };
+
+        db.ref(`Backups/${backupId}`).set(backupPayload)
+          .then(() => {
+            showToast(`JSON Data Snapshot verified and archived successfully!`, "success");
+            
+            db.ref('SecurityLogs').push({
+              eventDesc: `Platform backup compiled: JSON Snapshot #${backupId.substring(1, 7)} created`,
+              timestamp: firebase.database.ServerValue.TIMESTAMP,
+              isSuccess: true
+            });
+          });
+      });
+    });
+
+    // Simulated downloads attachment trigger
+    btnDownloadBackup.addEventListener('click', () => {
+      const backupKeys = Object.keys(globalBackupsList);
+      if (backupKeys.length === 0) {
+        showToast("No database snapshot logs created yet.", "error");
+        return;
+      }
+
+      // Grab latest JSON backup array and prepare raw download payload
+      const backupsArray = Object.values(globalBackupsList);
+      backupsArray.sort((a,b) => b.timestamp - a.timestamp);
+      const targetBackup = backupsArray[0];
+
+      const blob = new Blob([targetBackup.compressedJsonString], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `tnmining_db_snapshot_${targetBackup.id}.json`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      showToast("Database JSON file attachment downloaded successfully!", "success");
+    });
+
+    btnRestoreBackup.addEventListener('click', () => {
+      const backupKeys = Object.keys(globalBackupsList);
+      if (backupKeys.length === 0) {
+        showToast("No data snapshots logs archived.", "error");
+        return;
+      }
+
+      if (confirm("RESTORE DIRECTORY: This restores previous cached database user profiles. Current user entries will be overwritten. Proceed?")) {
+        const backupsArray = Object.values(globalBackupsList);
+        backupsArray.sort((a,b) => b.timestamp - a.timestamp);
+        const targetBackup = backupsArray[0];
+
+        try {
+          const restoredPayload = JSON.parse(targetBackup.compressedJsonString);
+          
+          db.ref('Users').set(restoredPayload)
+            .then(() => {
+              showToast("Users directory profiles restored to previous snapshot successfully!", "success");
+
+              db.ref('SecurityLogs').push({
+                eventDesc: `DATABASE RECOVERY COMPLETE: Platforms profiles nodes restored to snapshot #${targetBackup.id.substring(1,7)}`,
+                timestamp: firebase.database.ServerValue.TIMESTAMP,
+                isSuccess: true
+              });
+            });
+        } catch (e) {
+          showToast("Snapshot file corrupted.", "error");
+        }
+      }
+    });
+
+    // Query dynamic platform-wide security logs chronological timeline (Rule 11 Security logs)
+    function bindSecurityTimelineFeeds() {
+      db.ref('SecurityLogs').limitToLast(5).on('value', (snapshot) => {
+        securityTimelineContainer.innerHTML = "";
+
+        if (!snapshot.exists()) {
+          securityTimelineContainer.innerHTML = `
+            <div class="timeline-node">
+              <span class="timeline-dot success"></span>
+              <div class="timeline-info">
+                <span class="timeline-desc">Secured monitoring stream listening. No breaches.</span>
+                <span class="timeline-time">System clockSynced</span>
+              </div>
+            </div>
+          `;
+          cardSecurityLogsCount.textContent = "0";
+          return;
+        }
+
+        const logs = snapshot.val();
+        const logsArray = Object.keys(logs).map(k => logs[k]);
+
+        cardSecurityLogsCount.textContent = logsArray.length;
+
+        // Sort descending
+        logsArray.sort((a,b) => b.timestamp - a.timestamp);
+
+        let timelineHTML = "";
+        logsArray.forEach((item) => {
+          const formattedTime = new Date(item.timestamp || Date.now()).toLocaleTimeString();
+          const dotClass = item.isSuccess === false ? "" : "success"; // red if failed block
+
+          timelineHTML += `
+            <div class="timeline-node">
+              <span class="timeline-dot ${dotClass}"></span>
+              <div class="timeline-info">
+                <span class="timeline-desc">${item.eventDesc}</span>
+                <span class="timeline-time">Logged: ${formattedTime}</span>
+              </div>
+            </div>
+          `;
+        });
+
+        securityTimelineContainer.innerHTML = timelineHTML;
+      });
+    }
+  </script>
+</body>
+</html>
