@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>TNMINING - Wallet & Gateway Settings</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    :root {
+      --bg-primary: #020009;
+      --bg-secondary: #070314;
+      --bg-card: rgba(13, 6, 30, 0.65);
+      --border-color: rgba(168, 85, 247, 0.18);
+      --primary: #a855f7;
+      --secondary: #06b6d4;
+      --gold: #fbbf24;
+      --gold-glow: rgba(251, 191, 36, 0.35);
+      --primary-glow: rgba(168, 85, 247, 0.3);
+      --secondary-glow: rgba(6, 182, 212, 0.2);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --success: #10b981;
+      --error: #ef4444;
+      --radius-premium: 24px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(168, 85, 247, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(6, 182, 212, 0.08) 0%, transparent 40%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+    }
+
+    /* Collapsible Navigation Sidebar (17 Items) */
+    aside.sidebar {
+      width: 270px;
+      background: rgba(8, 3, 20, 0.95);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 1000;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    aside.sidebar.collapsed {
+      transform: translateX(-270px);
+    }
+
+    .sidebar-header {
+      padding: 24px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+
+    .sidebar-logo {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: white;
+      box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+    }
+
+    .sidebar-title {
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    .sidebar-title span {
+      display: block;
+      font-size: 9px;
+      font-family: 'Share Tech Mono', monospace;
+      color: var(--secondary);
+    }
+
+    .sidebar-menu {
+      flex: 1;
+      padding: 16px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      overflow-y: auto;
+    }
+
+    .menu-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 14px;
+      border-radius: 12px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 12.5px;
+      font-weight: 600;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+
+    .menu-link i {
+      font-size: 14px;
+      width: 18px;
+      text-align: center;
+    }
+
+    .menu-link:hover, .menu-link.active {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.03);
+      border-color: var(--border-color);
+    }
+
+    .menu-link.active {
+      background: linear-gradient(135deg, rgba(168, 85, 247, 0.12) 0%, rgba(6, 182, 212, 0.12) 100%);
+      border-color: var(--primary);
+    }
+
+    /* Main Content Wrapper */
+    main.main-viewport {
+      margin-left: 270px;
+      flex: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    main.main-viewport.expanded {
+      margin-left: 0;
+    }
+
+    /* Top Navbar Bar */
+    .top-navbar {
+      height: 72px;
+      background: rgba(13, 6, 30, 0.5);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 24px;
+      position: sticky;
+      top: 0;
+      z-index: 999;
+    }
+
+    .navbar-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .menu-toggle-btn {
+      font-size: 18px;
+      color: var(--text-main);
+      cursor: pointer;
+      background: none;
+      border: none;
+    }
+
+    .nav-title { font-size: 16px; font-weight: 800; }
+
+    .navbar-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .live-clock-wrapper {
+      text-align: right;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px;
+      color: var(--secondary);
+    }
+
+    /* Content Area */
+    .dashboard-content {
+      padding: 24px;
+      flex: 1;
+    }
+
+    /* Analytics Dashboard Grid */
+    .stats-matrix-8 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .stat-metric-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .stat-metric-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      color: var(--secondary);
+    }
+
+    .stat-metric-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .stat-metric-label {
+      font-size: 9.5px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .stat-metric-val {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .stat-metric-val.purple { color: var(--primary); }
+    .stat-metric-val.cyan { color: var(--secondary); }
+    .stat-metric-val.gold { color: var(--gold); }
+
+    /* Action bar */
+    .action-toolbar-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.03);
+      border-radius: 20px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    @media (max-width: 600px) {
+      .action-toolbar-card { flex-direction: column; }
+    }
+
+    .search-input-wrapper {
+      flex: 1;
+      position: relative;
+    }
+
+    .search-input-wrapper i {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 13px 16px 13px 44px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      color: var(--text-main);
+      font-size: 13px;
+      outline: none;
+    }
+
+    .search-input:focus { border-color: var(--secondary); }
+
+    .select-filter {
+      background: rgba(13, 6, 30, 0.95);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 0 16px;
+      border-radius: 14px;
+      font-size: 13px;
+      font-weight: 600;
+      outline: none;
+      height: 44px;
+    }
+
+    .btn-trigger-modal {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      border: none;
+      color: white;
+      font-weight: 700;
+      padding: 0 20px;
+      border-radius: 14px;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      height: 44px;
+    }
+
+    /* Wallets Grid panels list */
+    .wallets-listings-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    /* Premium Wallet Card visual matching Home/Withdraw views */
+    .wallet-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 22px;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .wallet-card:hover { border-color: var(--secondary); }
+    
+    .wallet-card.default {
+      border-color: rgba(251, 191, 36, 0.3);
+      box-shadow: 0 8px 25px var(--gold-glow);
+    }
+
+    .wallet-card-hdr {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .wallet-card-title {
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .wallet-badge {
+      font-size: 9.5px;
+      font-weight: 800;
+      color: var(--secondary);
+      background: rgba(6, 182, 212, 0.08);
+      border: 1px solid rgba(6, 182, 212, 0.2);
+      padding: 2px 10px;
+      border-radius: 12px;
+    }
+
+    .wallet-badge.gold {
+      color: var(--gold);
+      background: rgba(251, 191, 36, 0.08);
+      border-color: rgba(251, 191, 36, 0.2);
+    }
+
+    .wallet-address-box {
+      background: rgba(0,0,0,0.2);
+      border: 1px solid rgba(255,255,255,0.03);
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11.5px;
+      color: var(--text-main);
+      word-break: break-all;
+    }
+
+    .wallet-properties-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .wallet-property-row {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .wallet-property-val {
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .wallet-actions-row {
+      display: flex;
+      gap: 8px;
+      margin-top: auto;
+    }
+
+    .btn-wallet-opt {
+      flex: 1;
+      padding: 9px;
+      border-radius: 12px;
+      font-size: 11.5px;
+      font-weight: 800;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+
+    .btn-wallet-opt.edit { background: rgba(6, 182, 212, 0.12); color: var(--secondary); border: 1px solid rgba(6,182,212,0.2); }
+    .btn-wallet-opt.edit:hover { background: var(--secondary); color: white; }
+
+    .btn-wallet-opt.default-trigger { background: rgba(251, 191, 36, 0.12); color: var(--gold); border: 1px solid rgba(251,191,36,0.2); }
+    .btn-wallet-opt.default-trigger:hover { background: var(--gold); color: black; }
+
+    .btn-wallet-opt.delete { background: rgba(239, 68, 68, 0.12); color: var(--error); border: 1px solid rgba(239,68,68,0.2); }
+    .btn-wallet-opt.delete:hover { background: var(--error); color: white; }
+
+    /* Unified Premium Split Modal Cards */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 2, 12, 0.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease;
+    }
+
+    .modal-overlay.active { opacity: 1; pointer-events: all; }
+
+    .modal-split-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-premium);
+      width: 100%;
+      max-width: 820px;
+      padding: 24px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+      max-height: 90vh;
+      overflow-y: auto;
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 768px) {
+      .modal-split-card { grid-template-columns: 1fr; }
+    }
+
+    .modal-title {
+      font-size: 15px;
+      font-weight: 800;
+      margin-bottom: 18px;
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 5px;
+      text-transform: uppercase;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 10px 14px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      color: var(--text-main);
+      font-size: 13px;
+      outline: none;
+    }
+
+    .form-input:focus { border-color: var(--secondary); }
+
+    /* Live Preview Node box panel (Rule: Wallet Preview Panel) */
+    .preview-box {
+      border-left: 1px solid rgba(255,255,255,0.05);
+      padding-left: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    @media (max-width: 768px) {
+      .preview-box { border-left: none; padding-left: 0; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px; }
+    }
+
+    .preview-header-lbl {
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .modal-buttons-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .btn-modal {
+      flex: 1;
+      padding: 12.5px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-cancel { background: rgba(255,255,255,0.04); color: var(--text-main); border: 1px solid var(--border-color); }
+    .btn-save { background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); color: white; }
+
+    /* Empty state card placeholders */
+    .empty-state-card {
+      background: var(--bg-card);
+      border: 1.5px dashed var(--border-color);
+      border-radius: var(--radius-premium);
+      padding: 50px 24px;
+      text-align: center;
+      grid-column: span 3;
+    }
+
+    .empty-state-card i {
+      font-size: 38px;
+      color: rgba(168, 85, 247, 0.3);
+      margin-bottom: 14px;
+    }
+
+    .empty-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 6px;
+    }
+
+    .empty-subtitle {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Skeletons */
+    .skeleton-box { height: 160px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 22px; position: relative; overflow: hidden; margin-bottom: 10px; }
+    .skeleton-box::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.02), transparent); transform: translateX(-100%); animation: shim 1.5s infinite; }
+    @keyframes shim { 100% { transform: translateX(100%); } }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      aside.sidebar { transform: translateX(-270px); }
+      aside.sidebar.mobile-open { transform: translateX(0); }
+      main.main-viewport { margin-left: 0; }
+    }
+
+    /* Footer */
+    footer.terminal-footer {
+      background: rgba(13, 6, 30, 0.3);
+      border-top: 1px solid rgba(255,255,255,0.03);
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar Drawer Navigation Bar (17 Items) -->
+  <aside class="sidebar" id="terminalSidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo"><i class="fa-solid fa-circle-nodes"></i></div>
+      <div class="sidebar-title">
+        TNMINING <span>Administrative Console</span>
+      </div>
+    </div>
+    <div class="sidebar-menu">
+      <a href="admin-dashboard.html" class="menu-link"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+      <a href="admin-users.html" class="menu-link"><i class="fa-solid fa-users"></i> Users</a>
+      <a href="admin-mining.html" class="menu-link"><i class="fa-solid fa-cube"></i> Mining</a>
+      <a href="admin-withdraw.html" class="menu-link"><i class="fa-solid fa-money-check-dollar"></i> Withdraw</a>
+      <a href="admin-buy-power.html" class="menu-link"><i class="fa-solid fa-bolt"></i> Buy Power</a>
+      <a href="admin-task.html" class="menu-link"><i class="fa-solid fa-list-check"></i> Tasks</a>
+      <a href="admin-referral.html" class="menu-link"><i class="fa-solid fa-people-roof"></i> Referral</a>
+      <a href="admin-announcement.html" class="menu-link"><i class="fa-solid fa-bullhorn"></i> Announcements</a>
+      <a href="admin-statistics.html" class="menu-link"><i class="fa-solid fa-database"></i> Statistics</a>
+      <a href="admin-package-orders.html" class="menu-link"><i class="fa-solid fa-cart-shopping"></i> Package Orders</a>
+      <a href="admin-wallet.html" class="menu-link active"><i class="fa-solid fa-wallet"></i> Wallet</a>
+      <a href="admin-notification.html" class="menu-link"><i class="fa-solid fa-bell"></i> Notifications</a>
+      <a href="admin-report.html" class="menu-link"><i class="fa-solid fa-flag"></i> Reports</a>
+      <a href="admin-logs.html" class="menu-link"><i class="fa-solid fa-clock-rotate-left"></i> Logs</a>
+      <a href="admin-settings.html" class="menu-link"><i class="fa-solid fa-sliders"></i> Settings</a>
+      <a href="admin-security.html" class="menu-link"><i class="fa-solid fa-user-shield"></i> Security</a>
+      <a href="admin-profile.html" class="menu-link"><i class="fa-solid fa-user-gear"></i> Profile</a>
+    </div>
+  </aside>
+
+  <!-- Main Viewport Wrap -->
+  <main class="main-viewport" id="mainViewport">
+    
+    <!-- Top Nav -->
+    <nav class="top-navbar">
+      <div class="navbar-left">
+        <button class="menu-toggle-btn" id="sidebarToggle"><i class="fa-solid fa-bars-staggered"></i></button>
+        <span class="nav-title">Gateway Wallets & Treasury Nodes Settings</span>
+      </div>
+      <div class="navbar-right">
+        <div class="live-clock-wrapper">
+          <div id="navLiveDate">--- --, ----</div>
+          <div id="navLiveTime" style="font-weight:700;">--:--:-- UTC</div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Content Workspace -->
+    <div class="dashboard-content">
+      
+      <!-- Metrics deck (8 dynamic cards) -->
+      <section class="stats-matrix-8">
+        
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-wallet"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Total Wallets</span>
+            <span class="stat-metric-val purple" id="cardTotalWallets">0</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-circle-check"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Active gateways</span>
+            <span class="stat-metric-val cyan" id="cardActiveCount">0</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-circle-xmark"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Disabled listed</span>
+            <span class="stat-metric-val gold" id="cardDisabledCount">0</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-star"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Default Wallet</span>
+            <span class="stat-metric-val purple" id="cardDefaultName" style="font-size:12px;">None</span>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Advanced actions toolbar filter -->
+      <section class="action-toolbar-card">
+        <div class="search-input-wrapper">
+          <input type="text" class="search-input" id="searchField" placeholder="Search wallets by Name, Network format, Recipient address...">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </div>
+
+        <select class="select-filter" id="filterStatusSelect">
+          <option value="all">All listed wallets</option>
+          <option value="active">Active/Enabled</option>
+          <option value="disabled">Disabled</option>
+          <option value="ton">TON Network</option>
+        </select>
+
+        <button class="btn-trigger-modal" onclick="openWalletModal()"><i class="fa-solid fa-square-plus"></i> Configure Wallet</button>
+      </section>
+
+      <!-- Shimmer skeletons wrapper -->
+      <div class="wallets-listings-grid" id="skeletonsContainer">
+        <div class="skeleton-box"></div>
+        <div class="skeleton-box"></div>
+      </div>
+
+      <!-- Main Wallets Grid list (Rule Empty default handles) -->
+      <div class="wallets-listings-grid" id="walletsGrid" style="display:none;">
+        <!-- Generated dynamically inside script loop -->
+      </div>
+
+    </div>
+
+    <!-- Panel Footer -->
+    <footer class="terminal-footer">
+      <span>TNMINING SYSTEM CONTROL CORE - TREASURY GATEWAYS</span>
+      <span style="font-family:'Share Tech Mono', monospace; color:var(--secondary);">Realtime Status: Online</span>
+    </footer>
+
+  </main>
+
+  <!-- ==================== PREMIUM DETAILS VIEW MODAL DRAWER ==================== -->
+
+  <!-- Modal: Create / Edit Wallet properties configuration form (Rule Split visual panels) -->
+  <div class="modal-overlay" id="walletModal">
+    <div class="modal-split-card">
+      
+      <!-- Left side: Form parameters input -->
+      <div>
+        <h3 class="modal-title" id="modalTitleLabel">Configure Recipient Wallet</h3>
+        
+        <div class="form-group">
+          <label class="form-label">Gateway Wallet Name</label>
+          <input type="text" class="form-input" id="formName" placeholder="Admin Payout Hub" required autocomplete="off">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Network Asset Layer</label>
+          <select class="form-input" id="formNetwork" style="background:#09041a;">
+            <option value="TON">TON (The Open Network)</option>
+            <option value="TON Testnet">TON Testnet</option>
+            <option value="TRON">TRON (TRC20 USDT)</option>
+            <option value="BEP20">BNB Smart Chain (BEP20)</option>
+            <option value="ERC20">Ethereum Network (ERC20)</option>
+            <option value="Solana">Solana asset layer</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Recipient Wallet Address</label>
+          <input type="text" class="form-input" id="formAddress" placeholder="UQ... EQ... or T..." required autocomplete="off">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">QR Code URL (Optional)</label>
+          <input type="text" class="form-input" id="formQrCode" placeholder="https://..." autocomplete="off">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Gateway Info description details</label>
+          <input type="text" class="form-input" id="formDesc" placeholder="Official admin receipt node" autocomplete="off">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Min. Payout threshold ($)</label>
+          <input type="number" step="any" class="form-input" id="formMinWithdraw" value="0.20" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Display Order Index</label>
+          <input type="number" class="form-input" id="formOrder" value="0" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Active Node Status State</label>
+          <select class="form-input" id="formStatus" style="background:#09041a;">
+            <option value="true">Enabled</option>
+            <option value="false">Disabled (Suspended)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Right side: Real-time Live Preview re-renderer (Rule Wallet Preview Panel) -->
+      <div class="preview-box">
+        <span class="preview-header-lbl"><i class="fa-solid fa-tv fa-fade"></i> Payment Node Live Preview</span>
+        
+        <div class="wallet-card" style="width:100%; border-color:var(--secondary); background:rgba(6, 182, 212, 0.05); margin-bottom:0;">
+          <div class="wallet-card-hdr">
+            <span class="wallet-card-title" id="prevName">Admin Payout Hub</span>
+            <span class="wallet-badge" id="prevNetwork">TON</span>
+          </div>
+
+          <div class="wallet-address-box" id="prevAddress">UQ------------------------------------------</div>
+          
+          <div class="wallet-properties-list">
+            <div class="wallet-property-row"><span>Min limit</span><span class="wallet-property-val" id="prevMin">$0.20</span></div>
+            <div class="wallet-property-row"><span>State status</span><span class="wallet-property-val" style="color:var(--success);">Active</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Footer -->
+      <div class="modal-buttons-row">
+        <button class="btn-modal btn-cancel" onclick="closeModal('walletModal')">Cancel</button>
+        <button class="btn-modal btn-save" id="saveWalletBtn">Save Payment Node</button>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Firebase Legacy Compat SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+  <script>
+    // Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDuQICVoC10i62PQMS6cX37t1eoeTg5zsc",
+      authDomain: "mining-c7b26.firebaseapp.com",
+      databaseURL: "https://mining-c7b26-default-rtdb.firebaseio.com",
+      projectId: "mining-c7b26",
+      storageBucket: "mining-c7b26.firebasestorage.app",
+      messagingSenderId: "873757658723",
+      appId: "1:873757658723:web:18a4af95953a08b440b256"
+    };
+
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.database();
+
+    // DOM selectors
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const terminalSidebar = document.getElementById('terminalSidebar');
+    const mainViewport = document.getElementById('mainViewport');
+    const navLiveDate = document.getElementById('navLiveDate');
+    const navLiveTime = document.getElementById('navLiveTime');
+
+    // Cards stats
+    const cardTotalWallets = document.getElementById('cardTotalWallets');
+    const cardActiveCount = document.getElementById('cardActiveCount');
+    const cardDisabledCount = document.getElementById('cardDisabledCount');
+    const cardDefaultName = document.getElementById('cardDefaultName');
+
+    const searchField = document.getElementById('searchField');
+    const filterStatusSelect = document.getElementById('filterStatusSelect');
+
+    const skeletonsContainer = document.getElementById('skeletonsContainer');
+    const walletsGrid = document.getElementById('walletsGrid');
+
+    // Form elements selectors
+    const formName = document.getElementById('formName');
+    const formNetwork = document.getElementById('formNetwork');
+    const formAddress = document.getElementById('formAddress');
+    const formQrCode = document.getElementById('formQrCode');
+    const formDesc = document.getElementById('formDesc');
+    const formMinWithdraw = document.getElementById('formMinWithdraw');
+    const formOrder = document.getElementById('formOrder');
+    const formStatus = document.getElementById('formStatus');
+    const saveWalletBtn = document.getElementById('saveWalletBtn');
+
+    // Live preview elements
+    const prevName = document.getElementById('prevName');
+    const prevNetwork = document.getElementById('prevNetwork');
+    const prevAddress = document.getElementById('prevAddress');
+    const prevMin = document.getElementById('prevMin');
+    const toastContainer = document.getElementById('toastContainer');
+
+    let globalWalletsList = {};
+    let activeEditWalletId = null;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      // Toggle collapsible navigation sidebar drawer
+      sidebarToggle.addEventListener('click', () => {
+        terminalSidebar.classList.toggle('collapsed');
+        terminalSidebar.classList.toggle('mobile-open');
+        mainViewport.classList.toggle('expanded');
+      });
+
+      startTerminalTimerClock();
+      initializeWalletsListener();
+      bindInteractiveLivePreviewListeners();
+    });
+
+    function showToast(message, type = 'success') {
+      const toast = document.createElement('div');
+      toast.classList.add('toast', type);
+      const icon = type === 'success' ? 'fa-circle-check' : 'fa-triangle-exclamation';
+      toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${message}</span>`;
+      toastContainer.appendChild(toast);
+      setTimeout(() => toast.classList.add('show'), 50);
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    function startTerminalTimerClock() {
+      setInterval(() => {
+        const utcDate = new Date();
+        navLiveDate.textContent = utcDate.toLocaleDateString('en-US', {
+          year: 'numeric', month: 'long', day: 'numeric'
+        });
+        navLiveTime.textContent = utcDate.toUTCString().replace("GMT", "UTC");
+      }, 1000);
+    }
+
+    // Connect real-time payments gateways trees (Rule 1, 3, 10 & 15)
+    function initializeWalletsListener() {
+      db.ref('SystemWallets').on('value', (snapshot) => {
+        skeletonsContainer.style.display = 'none';
+        walletsGrid.style.display = 'grid';
+
+        if (!snapshot.exists()) {
+          // Self-seed dynamic default payment address to make project run instantly (Rule 13 Self-seeding)
+          seedDefaultPlatformPaymentWallet();
+          return;
+        }
+
+        globalWalletsList = snapshot.val();
+        
+        calculatePlatformWalletsStats();
+        processSortingAndFiltering();
+      });
+    }
+
+    // Dynamic payments seeding defaults
+    function seedDefaultPlatformPaymentWallet() {
+      const payloadKey = db.ref('SystemWallets').push().key;
+
+      const initWallet = {};
+      initWallet[payloadKey] = {
+        id: payloadKey,
+        name: "Official TON Multi-pool Gateway",
+        network: "TON",
+        address: "UQDJ1509653a08b440b2568737576587236cX37t1eoeTg5zsc",
+        qrCode: "",
+        minWithdraw: 0.20,
+        displayOrder: 0,
+        enabled: true,
+        defaultWallet: true
+      };
+
+      db.ref('SystemWallets').set(initWallet);
+    }
+
+    function calculatePlatformWalletsStats() {
+      const list = Object.values(globalWalletsList);
+      
+      let totalCount = list.length;
+      let activeCount = 0;
+      let disabledCount = 0;
+      let defaultName = "None";
+
+      list.forEach((w) => {
+        if (w.enabled === true || w.enabled === "true") activeCount++;
+        else disabledCount++;
+
+        if (w.defaultWallet === true || w.defaultWallet === "true") {
+          defaultName = w.name || "Default Node";
+        }
+      });
+
+      cardTotalWallets.textContent = totalCount;
+      cardActiveCount.textContent = activeCount;
+      cardDisabledCount.textContent = disabledCount;
+      cardDefaultName.textContent = defaultName;
+    }
+
+    // Filter, Search over lists (Rule 12 Filters)
+    function processSortingAndFiltering() {
+      const query = searchField.value.trim().toLowerCase();
+      const statusFilter = filterStatusSelect.value;
+
+      let walletsArray = Object.keys(globalWalletsList).map(key => globalWalletsList[key]);
+
+      // 1. Search Query Filters (Rule 6)
+      if (query) {
+        walletsArray = walletsArray.filter(w => 
+          (w.name && w.name.toLowerCase().includes(query)) ||
+          (w.network && w.network.toLowerCase().includes(query)) ||
+          (w.address && w.address.toLowerCase().includes(query))
+        );
+      }
+
+      // 2. Status Selectors Filter Check (Rule 7 Filter options)
+      if (statusFilter !== 'all') {
+        if (statusFilter === 'active') {
+          walletsArray = walletsArray.filter(w => w.enabled === true || w.enabled === "true");
+        } else if (statusFilter === 'disabled') {
+          walletsArray = walletsArray.filter(w => w.enabled === false || w.enabled === "false");
+        } else if (statusFilter === 'ton') {
+          walletsArray = walletsArray.filter(w => w.network && w.network.includes('TON'));
+        }
+      }
+
+      // Sort display order rating
+      walletsArray.sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+
+      renderWalletsStack(walletsArray);
+    }
+
+    // Render Grid Cards
+    function renderWalletsStack(list) {
+      walletsGrid.innerHTML = "";
+
+      if (list.length === 0) {
+        walletsGrid.innerHTML = `
+          <div class="empty-state-card">
+            <i class="fa-solid fa-wallet"></i>
+            <h4 class="empty-title">No matching gateways</h4>
+            <p class="empty-subtitle">Refine search tags or add new financial wallets above.</p>
+          </div>
+        `;
+        return;
+      }
+
+      list.forEach((w) => {
+        const cardEl = document.createElement('div');
+        const isDefault = w.defaultWallet === true || w.defaultWallet === "true";
+        
+        cardEl.className = isDefault ? "wallet-card default" : "wallet-card";
+
+        const stateColor = (w.enabled === true || w.enabled === "true") ? "var(--success)" : "var(--error)";
+        const stateLabel = (w.enabled === true || w.enabled === "true") ? "Active" : "Disabled";
+
+        cardEl.innerHTML = `
+          <div class="wallet-card-hdr">
+            <span class="wallet-card-title">${w.name}</span>
+            <span class="wallet-badge ${isDefault ? 'gold' : ''}">${isDefault ? '★ Default Gateway' : w.network}</span>
+          </div>
+
+          <p class="wallet-address-box">${w.address}</p>
+
+          <div class="wallet-properties-list">
+            <div class="wallet-property-row"><span>Minimum Withdrawal Limit</span><span class="wallet-property-val">$${parseFloat(w.minWithdraw || 0.20).toFixed(2)}</span></div>
+            <div class="wallet-property-row"><span>Display Order Rating</span><span class="wallet-property-val">${w.displayOrder || 0}</span></div>
+            <div class="wallet-property-row"><span>Status State</span><span class="wallet-property-val" style="color:${stateColor};">${stateLabel}</span></div>
+          </div>
+
+          <div class="wallet-actions-row">
+            <button class="btn-wallet-opt edit" onclick="openWalletModal('${w.id}')">Edit</button>
+            <button class="btn-wallet-opt default-trigger" onclick="setAsDefaultGatewayNode('${w.id}')">Set Default</button>
+            <button class="btn-wallet-opt delete" onclick="purgeWalletNode('${w.id}')">Delete</button>
+          </div>
+        `;
+        walletsGrid.appendChild(cardEl);
+      });
+    }
+
+    // Modal creation / edit setups
+    window.openWalletModal = function(walletId = null) {
+      activeEditWalletId = walletId;
+
+      if (walletId) {
+        // Edit Mode
+        const w = globalWalletsList[walletId];
+        document.getElementById('modalTitleLabel').textContent = "Modify gateway variables";
+
+        formName.value = w.name;
+        formNetwork.value = w.network || "TON";
+        formAddress.value = w.address;
+        formQrCode.value = w.qrCode || "";
+        formDesc.value = w.description || "";
+        formMinWithdraw.value = w.minWithdraw || 0.20;
+        formOrder.value = w.displayOrder || 0;
+        formStatus.value = String(w.enabled);
+
+      } else {
+        // Add Mode
+        document.getElementById('modalTitleLabel').textContent = "Configure New Treasury Gateway";
+
+        formName.value = "TON Hot Wallet Core";
+        formNetwork.value = "TON";
+        formAddress.value = "UQ...";
+        formQrCode.value = "";
+        formDesc.value = "Standard decentralised target node";
+        formMinWithdraw.value = "0.20";
+        formOrder.value = "0";
+        formStatus.value = "true";
+      }
+
+      updateWalletLivePreview();
+      document.getElementById('walletModal').classList.add('active');
+    };
+
+    window.closeModal = function(modalId) {
+      document.getElementById(modalId).classList.remove('active');
+    };
+
+    // Bind Live updates events for modal previews (Rule Wallet Preview Panel)
+    function bindInteractiveLivePreviewListeners() {
+      const fields = [formName, formNetwork, formAddress, formMinWithdraw];
+      fields.forEach(field => {
+        field.addEventListener('input', updateWalletLivePreview);
+        field.addEventListener('change', updateWalletLivePreview);
+      });
+    }
+
+    function updateWalletLivePreview() {
+      prevName.textContent = formName.value ? formName.value : "TON Hot Wallet Core";
+      prevNetwork.textContent = formNetwork.value;
+      prevAddress.textContent = formAddress.value ? formAddress.value : "UQ------------------------------------------";
+      prevMin.textContent = `$${parseFloat(formMinWithdraw.value || 0.20).toFixed(2)}`;
+    }
+
+    // Save/Update dynamic payment gateways
+    saveWalletBtn.addEventListener('click', () => {
+      const name = formName.value.trim();
+      const network = formNetwork.value;
+      const address = formAddress.value.trim();
+      const qrCode = formQrCode.value.trim();
+      const desc = formDesc.value.trim();
+      const minWithdraw = parseFloat(formMinWithdraw.value) || 0.20;
+      const order = parseInt(formOrder.value) || 0;
+      const enabled = formStatus.value === "true";
+
+      if (!name || !address) {
+        showToast("Please enter wallet names and addresses.", "error");
+        return;
+      }
+
+      const walletId = activeEditWalletId ? activeEditWalletId : db.ref('SystemWallets').push().key;
+
+      const payload = {
+        id: walletId,
+        name: name,
+        network: network,
+        address: address,
+        qrCode: qrCode,
+        description: desc,
+        minWithdraw: minWithdraw,
+        displayOrder: order,
+        enabled: enabled,
+        updatedDate: firebase.database.ServerValue.TIMESTAMP
+      };
+
+      if (!activeEditWalletId) {
+        payload.createdDate = firebase.database.ServerValue.TIMESTAMP;
+        payload.defaultWallet = false; // standard creation base
+      }
+
+      db.ref(`SystemWallets/${walletId}`).update(payload)
+        .then(() => {
+          showToast(`Zahlungs-Gateway erfolgreich aktualisiert!`, "success");
+          closeModal('walletModal');
+        });
+    });
+
+    // Enforce strict default wallet constraint (Rule Default Wallet)
+    window.setAsDefaultGatewayNode = function(walletId) {
+      if (confirm("Verify Default rule: Set this payments node as platform-wide Default target? All users will see this target first.")) {
+        
+        // Disable default state parameters across ALL other elements in Firebase tree
+        const walletKeys = Object.keys(globalWalletsList);
+        const updates = {};
+
+        walletKeys.forEach((key) => {
+          updates[`SystemWallets/${key}/defaultWallet`] = (key === walletId);
+        });
+
+        // Parallel update ensures instant transaction lock-in
+        db.ref().update(updates)
+          .then(() => showToast("Platform default payments node updated successfully!", "success"));
+      }
+    };
+
+    // Purge gateways node records
+    window.purgeWalletNode = function(walletId) {
+      if (confirm("Delete this treasury gateway permanently from platforms listings? Users cannot use it.")) {
+        db.ref(`SystemWallets/${walletId}`).remove()
+          .then(() => showToast("Gateway deleted successfully.", "success"));
+      }
+    };
+
+    // Filters event listeners
+    searchField.addEventListener('input', () => {
+      processSortingAndFiltering();
+    });
+
+    filterStatusSelect.addEventListener('change', () => {
+      processSortingAndFiltering();
+    });
+  </script>
+</body>
+</html>
