@@ -1,0 +1,1355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>TNMINING - Task Management Console</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    :root {
+      --bg-primary: #020009;
+      --bg-secondary: #070314;
+      --bg-card: rgba(13, 6, 30, 0.65);
+      --border-color: rgba(168, 85, 247, 0.18);
+      --primary: #a855f7;
+      --secondary: #06b6d4;
+      --gold: #fbbf24;
+      --gold-glow: rgba(251, 191, 36, 0.35);
+      --primary-glow: rgba(168, 85, 247, 0.3);
+      --secondary-glow: rgba(6, 182, 212, 0.2);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --success: #10b981;
+      --error: #ef4444;
+      --warning: #f59e0b;
+      --radius-premium: 24px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(168, 85, 247, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(6, 182, 212, 0.08) 0%, transparent 40%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+    }
+
+    /* Collapsible Navigation Sidebar (17 Items) */
+    aside.sidebar {
+      width: 270px;
+      background: rgba(8, 3, 20, 0.95);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 1000;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    aside.sidebar.collapsed {
+      transform: translateX(-270px);
+    }
+
+    .sidebar-header {
+      padding: 24px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+
+    .sidebar-logo {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: white;
+      box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+    }
+
+    .sidebar-title {
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    .sidebar-title span {
+      display: block;
+      font-size: 9px;
+      font-family: 'Share Tech Mono', monospace;
+      color: var(--secondary);
+    }
+
+    .sidebar-menu {
+      flex: 1;
+      padding: 16px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      overflow-y: auto;
+    }
+
+    .menu-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 14px;
+      border-radius: 12px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 12.5px;
+      font-weight: 600;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+
+    .menu-link i {
+      font-size: 14px;
+      width: 18px;
+      text-align: center;
+    }
+
+    .menu-link:hover, .menu-link.active {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.03);
+      border-color: var(--border-color);
+    }
+
+    .menu-link.active {
+      background: linear-gradient(135deg, rgba(168, 85, 247, 0.12) 0%, rgba(6, 182, 212, 0.12) 100%);
+      border-color: var(--primary);
+    }
+
+    /* Main Content Wrapper */
+    main.main-viewport {
+      margin-left: 270px;
+      flex: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    main.main-viewport.expanded {
+      margin-left: 0;
+    }
+
+    /* Top Navbar Bar */
+    .top-navbar {
+      height: 72px;
+      background: rgba(13, 6, 30, 0.5);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 24px;
+      position: sticky;
+      top: 0;
+      z-index: 999;
+    }
+
+    .navbar-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .menu-toggle-btn {
+      font-size: 18px;
+      color: var(--text-main);
+      cursor: pointer;
+      background: none;
+      border: none;
+    }
+
+    .nav-title { font-size: 16px; font-weight: 800; }
+
+    .navbar-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .live-clock-wrapper {
+      text-align: right;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px;
+      color: var(--secondary);
+    }
+
+    /* Content Area */
+    .dashboard-content {
+      padding: 24px;
+      flex: 1;
+    }
+
+    /* Analytics Dashboard Grid */
+    .stats-matrix-8 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .stat-metric-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .stat-metric-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      color: var(--secondary);
+    }
+
+    .stat-metric-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .stat-metric-label {
+      font-size: 9.5px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .stat-metric-val {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .stat-metric-val.purple { color: var(--primary); }
+    .stat-metric-val.cyan { color: var(--secondary); }
+    .stat-metric-val.gold { color: var(--gold); }
+
+    /* Action bar */
+    .action-toolbar-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.03);
+      border-radius: 20px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    @media (max-width: 600px) {
+      .action-toolbar-card { flex-direction: column; }
+    }
+
+    .search-input-wrapper {
+      flex: 1;
+      position: relative;
+    }
+
+    .search-input-wrapper i {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 13px 16px 13px 44px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      color: var(--text-main);
+      font-size: 13px;
+      outline: none;
+    }
+
+    .search-input:focus { border-color: var(--secondary); }
+
+    .select-filter {
+      background: rgba(13, 6, 30, 0.95);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 0 16px;
+      border-radius: 14px;
+      font-size: 13px;
+      font-weight: 600;
+      outline: none;
+      height: 44px;
+    }
+
+    .btn-trigger-modal {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      border: none;
+      color: white;
+      font-weight: 700;
+      padding: 0 20px;
+      border-radius: 14px;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      height: 44px;
+    }
+
+    /* Tasks listings grids */
+    .tasks-grid-board {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .task-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 22px;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .task-card:hover { border-color: var(--secondary); }
+
+    .task-card-hdr {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .task-card-title {
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .reward-indicator-badge {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--gold);
+      background: rgba(251, 191, 36, 0.08);
+      border: 1px solid rgba(251, 191, 36, 0.2);
+      padding: 2px 8px;
+      border-radius: 12px;
+    }
+
+    .task-desc-text {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .task-properties-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      background: rgba(255,255,255,0.01);
+      border: 1px solid rgba(255,255,255,0.03);
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .task-property-row {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .task-property-val {
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .task-actions-row {
+      display: flex;
+      gap: 8px;
+      margin-top: auto;
+    }
+
+    .btn-task-opt {
+      flex: 1;
+      padding: 9px;
+      border-radius: 12px;
+      font-size: 11.5px;
+      font-weight: 800;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+
+    .btn-task-opt.edit { background: rgba(6, 182, 212, 0.12); color: var(--secondary); border: 1px solid rgba(6,182,212,0.2); }
+    .btn-task-opt.edit:hover { background: var(--secondary); color: white; }
+
+    .btn-task-opt.duplicate { background: rgba(168, 85, 247, 0.12); color: var(--primary); border: 1px solid rgba(168,85,247,0.2); }
+    .btn-task-opt.duplicate:hover { background: var(--primary); color: white; }
+
+    .btn-task-opt.delete { background: rgba(239, 68, 68, 0.12); color: var(--error); border: 1px solid rgba(239,68,68,0.2); }
+    .btn-task-opt.delete:hover { background: var(--error); color: white; }
+
+    /* Directory Tables cards */
+    .table-container-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-premium);
+      padding: 20px;
+      overflow-x: auto;
+      margin-bottom: 20px;
+    }
+
+    .claims-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 12.5px;
+    }
+
+    .claims-table th {
+      color: var(--text-muted);
+      font-weight: 600;
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      text-transform: uppercase;
+      font-size: 9.5px;
+    }
+
+    .claims-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+      vertical-align: middle;
+    }
+
+    .claims-table tbody tr:hover { background: rgba(255,255,255,0.01); }
+
+    .tbl-status-badge {
+      font-size: 8.5px;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 12px;
+      text-transform: uppercase;
+    }
+
+    .tbl-status-badge.pending { background: rgba(245, 158, 11, 0.08); color: var(--warning); border: 1px solid rgba(245,158,11,0.2); }
+    .tbl-status-badge.completed { background: rgba(16, 185, 129, 0.08); color: var(--success); border: 1px solid rgba(16,185,129,0.2); }
+
+    .btn-tbl-action {
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 800;
+      border: none;
+      cursor: pointer;
+      margin-right: 4px;
+      transition: all 0.2s;
+    }
+
+    .btn-tbl-action.approve { background: rgba(16, 185, 129, 0.12); color: var(--success); border: 1px solid rgba(16,185,129,0.2); }
+    .btn-tbl-action.approve:hover { background: var(--success); color: white; }
+    .btn-tbl-action.reject { background: rgba(239, 68, 68, 0.12); color: var(--error); border: 1px solid rgba(239,68,68,0.2); }
+    .btn-tbl-action.reject:hover { background: var(--error); color: white; }
+
+    /* Modal Form drawer overlay */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 2, 12, 0.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease;
+    }
+
+    .modal-overlay.active { opacity: 1; pointer-events: all; }
+
+    .modal-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-premium);
+      width: 100%;
+      max-width: 480px;
+      padding: 24px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-card::-webkit-scrollbar { width: 3px; }
+    .modal-card::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.05); }
+
+    .modal-title {
+      font-size: 15px;
+      font-weight: 800;
+      margin-bottom: 18px;
+      text-align: center;
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 5px;
+      text-transform: uppercase;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 11px 14px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      color: var(--text-main);
+      font-size: 13px;
+      outline: none;
+    }
+
+    .form-input:focus { border-color: var(--secondary); }
+
+    .modal-buttons-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .btn-modal {
+      flex: 1;
+      padding: 12.5px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-cancel { background: rgba(255,255,255,0.04); color: var(--text-main); border: 1px solid var(--border-color); }
+    .btn-save { background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); color: white; }
+
+    /* Empty state placeholders */
+    .empty-state-card {
+      background: var(--bg-card);
+      border: 1.5px dashed var(--border-color);
+      border-radius: var(--radius-premium);
+      padding: 50px 24px;
+      text-align: center;
+      grid-column: span 3;
+    }
+
+    .empty-state-card i {
+      font-size: 38px;
+      color: rgba(168, 85, 247, 0.3);
+      margin-bottom: 14px;
+    }
+
+    .empty-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 6px;
+    }
+
+    .empty-subtitle {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Skeletons loader card */
+    .skeleton-box { height: 160px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 22px; position: relative; overflow: hidden; margin-bottom: 10px; }
+    .skeleton-box::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.02), transparent); transform: translateX(-100%); animation: shim 1.5s infinite; }
+    @keyframes shim { 100% { transform: translateX(100%); } }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      aside.sidebar { transform: translateX(-270px); }
+      aside.sidebar.mobile-open { transform: translateX(0); }
+      main.main-viewport { margin-left: 0; }
+    }
+
+    /* Footer */
+    footer.terminal-footer {
+      background: rgba(13, 6, 30, 0.3);
+      border-top: 1px solid rgba(255,255,255,0.03);
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar drawer navigation menus (17 items) -->
+  <aside class="sidebar" id="terminalSidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo"><i class="fa-solid fa-circle-nodes"></i></div>
+      <div class="sidebar-title">
+        TNMINING <span>Administrative Console</span>
+      </div>
+    </div>
+    <div class="sidebar-menu">
+      <a href="admin-dashboard.html" class="menu-link"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+      <a href="admin-users.html" class="menu-link"><i class="fa-solid fa-users"></i> Users</a>
+      <a href="admin-mining.html" class="menu-link"><i class="fa-solid fa-cube"></i> Mining</a>
+      <a href="admin-withdraw.html" class="menu-link"><i class="fa-solid fa-money-check-dollar"></i> Withdraw</a>
+      <a href="admin-buy-power.html" class="menu-link"><i class="fa-solid fa-bolt"></i> Buy Power</a>
+      <a href="admin-task.html" class="menu-link active"><i class="fa-solid fa-list-check"></i> Tasks</a>
+      <a href="admin-referral.html" class="menu-link"><i class="fa-solid fa-people-roof"></i> Referral</a>
+      <a href="admin-announcement.html" class="menu-link"><i class="fa-solid fa-bullhorn"></i> Announcements</a>
+      <a href="admin-statistics.html" class="menu-link"><i class="fa-solid fa-database"></i> Statistics</a>
+      <a href="admin-package-orders.html" class="menu-link"><i class="fa-solid fa-cart-shopping"></i> Package Orders</a>
+      <a href="admin-wallet.html" class="menu-link"><i class="fa-solid fa-wallet"></i> Wallet</a>
+      <a href="admin-notification.html" class="menu-link"><i class="fa-solid fa-bell"></i> Notifications</a>
+      <a href="admin-report.html" class="menu-link"><i class="fa-solid fa-flag"></i> Reports</a>
+      <a href="admin-logs.html" class="menu-link"><i class="fa-solid fa-clock-rotate-left"></i> Logs</a>
+      <a href="admin-settings.html" class="menu-link"><i class="fa-solid fa-sliders"></i> Settings</a>
+      <a href="admin-security.html" class="menu-link"><i class="fa-solid fa-user-shield"></i> Security</a>
+      <a href="admin-profile.html" class="menu-link"><i class="fa-solid fa-user-gear"></i> Profile</a>
+    </div>
+  </aside>
+
+  <!-- Main Viewport wrap -->
+  <main class="main-viewport" id="mainViewport">
+    
+    <!-- Top Nav -->
+    <nav class="top-navbar">
+      <div class="navbar-left">
+        <button class="menu-toggle-btn" id="sidebarToggle"><i class="fa-solid fa-bars-staggered"></i></button>
+        <span class="nav-title">Missions & Alliance Tasks Management</span>
+      </div>
+      <div class="navbar-right">
+        <div class="live-clock-wrapper">
+          <div id="navLiveDate">--- --, ----</div>
+          <div id="navLiveTime" style="font-weight:700;">--:--:-- UTC</div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Content Workspace -->
+    <div class="dashboard-content">
+      
+      <!-- Metrics deck (8 dynamic cards) -->
+      <section class="stats-matrix-8">
+        
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-list-check"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Total Tasks</span>
+            <span class="stat-metric-val purple" id="cardTotalTasks">0</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-circle-check"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Active listed</span>
+            <span class="stat-metric-val cyan" id="cardActiveCount">0</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-circle-xmark"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Disabled listed</span>
+            <span class="stat-metric-val gold" id="cardDisabledCount">0</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-envelope-open-text"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Manual Queue</span>
+            <span class="stat-metric-val" id="cardPendingClaims" style="color:var(--warning);">0</span>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Advanced actions toolbar filter -->
+      <section class="action-toolbar-card">
+        <div class="search-input-wrapper">
+          <input type="text" class="search-input" id="searchField" placeholder="Search tasks by Title, Reward type, or Verification...">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </div>
+
+        <select class="select-filter" id="filterStatusSelect">
+          <option value="all">All listed tasks</option>
+          <option value="active">Active/Enabled</option>
+          <option value="disabled">Disabled</option>
+        </select>
+
+        <button class="btn-trigger-modal" onclick="openTaskModal()"><i class="fa-solid fa-square-plus"></i> Create Task</button>
+      </section>
+
+      <!-- Shimmer skeletons wrapper -->
+      <div class="tasks-grid-board" id="skeletonsContainer">
+        <div class="skeleton-box"></div>
+        <div class="skeleton-box"></div>
+        <div class="skeleton-box"></div>
+      </div>
+
+      <!-- Main Tasks Grid list (Rule 11 Empty default handles) -->
+      <div class="tasks-grid-board" id="tasksGrid" style="display:none;">
+        <!-- Generated dynamically in script -->
+      </div>
+
+      <!-- Manual claims approval queue validation (Rule 7 manual verification) -->
+      <h3 class="section-title" style="margin-top:24px;">Manual claims approval queue</h3>
+      <div class="table-container-card">
+        <table class="claims-table">
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th>Task Title</th>
+              <th>Commission Reward</th>
+              <th>Date Submitted</th>
+              <th>Verification state</th>
+              <th>Actions panel</th>
+            </tr>
+          </thead>
+          <tbody id="claimsQueueTableBody">
+            <tr><td colspan="6" class="empty-state">No claims inside manual approval queue.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+    <!-- Panel Footer -->
+    <footer class="terminal-footer">
+      <span>TNMINING SYSTEM CONTROL CORE - TASKS BLUEPRINT</span>
+      <span style="font-family:'Share Tech Mono', monospace; color:var(--secondary);">Realtime Sync: Synced</span>
+    </footer>
+
+  </main>
+
+  <!-- ==================== PREMIUM EDIT MODAL OVERLAY ==================== -->
+
+  <!-- Modal: Create / Edit Task configuration form -->
+  <div class="modal-overlay" id="taskModal">
+    <div class="modal-card">
+      <h3 class="modal-title" id="modalTitleLabel">Create Hashing Task</h3>
+      
+      <div class="form-group">
+        <label class="form-label">Mission Title</label>
+        <input type="text" class="form-input" id="formTitle" placeholder="Subscribe Telegram Channel" required autocomplete="off">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Mission Description Details</label>
+        <input type="text" class="form-input" id="formDesc" placeholder="Join official alerts stream to verify bonus" required autocomplete="off">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Reward Amount</label>
+        <input type="number" step="any" class="form-input" id="formReward" placeholder="500" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Reward Type Designation</label>
+        <select class="form-input" id="formRewardType" style="background:#09041a;">
+          <option value="power">POWER (HP)</option>
+          <option value="usd">Wallet balance ($ USD)</option>
+          <option value="ton">TON Coins</option>
+          <option value="bonus">Special Extra Bonus</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Mission Category Type</label>
+        <select class="form-input" id="formTaskType" style="background:#09041a;">
+          <option value="telegram_channel">Join Telegram Channel</option>
+          <option value="telegram_group">Join Telegram Group</option>
+          <option value="visit_website">Visit Website Link</option>
+          <option value="mini_app">Open Mini App/Bot</option>
+          <option value="video">Watch Promo Video</option>
+          <option value="social">Follow Social Media Profiles</option>
+          <option value="invite">Invite Teammates</option>
+          <option value="custom">Custom Task Mission</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Verification Type Protocol</label>
+        <select class="form-input" id="formVerificationType" style="background:#09041a;">
+          <option value="instant">Instant Claim (Direct payout)</option>
+          <option value="manual">Manual Review Approval</option>
+          <option value="link_visit">Verify Link Visit Redirection</option>
+          <option value="tg_join">Telegram channel join verify</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Task Cooldown (Seconds) - Set 0 for One-time</label>
+        <input type="number" class="form-input" id="formCooldown" value="0" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Redirect Link URL (Optional)</label>
+        <input type="text" class="form-input" id="formUrl" placeholder="https://t.me/your_channel" autocomplete="off">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Redirect Action Button Text</label>
+        <input type="text" class="form-input" id="formBtnText" placeholder="Join Channel" autocomplete="off">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Total Global Claims Limit - Set 0 for Unlimited</label>
+        <input type="number" class="form-input" id="formLimit" value="0" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Display Order Rating</label>
+        <input type="number" class="form-input" id="formOrder" value="0" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Node Status State</label>
+        <select class="form-input" id="formStatus" style="background:#09041a;">
+          <option value="true">Enabled</option>
+          <option value="false">Disabled</option>
+        </select>
+      </div>
+
+      <div class="modal-buttons-row">
+        <button class="btn-modal btn-cancel" onclick="closeModal('taskModal')">Cancel</button>
+        <button class="btn-modal btn-save" id="saveTaskBtn">Commit Task</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Firebase Legacy Compat SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+  <script>
+    // Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDuQICVoC10i62PQMS6cX37t1eoeTg5zsc",
+      authDomain: "mining-c7b26.firebaseapp.com",
+      databaseURL: "https://mining-c7b26-default-rtdb.firebaseio.com",
+      projectId: "mining-c7b26",
+      storageBucket: "mining-c7b26.firebasestorage.app",
+      messagingSenderId: "873757658723",
+      appId: "1:873757658723:web:18a4af95953a08b440b256"
+    };
+
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.database();
+
+    // DOM selectors
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const terminalSidebar = document.getElementById('terminalSidebar');
+    const mainViewport = document.getElementById('mainViewport');
+    const navLiveDate = document.getElementById('navLiveDate');
+    const navLiveTime = document.getElementById('navLiveTime');
+
+    // Cards stats
+    const cardTotalTasks = document.getElementById('cardTotalTasks');
+    const cardActiveCount = document.getElementById('cardActiveCount');
+    const cardDisabledCount = document.getElementById('cardDisabledCount');
+    const cardPendingClaims = document.getElementById('cardPendingClaims');
+
+    const searchField = document.getElementById('searchField');
+    const filterStatusSelect = document.getElementById('filterStatusSelect');
+
+    const skeletonsContainer = document.getElementById('skeletonsContainer');
+    const packagesGrid = document.getElementById('packagesGrid');
+    const tasksDirectory = document.getElementById('packagesGrid'); // shares element identifier with packages list visually
+
+    // Form elements selectors
+    const formName = document.getElementById('formName');
+    const formBadge = document.getElementById('formBadge');
+    const formPower = document.getElementById('formPower');
+    const formPrice = document.getElementById('formPrice');
+    const formDaily = document.getElementById('formDaily');
+    const formMonthly = document.getElementById('formMonthly');
+    const formYearly = document.getElementById('formYearly');
+    const formOrder = document.getElementById('formOrder');
+    const formStatus = document.getElementById('formStatus');
+    
+    // Task Form elements
+    const formTitle = document.getElementById('formTitle');
+    const formDesc = document.getElementById('formDesc');
+    const formReward = document.getElementById('formReward');
+    const formRewardType = document.getElementById('formRewardType');
+    const formTaskType = document.getElementById('formTaskType');
+    const formVerificationType = document.getElementById('formVerificationType');
+    const formCooldown = document.getElementById('formCooldown');
+    const formUrl = document.getElementById('formUrl');
+    const formBtnText = document.getElementById('formBtnText');
+    const formLimit = document.getElementById('formLimit');
+    const saveTaskBtn = document.getElementById('saveTaskBtn');
+
+    const claimsQueueTableBody = document.getElementById('claimsQueueTableBody');
+    const toastContainer = document.getElementById('toastContainer');
+
+    let globalTasksList = {};
+    let activeEditTaskId = null;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      // Toggle collapsible navigation sidebar drawer
+      sidebarToggle.addEventListener('click', () => {
+        terminalSidebar.classList.toggle('collapsed');
+        terminalSidebar.classList.toggle('mobile-open');
+        mainViewport.classList.toggle('expanded');
+      });
+
+      startTerminalTimerClock();
+      initializeTasksListener();
+      initializeManualClaimsQueueListener();
+    });
+
+    function showToast(message, type = 'success') {
+      const toast = document.createElement('div');
+      toast.classList.add('toast', type);
+      const icon = type === 'success' ? 'fa-circle-check' : 'fa-triangle-exclamation';
+      toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${message}</span>`;
+      toastContainer.appendChild(toast);
+      setTimeout(() => toast.classList.add('show'), 50);
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    function startTerminalTimerClock() {
+      setInterval(() => {
+        const utcDate = new Date();
+        navLiveDate.textContent = utcDate.toLocaleDateString('en-US', {
+          year: 'numeric', month: 'long', day: 'numeric'
+        });
+        navLiveTime.textContent = utcDate.toUTCString().replace("GMT", "UTC");
+      }, 1000);
+    }
+
+    // Connect dynamic listener to task configuration lists
+    function initializeTasksListener() {
+      db.ref('Tasks').on('value', (snapshot) => {
+        skeletonsContainer.style.display = 'none';
+        tasksDirectory.style.display = 'grid';
+
+        if (!snapshot.exists()) {
+          // Render Premium Empty state (Rule 12)
+          tasksDirectory.innerHTML = `
+            <div class="empty-state-card">
+              <i class="fa-solid fa-layer-group"></i>
+              <h4 class="empty-title">No Tasks Available</h4>
+              <p class="empty-subtitle">Create your first task from the Admin Panel to listing options.</p>
+            </div>
+          `;
+          cardTotalTasks.textContent = "0";
+          cardActiveCount.textContent = "0";
+          cardDisabledCount.textContent = "0";
+          return;
+        }
+
+        globalTasksList = snapshot.val();
+        
+        calculateTasksStats();
+        processSortingAndFiltering();
+      });
+    }
+
+    function calculateTasksStats() {
+      const tasks = Object.values(globalTasksList);
+      
+      let totalCount = tasks.length;
+      let activeCount = 0;
+      let disabledCount = 0;
+
+      tasks.forEach((t) => {
+        if (t.enabled === true || t.enabled === "true") activeCount++;
+        else disabledCount++;
+      });
+
+      cardTotalTasks.textContent = totalCount;
+      cardActiveCount.textContent = activeCount;
+      cardDisabledCount.textContent = disabledCount;
+    }
+
+    // Process sorting and search over tasks arrays
+    function processSortingAndFiltering() {
+      const query = searchField.value.trim().toLowerCase();
+      const statusFilter = filterStatusSelect.value;
+
+      let tasksArray = Object.keys(globalTasksList).map(key => globalTasksList[key]);
+
+      // Apply search sweep query Filters (Rule 6)
+      if (query) {
+        tasksArray = tasksArray.filter(t => 
+          (t.title && t.title.toLowerCase().includes(query)) ||
+          (t.rewardType && t.rewardType.toLowerCase().includes(query)) ||
+          (t.verificationType && t.verificationType.toLowerCase().includes(query))
+        );
+      }
+
+      // Apply Status Filter Check (Rule 7)
+      if (statusFilter !== 'all') {
+        const isActive = statusFilter === 'active';
+        tasksArray = tasksArray.filter(t => (t.enabled === true || t.enabled === "true") === isActive);
+      }
+
+      // Sort by Display Order rating
+      tasksArray.sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+
+      renderTasksStack(tasksArray);
+    }
+
+    // Render Tasks Grid
+    function renderTasksStack(list) {
+      tasksDirectory.innerHTML = "";
+
+      if (list.length === 0) {
+        tasksDirectory.innerHTML = `
+          <div class="empty-state-card">
+            <i class="fa-solid fa-layer-group"></i>
+            <h4 class="empty-title">No matching tasks</h4>
+            <p class="empty-subtitle">Modify search parameters to reveal alternative configured task profiles.</p>
+          </div>
+        `;
+        return;
+      }
+
+      list.forEach((task) => {
+        const cardEl = document.createElement('div');
+        cardEl.classList.add('task-card');
+
+        const stateColor = (task.enabled === true || task.enabled === "true") ? "var(--success)" : "var(--error)";
+        const stateLabel = (task.enabled === true || task.enabled === "true") ? "Active" : "Disabled";
+
+        let rewardLabel = task.rewardType === 'power' ? `${Number(task.reward).toLocaleString()} POWER` : `$${parseFloat(task.reward).toFixed(4)}`;
+
+        cardEl.innerHTML = `
+          <div class="task-card-hdr">
+            <span class="task-card-title">${task.title}</span>
+            <span class="reward-indicator-badge">${rewardLabel}</span>
+          </div>
+
+          <p class="task-desc-text">${task.description || "Mission verification process node"}</p>
+
+          <div class="task-properties-list">
+            <div class="task-property-row"><span>Verification Protocol</span><span class="task-property-val">${task.verificationType}</span></div>
+            <div class="task-property-row"><span>Category Group</span><span class="task-property-val">${task.taskType}</span></div>
+            <div class="task-property-row"><span>Cooldown Timer</span><span class="task-property-val">${task.cooldown || 0}s</span></div>
+            <div class="task-property-row"><span>Global Claims Total</span><span class="task-property-val">${task.claimsCount || 0} / ${task.claimLimit || "unlimited"}</span></div>
+            <div class="task-property-row"><span>Status</span><span class="task-property-val" style="color:${stateColor};">${stateLabel}</span></div>
+          </div>
+
+          <div class="task-actions-row">
+            <button class="btn-task-opt edit" onclick="openTaskModal('${task.id}')">Edit</button>
+            <button class="btn-task-opt duplicate" onclick="duplicateTaskNode('${task.id}')">Duplicate</button>
+            <button class="btn-task-opt delete" onclick="purgeTaskNode('${task.id}')">Delete</button>
+          </div>
+        `;
+        tasksDirectory.appendChild(cardEl);
+      });
+    }
+
+    // Modal creation and edit setups
+    window.openTaskModal = function(taskId = null) {
+      activeEditTaskId = taskId;
+
+      if (taskId) {
+        // Edit Mode
+        const task = globalTasksList[taskId];
+        document.getElementById('modalTitleLabel').textContent = "Modify dynamic Task configuration";
+
+        formTitle.value = task.title;
+        formDesc.value = task.description || "";
+        formReward.value = task.reward;
+        formRewardType.value = task.rewardType || "power";
+        formTaskType.value = task.taskType || "telegram_channel";
+        formVerificationType.value = task.verificationType || "instant";
+        formCooldown.value = task.cooldown || 0;
+        formUrl.value = task.url || "";
+        formBtnText.value = task.buttonText || "Join Link";
+        formLimit.value = task.claimLimit || 0;
+        formOrder.value = task.displayOrder || 0;
+        formStatus.value = String(task.enabled);
+
+      } else {
+        // Add Mode
+        document.getElementById('modalTitleLabel').textContent = "Create Dynamic Verification Task";
+
+        formTitle.value = "Join alerts channel";
+        formDesc.value = "Join offical platform news feed to earn extra tokens";
+        formReward.value = "200";
+        formRewardType.value = "power";
+        formTaskType.value = "telegram_channel";
+        formVerificationType.value = "instant";
+        formCooldown.value = "0";
+        formUrl.value = "https://t.me/";
+        formBtnText = "Join Channel";
+        formCooldownInput = 0;
+        formUrlInput = "";
+        formDescription = "";
+        displayOrder = 0;
+        formStatus = "true";
+
+        formTitleInput = "";
+        formRewardInput = "";
+      }
+
+      document.getElementById('taskModal').classList.add('active');
+    };
+
+    window.closeModal = function(modalId) {
+      document.getElementById(modalId).classList.remove('active');
+    };
+
+    // Save dynamic task node
+    saveTaskBtn.addEventListener('click', () => {
+      const title = formTitle.value.trim();
+      const desc = formDesc.value.trim();
+      const reward = parseFloat(formReward.value);
+      const rewardType = formRewardType.value;
+      const taskType = formTaskType.value;
+      const verificationType = formVerificationType.value;
+      const cooldown = parseInt(formCooldown.value) || 0;
+      const url = formUrl.value.trim();
+      const btnText = formBtnText.value.trim() || "Click Here";
+      const limit = parseInt(formLimit.value) || 0;
+      const order = parseInt(formOrder.value) || 0;
+      const enabled = formStatus.value === "true";
+
+      if (!title || isNaN(reward) || reward < 0) {
+        showToast("Please verify task titles and rewards.", "error");
+        return;
+      }
+
+      const taskId = activeEditTaskId ? activeEditTaskId : db.ref('Tasks').push().key;
+
+      const payload = {
+        id: taskId,
+        title: title,
+        description: desc,
+        reward: reward,
+        rewardType: rewardType,
+        taskType: taskType,
+        verificationType: verificationType,
+        cooldown: cooldown,
+        url: url,
+        buttonText: btnText,
+        claimLimit: limit,
+        displayOrder: order,
+        enabled: enabled,
+        updatedDate: firebase.database.ServerValue.TIMESTAMP
+      };
+
+      if (!activeEditTaskId) {
+        payload.createdDate = firebase.database.ServerValue.TIMESTAMP;
+        payload.claimsCount = 0; // Initialize claim counting variable
+      }
+
+      db.ref(`Tasks/${taskId}`).update(payload)
+        .then(() => {
+          showToast(`Task configuration saved successfully!`, "success");
+          closeModal('taskModal');
+        });
+    });
+
+    // Clone duplicate task configuration (Rule 12 Duplicate feature)
+    window.duplicateTaskNode = function(taskId) {
+      const sourceTask = globalTasksList[taskId];
+      if (!sourceTask) return;
+
+      if (confirm(`Duplicate task blueprint: Copy config of "${sourceTask.title}"?`)) {
+        const newKey = db.ref('Tasks').push().key;
+
+        const cloneObj = {
+          ...sourceTask,
+          id: newKey,
+          title: `${sourceTask.title} (Copy)`,
+          createdDate: firebase.database.ServerValue.TIMESTAMP,
+          updatedDate: firebase.database.ServerValue.TIMESTAMP,
+          claimsCount: 0 // Reset counts for duplicated streams
+        };
+
+        db.ref(`Tasks/${newKey}`).set(cloneObj)
+          .then(() => showToast("Duplicated task configuration created successfully!", "success"));
+      }
+    };
+
+    // Purge tasks entry traces
+    window.purgeTaskNode = function(taskId) {
+      if (confirm("Delete this dynamic task permanently? Users will no longer be eligible to claim payouts.")) {
+        db.ref(`Tasks/${taskId}`).remove()
+          .then(() => showToast("Task configuration purged successfully.", "success"));
+      }
+    };
+
+    // Connect Manual Verification claims approving deck (Rule 7 queue management)
+    function initializeManualClaimsQueueListener() {
+      db.ref('ManualClaimsQueue').on('value', (snapshot) => {
+        claimsQueueTableBody.innerHTML = "";
+
+        if (!snapshot.exists()) {
+          claimsQueueTableBody.innerHTML = `<tr><td colspan="6" class="empty-state">No dynamic claims queued inside review queue.</td></tr>`;
+          cardPendingClaims.textContent = "0";
+          return;
+        }
+
+        const list = snapshot.val();
+        const claimsArray = Object.keys(list).map(k => list[k]);
+
+        // Filter and display Pending logs
+        const pendingClaimsList = claimsArray.filter(c => c.status === 'PendingApproval');
+        cardPendingClaims.textContent = pendingClaimsList.length;
+
+        if (pendingClaimsList.length === 0) {
+          claimsQueueTableBody.innerHTML = `<tr><td colspan="6" class="empty-state">No dynamic claims queued inside review queue.</td></tr>`;
+          return;
+        }
+
+        // Render queue rows
+        pendingClaimsList.forEach((item) => {
+          const tr = document.createElement('tr');
+          const dateStr = new Date(item.submittedAt || Date.now()).toLocaleDateString();
+
+          const rewardLabel = item.rewardType === 'power' ? `${Number(item.reward).toLocaleString()} POWER` : `$${parseFloat(item.reward).toFixed(4)}`;
+
+          tr.innerHTML = `
+            <td>
+              <strong style="color:var(--secondary);">@${item.username || "Miner"}</strong><br>
+              <span style="font-size:9.5px; font-family:'Share Tech Mono', monospace; color:var(--text-muted);">${item.uid}</span>
+            </td>
+            <td><strong>${item.taskTitle}</strong></td>
+            <td style="font-family:'Share Tech Mono', monospace; font-weight:700;">${rewardLabel}</td>
+            <td>${dateStr}</td>
+            <td><span class="tbl-status-badge pending">Awaiting Review</span></td>
+            <td>
+              <button class="btn-tbl-action approve" onclick="verifyManualClaim('${item.claimId}', '${item.uid}', '${item.taskId}', 'Approved')">Approve</button>
+              <button class="btn-tbl-action reject" onclick="verifyManualClaim('${item.claimId}', '${item.uid}', '${item.taskId}', 'Rejected')">Reject</button>
+            </td>
+          `;
+          claimsQueueTableBody.appendChild(tr);
+        });
+      });
+    }
+
+    // Process manual review payouts (Rule 7, 8 & 9)
+    window.verifyManualClaim = function(claimId, uid, taskId, decision) {
+      if (confirm(`Set verification review decision as: ${decision}?`)) {
+        
+        if (decision === 'Approved') {
+          // Fetch corresponding reward specifications and credit User Profile safely
+          db.ref(`Tasks/${taskId}`).once('value', (snap) => {
+            if (!snap.exists()) return;
+            const task = snap.val();
+
+            const userRef = db.ref(`Users/${uid}`);
+            userRef.transaction((curr) => {
+              if (curr) {
+                // Ensure completed status mapping is logged
+                if (!curr.completedTasks) curr.completedTasks = {};
+                curr.completedTasks[taskId] = {
+                  lastClaimTime: Date.now(),
+                  status: "Completed"
+                };
+
+                const rewardVal = parseFloat(task.reward);
+                if (task.rewardType === 'power') {
+                  curr.power = (curr.power || 1000) + parseInt(rewardVal);
+                } else {
+                  curr.balance = parseFloat(curr.balance || 0) + rewardVal;
+                }
+              }
+              return curr;
+            }, async (err, committed) => {
+              if (committed) {
+                // Remove from active Manual review Queue
+                await db.ref(`ManualClaimsQueue/${claimId}`).remove();
+                
+                // Track claims total counts inside Tasks configs
+                await db.ref(`Tasks/${taskId}/claimsCount`).transaction((count) => { return (parseInt(count) || 0) + 1; });
+
+                showToast(`Manual claim approved! User balance metrics upgraded successfully.`, "success");
+              } else {
+                showToast("Deduction error.", "error");
+              }
+            });
+          });
+        } else {
+          // Rejected scenario: update completion logs and drop from Manual claim verification queue
+          const updates = {};
+          updates[`ManualClaimsQueue/${claimId}`] = null;
+          updates[`Users/${uid}/completedTasks/${taskId}`] = null;
+
+          db.ref().update(updates)
+            .then(() => showToast("Claim verification rejected successfully.", "success"));
+        }
+      }
+    };
+
+    // Filter triggers
+    searchField.addEventListener('input', () => {
+      processSortingAndFiltering();
+    });
+
+    filterStatusSelect.addEventListener('change', () => {
+      processSortingAndFiltering();
+    });
+  </script>
+</body>
+</html>
