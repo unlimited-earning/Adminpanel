@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>TNMINING - Announcement Management Console</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    :root {
+      --bg-primary: #020009;
+      --bg-secondary: #070314;
+      --bg-card: rgba(13, 6, 30, 0.65);
+      --border-color: rgba(168, 85, 247, 0.18);
+      --primary: #a855f7;
+      --secondary: #06b6d4;
+      --gold: #fbbf24;
+      --gold-glow: rgba(251, 191, 36, 0.35);
+      --primary-glow: rgba(168, 85, 247, 0.3);
+      --secondary-glow: rgba(6, 182, 212, 0.2);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --success: #10b981;
+      --error: #ef4444;
+      --radius-premium: 24px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(168, 85, 247, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(6, 182, 212, 0.08) 0%, transparent 40%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+    }
+
+    /* Collapsible Navigation Sidebar (17 Items) */
+    aside.sidebar {
+      width: 270px;
+      background: rgba(8, 3, 20, 0.95);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 1000;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    aside.sidebar.collapsed {
+      transform: translateX(-270px);
+    }
+
+    .sidebar-header {
+      padding: 24px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+
+    .sidebar-logo {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: white;
+      box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+    }
+
+    .sidebar-title {
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    .sidebar-title span {
+      display: block;
+      font-size: 9px;
+      font-family: 'Share Tech Mono', monospace;
+      color: var(--secondary);
+    }
+
+    .sidebar-menu {
+      flex: 1;
+      padding: 16px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      overflow-y: auto;
+    }
+
+    .menu-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 14px;
+      border-radius: 12px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 12.5px;
+      font-weight: 600;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+
+    .menu-link i {
+      font-size: 14px;
+      width: 18px;
+      text-align: center;
+    }
+
+    .menu-link:hover, .menu-link.active {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.03);
+      border-color: var(--border-color);
+    }
+
+    .menu-link.active {
+      background: linear-gradient(135deg, rgba(168, 85, 247, 0.12) 0%, rgba(6, 182, 212, 0.12) 100%);
+      border-color: var(--primary);
+    }
+
+    /* Main Content Wrapper */
+    main.main-viewport {
+      margin-left: 270px;
+      flex: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    main.main-viewport.expanded {
+      margin-left: 0;
+    }
+
+    /* Top Navbar Bar */
+    .top-navbar {
+      height: 72px;
+      background: rgba(13, 6, 30, 0.5);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 24px;
+      position: sticky;
+      top: 0;
+      z-index: 999;
+    }
+
+    .navbar-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .menu-toggle-btn {
+      font-size: 18px;
+      color: var(--text-main);
+      cursor: pointer;
+      background: none;
+      border: none;
+    }
+
+    .nav-title { font-size: 16px; font-weight: 800; }
+
+    .navbar-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .live-clock-wrapper {
+      text-align: right;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px;
+      color: var(--secondary);
+    }
+
+    /* Content Area */
+    .dashboard-content {
+      padding: 24px;
+      flex: 1;
+    }
+
+    /* Analytics Dashboard Grid */
+    .stats-matrix-8 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .stat-metric-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .stat-metric-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      color: var(--secondary);
+    }
+
+    .stat-metric-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .stat-metric-label {
+      font-size: 9.5px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .stat-metric-val {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .stat-metric-val.purple { color: var(--primary); }
+    .stat-metric-val.cyan { color: var(--secondary); }
+    .stat-metric-val.gold { color: var(--gold); }
+
+    /* Action bar */
+    .action-toolbar-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.03);
+      border-radius: 20px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    @media (max-width: 600px) {
+      .action-toolbar-card { flex-direction: column; }
+    }
+
+    .search-input-wrapper {
+      flex: 1;
+      position: relative;
+    }
+
+    .search-input-wrapper i {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 13px 16px 13px 44px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      color: var(--text-main);
+      font-size: 13px;
+      outline: none;
+    }
+
+    .search-input:focus { border-color: var(--secondary); }
+
+    .select-filter {
+      background: rgba(13, 6, 30, 0.95);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 0 16px;
+      border-radius: 14px;
+      font-size: 13px;
+      font-weight: 600;
+      outline: none;
+      height: 44px;
+    }
+
+    .btn-trigger-modal {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      border: none;
+      color: white;
+      font-weight: 700;
+      padding: 0 20px;
+      border-radius: 14px;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      height: 44px;
+    }
+
+    /* Announcements Grid stacks */
+    .announcements-grid-board {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .ann-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 22px;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .ann-card:hover { border-color: var(--secondary); }
+    
+    .ann-card.pinned {
+      border-color: rgba(251, 191, 36, 0.3);
+      box-shadow: 0 8px 25px var(--gold-glow);
+    }
+
+    .ann-card-hdr {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .ann-card-title {
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .ann-badge {
+      font-size: 9.5px;
+      font-weight: 800;
+      color: var(--secondary);
+      background: rgba(6, 182, 212, 0.08);
+      border: 1px solid rgba(6, 182, 212, 0.2);
+      padding: 2px 10px;
+      border-radius: 12px;
+    }
+
+    .ann-msg-text {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .ann-properties-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      background: rgba(255,255,255,0.01);
+      border: 1px solid rgba(255,255,255,0.03);
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .ann-property-row {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .ann-property-val {
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .ann-actions-row {
+      display: flex;
+      gap: 8px;
+      margin-top: auto;
+    }
+
+    .btn-ann-opt {
+      flex: 1;
+      padding: 9px;
+      border-radius: 12px;
+      font-size: 11.5px;
+      font-weight: 800;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+
+    .btn-ann-opt.edit { background: rgba(6, 182, 212, 0.12); color: var(--secondary); border: 1px solid rgba(6,182,212,0.2); }
+    .btn-ann-opt.edit:hover { background: var(--secondary); color: white; }
+
+    .btn-ann-opt.pin { background: rgba(251, 191, 36, 0.12); color: var(--gold); border: 1px solid rgba(251,191,36,0.2); }
+    .btn-ann-opt.pin:hover { background: var(--gold); color: black; }
+
+    .btn-ann-opt.delete { background: rgba(239, 68, 68, 0.12); color: var(--error); border: 1px solid rgba(239,68,68,0.2); }
+    .btn-ann-opt.delete:hover { background: var(--error); color: white; }
+
+    /* Modal overlay form drawers */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 2, 12, 0.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease;
+    }
+
+    .modal-overlay.active { opacity: 1; pointer-events: all; }
+
+    .modal-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-premium);
+      width: 100%;
+      max-width: 480px;
+      padding: 24px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-card::-webkit-scrollbar { width: 3px; }
+    .modal-card::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.05); }
+
+    .modal-title {
+      font-size: 15px;
+      font-weight: 800;
+      margin-bottom: 18px;
+      text-align: center;
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 5px;
+      text-transform: uppercase;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 11px 14px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      color: var(--text-main);
+      font-size: 13px;
+      outline: none;
+    }
+
+    .form-input:focus { border-color: var(--secondary); }
+
+    .modal-buttons-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .btn-modal {
+      flex: 1;
+      padding: 12.5px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-cancel { background: rgba(255,255,255,0.04); color: var(--text-main); border: 1px solid var(--border-color); }
+    .btn-save { background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); color: white; }
+
+    /* Empty state */
+    .empty-state-card {
+      background: var(--bg-card);
+      border: 1.5px dashed var(--border-color);
+      border-radius: var(--radius-premium);
+      padding: 50px 24px;
+      text-align: center;
+      grid-column: span 3;
+    }
+
+    .empty-state-card i {
+      font-size: 38px;
+      color: rgba(168, 85, 247, 0.3);
+      margin-bottom: 14px;
+    }
+
+    .empty-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 6px;
+    }
+
+    .empty-subtitle {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Skeletons */
+    .skeleton-box { height: 160px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 22px; position: relative; overflow: hidden; margin-bottom: 10px; }
+    .skeleton-box::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.02), transparent); transform: translateX(-100%); animation: shim 1.5s infinite; }
+    @keyframes shim { 100% { transform: translateX(100%); } }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      aside.sidebar { transform: translateX(-270px); }
+      aside.sidebar.mobile-open { transform: translateX(0); }
+      main.main-viewport { margin-left: 0; }
+    }
+
+    /* Footer */
+    footer.terminal-footer {
+      background: rgba(13, 6, 30, 0.3);
+      border-top: 1px solid rgba(255,255,255,0.03);
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar drawers targets (17 Items) -->
+  <aside class="sidebar" id="terminalSidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo"><i class="fa-solid fa-circle-nodes"></i></div>
+      <div class="sidebar-title">
+        TNMINING <span>Administrative Console</span>
+      </div>
+    </div>
+    <div class="sidebar-menu">
+      <a href="admin-dashboard.html" class="menu-link"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+      <a href="admin-users.html" class="menu-link"><i class="fa-solid fa-users"></i> Users</a>
+      <a href="admin-mining.html" class="menu-link"><i class="fa-solid fa-cube"></i> Mining</a>
+      <a href="admin-withdraw.html" class="menu-link"><i class="fa-solid fa-money-check-dollar"></i> Withdraw</a>
+      <a href="admin-buy-power.html" class="menu-link"><i class="fa-solid fa-bolt"></i> Buy Power</a>
+      <a href="admin-task.html" class="menu-link"><i class="fa-solid fa-list-check"></i> Tasks</a>
+      <a href="admin-referral.html" class="menu-link"><i class="fa-solid fa-people-roof"></i> Referral</a>
+      <a href="admin-announcement.html" class="menu-link active"><i class="fa-solid fa-bullhorn"></i> Announcements</a>
+      <a href="admin-statistics.html" class="menu-link"><i class="fa-solid fa-database"></i> Statistics</a>
+      <a href="admin-package-orders.html" class="menu-link"><i class="fa-solid fa-cart-shopping"></i> Package Orders</a>
+      <a href="admin-wallet.html" class="menu-link"><i class="fa-solid fa-wallet"></i> Wallet</a>
+      <a href="admin-notification.html" class="menu-link"><i class="fa-solid fa-bell"></i> Notifications</a>
+      <a href="admin-report.html" class="menu-link"><i class="fa-solid fa-flag"></i> Reports</a>
+      <a href="admin-logs.html" class="menu-link"><i class="fa-solid fa-clock-rotate-left"></i> Logs</a>
+      <a href="admin-settings.html" class="menu-link"><i class="fa-solid fa-sliders"></i> Settings</a>
+      <a href="admin-security.html" class="menu-link"><i class="fa-solid fa-user-shield"></i> Security</a>
+      <a href="admin-profile.html" class="menu-link"><i class="fa-solid fa-user-gear"></i> Profile</a>
+    </div>
+  </aside>
+
+  <!-- Main Viewport Wrap -->
+  <main class="main-viewport" id="mainViewport">
+    
+    <!-- Top Nav -->
+    <nav class="top-navbar">
+      <div class="navbar-left">
+        <button class="menu-toggle-btn" id="sidebarToggle"><i class="fa-solid fa-bars-staggered"></i></button>
+        <span class="nav-title">Platform Broadcasts & Announcements Management</span>
+      </div>
+      <div class="navbar-right">
+        <div class="live-clock-wrapper">
+          <div id="navLiveDate">--- --, ----</div>
+          <div id="navLiveTime" style="font-weight:700;">--:--:-- UTC</div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Content Workspace -->
+    <div class="dashboard-content">
+      
+      <!-- Metrics deck (8 dynamic cards) -->
+      <section class="stats-matrix-8">
+        
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-bullhorn"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Total Published</span>
+            <span class="stat-metric-val purple" id="cardTotalAnn">0</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-circle-check"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Active Broadcasts</span>
+            <span class="stat-metric-val cyan" id="cardActiveCount">0</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-circle-xmark"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Disabled news</span>
+            <span class="stat-metric-val gold" id="cardDisabledCount">0</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-thumbtack"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Pinned notices</span>
+            <span class="stat-metric-val" id="cardPinnedCount" style="color:var(--gold);">0</span>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Advanced actions toolbar filter -->
+      <section class="action-toolbar-card">
+        <div class="search-input-wrapper">
+          <input type="text" class="search-input" id="searchField" placeholder="Search notices by Title, Category, Status...">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </div>
+
+        <select class="select-filter" id="filterStatusSelect">
+          <option value="all">All listed broadcasts</option>
+          <option value="active">Active/Enabled</option>
+          <option value="disabled">Disabled</option>
+          <option value="pinned">Pinned first</option>
+        </select>
+
+        <button class="btn-trigger-modal" onclick="openAnnouncementModal()"><i class="fa-solid fa-square-plus"></i> Create Broadcast</button>
+      </section>
+
+      <!-- Shimmer skeletons wrapper -->
+      <div class="announcements-grid-board" id="skeletonsContainer">
+        <div class="skeleton-box"></div>
+        <div class="skeleton-box"></div>
+        <div class="skeleton-box"></div>
+      </div>
+
+      <!-- Main Announcements Grid lists (Rule 11 Empty Coming soon state default) -->
+      <div class="announcements-grid-board" id="announcementsGrid" style="display:none;">
+        <!-- Generated dynamically inside script loop -->
+      </div>
+
+    </div>
+
+    <!-- Panel Footer -->
+    <footer class="terminal-footer">
+      <span>TNMINING SYSTEM CONTROL CORE - ANNOUNCEMENT DISPATCH</span>
+      <span style="font-family:'Share Tech Mono', monospace; color:var(--secondary);">Realtime Status: Online</span>
+    </footer>
+
+  </main>
+
+  <!-- ==================== PREMIUM EDIT DETAILS MODAL DRAWER ==================== -->
+
+  <!-- Modal: Create / Edit Announcement configurations form -->
+  <div class="modal-overlay" id="announcementModal">
+    <div class="modal-card">
+      <h3 class="modal-title" id="modalTitleLabel">Publish Platform Broadcast</h3>
+      
+      <div class="form-group">
+        <label class="form-label">Broadcast Title Name</label>
+        <input type="text" class="form-input" id="formTitle" placeholder="Maintenance Schedule notice" required autocomplete="off">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Broadcast Message Content</label>
+        <textarea class="form-input" id="formMessage" placeholder="We are upgrading our hashrate clusters. Hashing sessions run uninterrupted." style="height:80px; resize:none;" required></textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Category Classification Type</label>
+        <select class="form-input" id="formType" style="background:#09041a;">
+          <option value="Information">Information</option>
+          <option value="Update">Platform Update</option>
+          <option value="Maintenance">Maintenance Window</option>
+          <option value="Warning">System Warning</option>
+          <option value="Promotion">Event & Promotion</option>
+          <option value="System Notice">System Notice</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Priority Load Rating</label>
+        <select class="form-input" id="formPriority" style="background:#09041a;">
+          <option value="Low">Low</option>
+          <option value="Medium">Medium</option>
+          <option value="High">High</option>
+          <option value="Critical">Critical (Immediate Alert)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Target Audience Pool</label>
+        <select class="form-input" id="formAudience" style="background:#09041a;">
+          <option value="All Users">All Users</option>
+          <option value="Mining Users">Active Mining nodes users</option>
+          <option value="New Users">New Registrants</option>
+          <option value="Buy Power Users">Hardware Buyers</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Primary Display Location</label>
+        <select class="form-input" id="formLocation" style="background:#09041a;">
+          <option value="Home Page">Home dashboard Page</option>
+          <option value="Mining Page">Mining node Core Page</option>
+          <option value="Task Page">Rewards & Tasks Page</option>
+          <option value="Global Banner">Global Header alert Banner</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Pin Node Alert first</label>
+        <select class="form-input" id="formPinned" style="background:#09041a;">
+          <option value="false">Standard dispatch</option>
+          <option value="true">Pin notice first</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Active Node Status state</label>
+        <select class="form-input" id="formStatus" style="background:#09041a;">
+          <option value="true">Enabled (Visible to Users)</option>
+          <option value="false">Disabled (Muted/Draft)</option>
+        </select>
+      </div>
+
+      <div class="modal-buttons-row">
+        <button class="btn-modal btn-cancel" onclick="closeModal('announcementModal')">Cancel</button>
+        <button class="btn-modal btn-save" id="saveAnnBtn">Commit Broadcast</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Firebase Legacy Compat SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+  <script>
+    // Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDuQICVoC10i62PQMS6cX37t1eoeTg5zsc",
+      authDomain: "mining-c7b26.firebaseapp.com",
+      databaseURL: "https://mining-c7b26-default-rtdb.firebaseio.com",
+      projectId: "mining-c7b26",
+      storageBucket: "mining-c7b26.firebasestorage.app",
+      messagingSenderId: "873757658723",
+      appId: "1:873757658723:web:18a4af95953a08b440b256"
+    };
+
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.database();
+
+    // DOM selectors
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const terminalSidebar = document.getElementById('terminalSidebar');
+    const mainViewport = document.getElementById('mainViewport');
+    const navLiveDate = document.getElementById('navLiveDate');
+    const navLiveTime = document.getElementById('navLiveTime');
+
+    // Cards stats
+    const cardTotalAnn = document.getElementById('cardTotalAnn');
+    const cardActiveCount = document.getElementById('cardActiveCount');
+    const cardDisabledCount = document.getElementById('cardDisabledCount');
+    const cardPinnedCount = document.getElementById('cardPinnedCount');
+
+    const searchField = document.getElementById('searchField');
+    const filterStatusSelect = document.getElementById('filterStatusSelect');
+
+    const skeletonsContainer = document.getElementById('skeletonsContainer');
+    const announcementsGrid = document.getElementById('announcementsGrid');
+
+    // Form elements selectors
+    const formTitle = document.getElementById('formTitle');
+    const formMessage = document.getElementById('formMessage');
+    const formType = document.getElementById('formType');
+    const formPriority = document.getElementById('formPriority');
+    const formAudience = document.getElementById('formAudience');
+    const formLocation = document.getElementById('formLocation');
+    const formPinned = document.getElementById('formPinned');
+    const formStatus = document.getElementById('formStatus');
+    const saveAnnBtn = document.getElementById('saveAnnBtn');
+    const toastContainer = document.getElementById('toastContainer');
+
+    let globalAnnouncementsList = {};
+    let activeEditAnnId = null;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      // Toggle collapsible navigation sidebar drawer
+      sidebarToggle.addEventListener('click', () => {
+        terminalSidebar.classList.toggle('collapsed');
+        terminalSidebar.classList.toggle('mobile-open');
+        mainViewport.classList.toggle('expanded');
+      });
+
+      startTerminalTimerClock();
+      initializeAnnouncementsListener();
+    });
+
+    function showToast(message, type = 'success') {
+      const toast = document.createElement('div');
+      toast.classList.add('toast', type);
+      const icon = type === 'success' ? 'fa-circle-check' : 'fa-triangle-exclamation';
+      toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${message}</span>`;
+      toastContainer.appendChild(toast);
+      setTimeout(() => toast.classList.add('show'), 50);
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    function startTerminalTimerClock() {
+      setInterval(() => {
+        const utcDate = new Date();
+        navLiveDate.textContent = utcDate.toLocaleDateString('en-US', {
+          year: 'numeric', month: 'long', day: 'numeric'
+        });
+        navLiveTime.textContent = utcDate.toUTCString().replace("GMT", "UTC");
+      }, 1000);
+    }
+
+    // Connect dynamic listener to dynamic announcements ledger under real-time DB (Rule 1, 3, 10 & 15)
+    function initializeAnnouncementsListener() {
+      db.ref('SystemAnnouncements').on('value', (snapshot) => {
+        skeletonsContainer.style.display = 'none';
+        announcementsGrid.style.display = 'grid';
+
+        if (!snapshot.exists()) {
+          // Render Premium Empty state Card (Rule 12 Empty placeholder)
+          announcementsGrid.innerHTML = `
+            <div class="empty-state-card">
+              <i class="fa-solid fa-bullhorn"></i>
+              <h4 class="empty-title">No Broadcasts Available</h4>
+              <p class="empty-subtitle">Create your first broadcast notification above to post on public dashboards.</p>
+            </div>
+          `;
+          cardTotalAnn.textContent = "0";
+          cardActiveCount.textContent = "0";
+          cardDisabledCount.textContent = "0";
+          cardPinnedCount.textContent = "0";
+          return;
+        }
+
+        globalAnnouncementsList = snapshot.val();
+        
+        calculateAnnouncementsStats();
+        processSortingAndFiltering();
+      });
+    }
+
+    function calculateAnnouncementsStats() {
+      const list = Object.values(globalAnnouncementsList);
+      
+      let totalCount = list.length;
+      let activeCount = 0;
+      let disabledCount = 0;
+      let pinnedCount = 0;
+
+      list.forEach((ann) => {
+        if (ann.enabled === true || ann.enabled === "true") activeCount++;
+        else disabledCount++;
+
+        if (ann.pinned === true || ann.pinned === "true") pinnedCount++;
+      });
+
+      cardTotalAnn.textContent = totalCount;
+      cardActiveCount.textContent = activeCount;
+      cardDisabledCount.textContent = disabledCount;
+      cardPinnedCount.textContent = pinnedCount;
+    }
+
+    // Process searches and filters on active announcements arrays
+    function processSortingAndFiltering() {
+      const query = searchField.value.trim().toLowerCase();
+      const statusFilter = filterStatusSelect.value;
+
+      let annArray = Object.keys(globalAnnouncementsList).map(key => globalAnnouncementsList[key]);
+
+      // 1. Apply Search query filter
+      if (query) {
+        annArray = annArray.filter(a => 
+          (a.title && a.title.toLowerCase().includes(query)) ||
+          (a.message && a.message.toLowerCase().includes(query)) ||
+          (a.type && a.type.toLowerCase().includes(query))
+        );
+      }
+
+      // 2. Apply Status Selectors filter Check (Rule 7 Filter options)
+      if (statusFilter !== 'all') {
+        if (statusFilter === 'active') {
+          annArray = annArray.filter(a => a.enabled === true || a.enabled === "true");
+        } else if (statusFilter === 'disabled') {
+          annArray = annArray.filter(a => a.enabled === false || a.enabled === "false");
+        } else if (statusFilter === 'pinned') {
+          annArray = annArray.filter(a => a.pinned === true || a.pinned === "true");
+        }
+      }
+
+      // Pin notices sorting logic first, then sorted by newest registration date
+      annArray.sort((a,b) => {
+        const pinA = (a.pinned === true || a.pinned === "true") ? 1 : 0;
+        const pinB = (b.pinned === true || b.pinned === "true") ? 1 : 0;
+        
+        if (pinA !== pinB) return pinB - pinA;
+        return (b.createdDate || 0) - (a.createdDate || 0);
+      });
+
+      renderAnnouncementsStack(annArray);
+    }
+
+    // Render Grid
+    function renderAnnouncementsStack(list) {
+      announcementsGrid.innerHTML = "";
+
+      if (list.length === 0) {
+        announcementsGrid.innerHTML = `
+          <div class="empty-state-card">
+            <i class="fa-solid fa-bullhorn"></i>
+            <h4 class="empty-title">No matching notifications</h4>
+            <p class="empty-subtitle">Try modifying search tags to reveal alternative drafts.</p>
+          </div>
+        `;
+        return;
+      }
+
+      list.forEach((ann) => {
+        const cardEl = document.createElement('div');
+        cardEl.className = (ann.pinned === true || ann.pinned === "true") ? "ann-card pinned" : "ann-card";
+
+        const stateColor = (ann.enabled === true || ann.enabled === "true") ? "var(--success)" : "var(--error)";
+        const stateLabel = (ann.enabled === true || ann.enabled === "true") ? "Active" : "Disabled";
+
+        const dateLabel = new Date(ann.createdDate || Date.now()).toLocaleDateString();
+
+        cardEl.innerHTML = `
+          <div class="ann-card-hdr">
+            <span class="ann-card-title">${ann.title}</span>
+            <span class="ann-badge">${ann.type}</span>
+          </div>
+
+          <p class="ann-msg-text">${ann.message || "Generic operational notice"}</p>
+
+          <div class="ann-properties-list">
+            <div class="ann-property-row"><span>Priority level</span><span class="ann-property-val" style="color:var(--primary); font-weight:700;">${ann.priority}</span></div>
+            <div class="ann-property-row"><span>Target Pool</span><span class="ann-property-val">${ann.audience}</span></div>
+            <div class="ann-property-row"><span>Display Location</span><span class="ann-property-val">${ann.location}</span></div>
+            <div class="ann-property-row"><span>Pinned state</span><span class="ann-property-val">${ann.pinned === "true" || ann.pinned === true ? 'Pinned Alert' : 'Standard'}</span></div>
+            <div class="ann-property-row"><span>Audit timestamp</span><span class="ann-property-val">${dateLabel}</span></div>
+            <div class="ann-property-row"><span>Status</span><span class="ann-property-val" style="color:${stateColor};">${stateLabel}</span></div>
+          </div>
+
+          <div class="ann-actions-row">
+            <button class="btn-ann-opt edit" onclick="openAnnouncementModal('${ann.id}')">Edit</button>
+            <button class="btn-ann-opt pin" onclick="togglePinNoticeState('${ann.id}')">${ann.pinned === "true" || ann.pinned === true ? 'Unpin' : 'Pin'}</button>
+            <button class="btn-ann-opt delete" onclick="purgeAnnouncementNode('${ann.id}')">Delete</button>
+          </div>
+        `;
+        announcementsGrid.appendChild(cardEl);
+      });
+    }
+
+    // Modal forms creation / Edit trigger
+    window.openAnnouncementModal = function(annId = null) {
+      activeEditAnnId = annId;
+
+      if (annId) {
+        // Edit Mode
+        const ann = globalAnnouncementsList[annId];
+        document.getElementById('modalTitleLabel').textContent = "Modify platform announcement config";
+
+        formTitle.value = ann.title;
+        formMessage.value = ann.message || "";
+        formType.value = ann.type || "Information";
+        formPriority.value = ann.priority || "Low";
+        formAudience.value = ann.audience || "All Users";
+        formLocation.value = ann.location || "Home Page";
+        formPinned.value = String(ann.pinned);
+        formStatus.value = String(ann.enabled);
+
+      } else {
+        // Add Mode
+        document.getElementById('modalTitleLabel').textContent = "Publish Platform Broadcast Alert";
+
+        formTitle.value = "Upcoming Cloud Hashing updates";
+        formMessage.value = "Our clusters are running scheduled audits. Hashing nodes will generate yield normally.";
+        formType.value = "Information";
+        formPriority.value = "Low";
+        formAudience.value = "All Users";
+        formLocation.value = "Home Page";
+        formPinned.value = "false";
+        formStatus.value = "true";
+      }
+
+      document.getElementById('announcementModal').classList.add('active');
+    };
+
+    window.closeModal = function(modalId) {
+      document.getElementById(modalId).classList.remove('active');
+    };
+
+    // Save/Update dynamic broadcast notices
+    saveAnnBtn.addEventListener('click', () => {
+      const title = formTitle.value.trim();
+      const message = formMessage.value.trim();
+      const type = formType.value;
+      const priority = formPriority.value;
+      const audience = formAudience.value;
+      const location = formLocation.value;
+      const pinned = formPinned.value === "true";
+      const enabled = formStatus.value === "true";
+
+      if (!title || !message) {
+        showToast("Please enter broadcast parameters.", "error");
+        return;
+      }
+
+      const annId = activeEditAnnId ? activeEditAnnId : db.ref('SystemAnnouncements').push().key;
+
+      const payload = {
+        id: annId,
+        title: title,
+        message: message,
+        type: type,
+        priority: priority,
+        audience: audience,
+        location: location,
+        pinned: pinned,
+        enabled: enabled,
+        updatedDate: firebase.database.ServerValue.TIMESTAMP
+      };
+
+      if (!activeEditAnnId) {
+        payload.createdDate = firebase.database.ServerValue.TIMESTAMP;
+      }
+
+      // Write updates in parallel to synchronize lists instantly (Rule 10 Realtime synchronisation)
+      const updates = {};
+      updates[`SystemAnnouncements/${annId}`] = payload;
+      
+      // Update User Home-page legacy alerts banner seamlessly (Backward compatibility Rule 9)
+      if (pinned && enabled) {
+        updates[`Announcements`] = { text: `📢 ${title}: ${message}` };
+      }
+
+      db.ref().update(updates)
+        .then(() => {
+          showToast(`Broadcast published successfully on user boards!`, "success");
+          closeModal('announcementModal');
+        });
+    });
+
+    // Toggle Pin state instantly
+    window.togglePinNoticeState = function(annId) {
+      const match = globalAnnouncementsList[annId];
+      if (!match) return;
+
+      const currentPin = match.pinned === true || match.pinned === "true";
+      const newPinState = !currentPin;
+
+      db.ref(`SystemAnnouncements/${annId}`).update({ pinned: newPinState })
+        .then(() => showToast(`Announcement status updated successfully!`, "success"));
+    };
+
+    // Purge announcements entry traces
+    window.purgeAnnouncementNode = function(annId) {
+      if (confirm("Delete this notification completely from platform lists? Users will no longer see it.")) {
+        db.ref(`SystemAnnouncements/${annId}`).remove()
+          .then(() => showToast("Broadcast deleted successfully.", "success"));
+      }
+    };
+
+    // Filter event listeners
+    searchField.addEventListener('input', () => {
+      processSortingAndFiltering();
+    });
+
+    filterStatusSelect.addEventListener('change', () => {
+      processSortingAndFiltering();
+    });
+  </script>
+</body>
+</html>
