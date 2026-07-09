@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>TNMINING - Website Settings</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    :root {
+      --bg-primary: #020009;
+      --bg-secondary: #070314;
+      --bg-card: rgba(13, 6, 30, 0.65);
+      --border-color: rgba(168, 85, 247, 0.18);
+      --primary: #a855f7;
+      --secondary: #06b6d4;
+      --gold: #fbbf24;
+      --gold-glow: rgba(251, 191, 36, 0.35);
+      --primary-glow: rgba(168, 85, 247, 0.3);
+      --secondary-glow: rgba(6, 182, 212, 0.2);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --success: #10b981;
+      --radius-premium: 24px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(168, 85, 247, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(6, 182, 212, 0.08) 0%, transparent 40%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+    }
+
+    /* Collapsible Navigation Sidebar (17 Items) */
+    aside.sidebar {
+      width: 270px;
+      background: rgba(8, 3, 20, 0.95);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 1000;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    aside.sidebar.collapsed {
+      transform: translateX(-270px);
+    }
+
+    .sidebar-header {
+      padding: 24px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+
+    .sidebar-logo {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: white;
+      box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+    }
+
+    .sidebar-title {
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    .sidebar-title span {
+      display: block;
+      font-size: 9px;
+      font-family: 'Share Tech Mono', monospace;
+      color: var(--secondary);
+    }
+
+    .sidebar-menu {
+      flex: 1;
+      padding: 16px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      overflow-y: auto;
+    }
+
+    .menu-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 14px;
+      border-radius: 12px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 12.5px;
+      font-weight: 600;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+
+    .menu-link i {
+      font-size: 14px;
+      width: 18px;
+      text-align: center;
+    }
+
+    .menu-link:hover, .menu-link.active {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.03);
+      border-color: var(--border-color);
+    }
+
+    .menu-link.active {
+      background: linear-gradient(135deg, rgba(168, 85, 247, 0.12) 0%, rgba(6, 182, 212, 0.12) 100%);
+      border-color: var(--primary);
+    }
+
+    /* Main Content Wrapper */
+    main.main-viewport {
+      margin-left: 270px;
+      flex: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    main.main-viewport.expanded {
+      margin-left: 0;
+    }
+
+    /* Top Navbar Bar */
+    .top-navbar {
+      height: 72px;
+      background: rgba(13, 6, 30, 0.5);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 24px;
+      position: sticky;
+      top: 0;
+      z-index: 999;
+    }
+
+    .navbar-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .menu-toggle-btn {
+      font-size: 18px;
+      color: var(--text-main);
+      cursor: pointer;
+      background: none;
+      border: none;
+    }
+
+    .nav-title { font-size: 16px; font-weight: 800; }
+
+    .navbar-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .live-clock-wrapper {
+      text-align: right;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px;
+      color: var(--secondary);
+    }
+
+    /* Content Area */
+    .dashboard-content {
+      padding: 24px;
+      flex: 1;
+    }
+
+    /* Category Switcher Tabs */
+    .settings-nav-tabs {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 8px;
+      margin-bottom: 24px;
+    }
+
+    .settings-nav-tabs::-webkit-scrollbar { height: 3px; }
+    .settings-nav-tabs::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.05); }
+
+    .tab-btn {
+      flex-shrink: 0;
+      padding: 10px 18px;
+      background: transparent;
+      border: none;
+      border-radius: 12px;
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      color: white;
+    }
+
+    /* Tab Contents block visual settings */
+    .tab-content { display: none; }
+    .tab-content.active { display: block; animation: fade-in-up 0.4s ease; }
+
+    @keyframes fade-in-up {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Dynamic Forms Grid boards card */
+    .settings-form-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-premium);
+      padding: 24px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      margin-bottom: 24px;
+    }
+
+    .settings-section-title {
+      font-size: 14px;
+      font-weight: 800;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .form-grid-layout {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 12px 14px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      color: var(--text-main);
+      font-size: 13.5px;
+      outline: none;
+    }
+
+    .form-input:focus { border-color: var(--secondary); }
+
+    /* Button rows layout settings */
+    .settings-actions-footer {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 600px) {
+      .settings-actions-footer { flex-direction: column; }
+    }
+
+    .btn-action-settings {
+      flex: 1;
+      padding: 14px;
+      border-radius: 16px;
+      font-size: 13.5px;
+      font-weight: 800;
+      cursor: pointer;
+      border: none;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-action-settings.save { background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); color: white; box-shadow: 0 4px 15px rgba(168,85,247,0.3); }
+    .btn-action-settings.save:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(168,85,247,0.45); }
+    .btn-action-settings.save:active { transform: translateY(1px); }
+
+    .btn-action-settings.reset { background: rgba(255,255,255,0.04); color: var(--text-main); border: 1px solid var(--border-color); }
+    .btn-action-settings.reset:hover { background: rgba(255,255,255,0.08); border-color: var(--secondary); }
+
+    /* Skeleton Loading system overlay styles */
+    .skeleton-screen {
+      position: fixed;
+      inset: 0;
+      background: var(--bg-primary);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      padding: 20px;
+      justify-content: center;
+      transition: opacity 0.4s ease;
+    }
+    .skeleton-screen.hidden { opacity: 0; pointer-events: none; }
+    .skeleton-card {
+      width: 100%;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-premium);
+      height: 180px;
+      position: relative;
+      overflow: hidden;
+    }
+    .skeleton-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.03), transparent);
+      transform: translateX(-100%);
+      animation: shimmer 1.5s infinite;
+    }
+    @keyframes shimmer { 100% { transform: translateX(100%); } }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      aside.sidebar { transform: translateX(-270px); }
+      aside.sidebar.mobile-open { transform: translateX(0); }
+      main.main-viewport { margin-left: 0; }
+    }
+
+    /* Footer */
+    footer.terminal-footer {
+      background: rgba(13, 6, 30, 0.3);
+      border-top: 1px solid rgba(255,255,255,0.03);
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* Alerts */
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 11000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .toast {
+      background: rgba(18, 10, 36, 0.95);
+      border: 1px solid var(--border-color);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      padding: 12px 20px;
+      border-radius: 12px;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      transform: translateX(120%);
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .toast.show { transform: translateX(0); }
+    .toast.error { border-left: 4px solid var(--error); }
+    .toast.success { border-left: 4px solid var(--success); }
+  </style>
+</head>
+<body>
+
+  <!-- Premium Skeleton Loading Screen -->
+  <div class="skeleton-screen" id="skeletonContainer">
+    <div style="height: 50px; width: 100%; background: var(--bg-card); border-radius:16px;"></div>
+    <div class="skeleton-card"></div>
+    <div class="skeleton-card" style="height:100px;"></div>
+  </div>
+
+  <!-- Sidebar drawers targets (17 Items) -->
+  <aside class="sidebar" id="terminalSidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo"><i class="fa-solid fa-circle-nodes"></i></div>
+      <div class="sidebar-title">
+        TNMINING <span>Administrative Console</span>
+      </div>
+    </div>
+    <div class="sidebar-menu">
+      <a href="admin-dashboard.html" class="menu-link"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+      <a href="admin-users.html" class="menu-link"><i class="fa-solid fa-users"></i> Users</a>
+      <a href="admin-mining.html" class="menu-link"><i class="fa-solid fa-cube"></i> Mining</a>
+      <a href="admin-withdraw.html" class="menu-link"><i class="fa-solid fa-money-check-dollar"></i> Withdraw</a>
+      <a href="admin-buy-power.html" class="menu-link"><i class="fa-solid fa-bolt"></i> Buy Power</a>
+      <a href="admin-task.html" class="menu-link"><i class="fa-solid fa-list-check"></i> Tasks</a>
+      <a href="admin-referral.html" class="menu-link"><i class="fa-solid fa-people-roof"></i> Referral</a>
+      <a href="admin-announcement.html" class="menu-link"><i class="fa-solid fa-bullhorn"></i> Announcements</a>
+      <a href="admin-statistics.html" class="menu-link"><i class="fa-solid fa-database"></i> Statistics</a>
+      <a href="admin-package-orders.html" class="menu-link"><i class="fa-solid fa-cart-shopping"></i> Package Orders</a>
+      <a href="admin-wallet.html" class="menu-link"><i class="fa-solid fa-wallet"></i> Wallet</a>
+      <a href="admin-notification.html" class="menu-link"><i class="fa-solid fa-bell"></i> Notifications</a>
+      <a href="admin-report.html" class="menu-link"><i class="fa-solid fa-flag"></i> Reports</a>
+      <a href="admin-logs.html" class="menu-link"><i class="fa-solid fa-clock-rotate-left"></i> Logs</a>
+      <a href="admin-settings.html" class="menu-link active"><i class="fa-solid fa-sliders"></i> Settings</a>
+      <a href="admin-security.html" class="menu-link"><i class="fa-solid fa-user-shield"></i> Security</a>
+      <a href="admin-profile.html" class="menu-link"><i class="fa-solid fa-user-gear"></i> Profile</a>
+    </div>
+  </aside>
+
+  <!-- Main Viewport wrap -->
+  <main class="main-viewport" id="mainViewport">
+    
+    <!-- Top Nav -->
+    <nav class="top-navbar">
+      <div class="navbar-left">
+        <button class="menu-toggle-btn" id="sidebarToggle"><i class="fa-solid fa-bars-staggered"></i></button>
+        <span class="nav-title">Website Settings Management Console</span>
+      </div>
+      <div class="navbar-right">
+        <div class="live-clock-wrapper">
+          <div id="navLiveDate">--- --, ----</div>
+          <div id="navLiveTime" style="font-weight:700;">--:--:-- UTC</div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Content Workspace -->
+    <div class="dashboard-content">
+      
+      <!-- Category Switcher Tabbed Menu bar -->
+      <nav class="settings-nav-tabs">
+        <button class="tab-btn active" onclick="switchSettingsTab('tabGeneral', this)"><i class="fa-solid fa-globe"></i> General</button>
+        <button class="tab-btn" onclick="switchSettingsTab('tabMining', this)"><i class="fa-solid fa-microchip"></i> Mining</button>
+        <button class="tab-btn" onclick="switchSettingsTab('tabWithdraw', this)"><i class="fa-solid fa-wallet"></i> Withdraw</button>
+        <button class="tab-btn" onclick="switchSettingsTab('tabReferral', this)"><i class="fa-solid fa-people-roof"></i> Referral</button>
+        <button class="tab-btn" onclick="switchSettingsTab('tabSecurity', this)"><i class="fa-solid fa-user-shield"></i> Security</button>
+      </nav>
+
+      <!-- ==================== TAB 1: GENERAL SYSTEM SETTINGS ==================== -->
+      <div class="tab-content active" id="tabGeneral">
+        <div class="settings-form-card">
+          <h3 class="settings-section-title"><i class="fa-solid fa-globe" style="color:var(--primary);"></i> General Website Settings</h3>
+          <div class="form-grid-layout">
+            <div class="form-group">
+              <label class="form-label">Website Name</label>
+              <input type="text" class="form-input" id="gName">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Website Favicon Icon</label>
+              <input type="text" class="form-input" id="gFavicon" placeholder="https://...">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Support Email Address</label>
+              <input type="email" class="form-input" id="gEmail">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Support Telegram Link</label>
+              <input type="text" class="form-input" id="gTelegram" placeholder="https://t.me/your_support">
+            </div>
+            <div class="form-group" style="grid-column: span 2;">
+              <label class="form-label">Meta Description</label>
+              <input type="text" class="form-input" id="gDesc">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== TAB 2: CLOUD MINING SETTINGS ==================== -->
+      <div class="tab-content" id="tabMining">
+        <div class="settings-form-card">
+          <h3 class="settings-section-title"><i class="fa-solid fa-microchip" style="color:var(--secondary);"></i> Cloud Mining Engines Configurations</h3>
+          <div class="form-grid-layout">
+            <div class="form-group">
+              <label class="form-label">Hashing Stream Duration (Hours)</label>
+              <input type="number" class="form-input" id="mDuration">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Registration Gift Bonus Power (HP)</label>
+              <input type="number" class="form-input" id="mJoinPower">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Reward per completed 1K HP cycle ($)</label>
+              <input type="number" step="any" class="form-input" id="mRewardRate">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Auto Claim Session state</label>
+              <select class="form-input" id="mAutoClaim" style="background:#09041a;">
+                <option value="false">Manual Claiming (Required)</option>
+                <option value="true">Automated payouts credit</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Minimum Mining Power deploy limit</label>
+              <input type="number" class="form-input" id="mMinPower">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Engine status state</label>
+              <select class="form-input" id="mMiningEnabled" style="background:#09041a;">
+                <option value="true">Enabled (Online for users)</option>
+                <option value="false">Disabled (Suspended)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== TAB 3: FINANCIAL WITHDRAW SETTINGS ==================== -->
+      <div class="tab-content" id="tabWithdraw">
+        <div class="settings-form-card">
+          <h3 class="settings-section-title"><i class="fa-solid fa-wallet" style="color:var(--gold);"></i> Withdrawals Gateway Settings</h3>
+          <div class="form-grid-layout">
+            <div class="form-group">
+              <label class="form-label">Minimum Payout Limit ($)</label>
+              <input type="number" step="any" class="form-input" id="wMinWithdraw">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Maximum single payout limit ($)</label>
+              <input type="number" step="any" class="form-input" id="wMaxWithdraw">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Gateway Payout Fee (%)</label>
+              <input type="number" step="any" class="form-input" id="wFee">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Supported Network asset</label>
+              <input type="text" class="form-input" id="wNetwork" placeholder="TON Network (Decentralised)" readonly>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Gateway Status</label>
+              <select class="form-input" id="wEnabled" style="background:#09041a;">
+                <option value="true">Enabled (Open for payouts)</option>
+                <option value="false">Disabled (Temporary Lock)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== TAB 4: ALLIANCE REFERRAL SETTINGS ==================== -->
+      <div class="tab-content" id="tabReferral">
+        <div class="settings-form-card">
+          <h3 class="settings-section-title"><i class="fa-solid fa-people-roof" style="color:var(--primary);"></i> Alliance Referral Bonuses Blueprints</h3>
+          <div class="form-grid-layout">
+            <div class="form-group">
+              <label class="form-label">Phase 1 validation bonus reward (HP)</label>
+              <input type="number" class="form-input" id="rP1Bonus">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Phase 2: First claimed stream bonus (HP)</label>
+              <input type="number" class="form-input" id="rP2Bonus">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Phase 3: 10 claimed streams bonus (HP)</label>
+              <input type="number" class="form-input" id="rP3Bonus">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tier-1 Buy Power commission (%)</label>
+              <input type="number" class="form-input" id="rBuyPowerCommission">
+            </div>
+            <div class="form-group" style="grid-column: span 2;">
+              <label class="form-label">Personal Invitation prefix domain</label>
+              <input type="text" class="form-input" id="rInvitePrefix" placeholder="https://unlimited-earning.github.io/-">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== TAB 5: PLATFORM SECURITY SETTINGS ==================== -->
+      <div class="tab-content" id="tabSecurity">
+        <div class="settings-form-card">
+          <h3 class="settings-section-title"><i class="fa-solid fa-user-shield" style="color:var(--error);"></i> Platform Security Configurations</h3>
+          <div class="form-grid-layout">
+            <div class="form-group">
+              <label class="form-label">Global Website Maintenance Lock</label>
+              <select class="form-input" id="sMaintenance" style="background:#09041a;">
+                <option value="false">Disabled (Live Public access open)</option>
+                <option value="true">Enabled (Lock all client interfaces)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Global Web security lockout message</label>
+              <input type="text" class="form-input" id="sMaintMessage" placeholder="We are scheduled auditing networks servers. Hold on.">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Console Logging Debug level</label>
+              <select class="form-input" id="sDebug" style="background:#09041a;">
+                <option value="false">Muted logs (Production)</option>
+                <option value="true">Verbose Debug console tracking</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Operations actions footer -->
+      <div class="settings-actions-footer">
+        <button class="btn-action-settings save" id="saveSettingsBtn"><i class="fa-solid fa-floppy-disk"></i> Save Global Configurations</button>
+        <button class="btn-action-settings reset" id="restoreDefaultsBtn"><i class="fa-solid fa-trash-arrow-up"></i> Restore Platform Defaults</button>
+      </div>
+
+    </div>
+
+    <!-- Panel Footer -->
+    <footer class="terminal-footer">
+      <span>TNMINING SYSTEM CONTROL CORE - VARIABLES PANELS</span>
+      <span style="font-family:'Share Tech Mono', monospace; color:var(--secondary);">Realtime Status: Connected</span>
+    </footer>
+
+  </main>
+
+  <!-- Notification Alerts Toasts -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Firebase Legacy Compat SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+  <script>
+    // Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDuQICVoC10i62PQMS6cX37t1eoeTg5zsc",
+      authDomain: "mining-c7b26.firebaseapp.com",
+      databaseURL: "https://mining-c7b26-default-rtdb.firebaseio.com",
+      projectId: "mining-c7b26",
+      storageBucket: "mining-c7b26.firebasestorage.app",
+      messagingSenderId: "873757658723",
+      appId: "1:873757658723:web:18a4af95953a08b440b256"
+    };
+
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.database();
+
+    // DOM Selectors
+    const skeletonContainer = document.getElementById('skeletonContainer');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const terminalSidebar = document.getElementById('terminalSidebar');
+    const mainViewport = document.getElementById('mainViewport');
+    const navLiveDate = document.getElementById('navLiveDate');
+    const navLiveTime = document.getElementById('navLiveTime');
+
+    // General DOM inputs selectors
+    const gName = document.getElementById('gName');
+    const gFavicon = document.getElementById('gFavicon');
+    const gEmail = document.getElementById('gEmail');
+    const gTelegram = document.getElementById('gTelegram');
+    const gDesc = document.getElementById('gDesc');
+
+    // Mining DOM inputs selectors
+    const mDuration = document.getElementById('mDuration');
+    const mJoinPower = document.getElementById('mJoinPower');
+    const mRewardRate = document.getElementById('mRewardRate');
+    const mAutoClaim = document.getElementById('mAutoClaim');
+    const mMinPower = document.getElementById('mMinPower');
+    const mMiningEnabled = document.getElementById('mMiningEnabled');
+
+    // Withdraw DOM inputs selectors
+    const wMinWithdraw = document.getElementById('wMinWithdraw');
+    const wMaxWithdraw = document.getElementById('wMaxWithdraw');
+    const wFee = document.getElementById('wFee');
+    const wNetwork = document.getElementById('wNetwork');
+    const wEnabled = document.getElementById('wEnabled');
+
+    // Referral DOM inputs selectors
+    const rP1Bonus = document.getElementById('rP1Bonus');
+    const rP2Bonus = document.getElementById('rP2Bonus');
+    const rP3Bonus = document.getElementById('rP3Bonus');
+    const rBuyPowerCommission = document.getElementById('rBuyPowerCommission');
+    const rInvitePrefix = document.getElementById('rInvitePrefix');
+
+    // Security DOM inputs selectors
+    const sMaintenance = document.getElementById('sMaintenance');
+    const sMaintMessage = document.getElementById('sMaintMessage');
+    const sDebug = document.getElementById('sDebug');
+
+    const saveSettingsBtn = document.getElementById('saveSettingsBtn');
+    const restoreDefaultsBtn = document.getElementById('restoreDefaultsBtn');
+    const toastContainer = document.getElementById('toastContainer');
+
+    window.addEventListener('DOMContentLoaded', () => {
+      // Toggle collapsible navigation sidebar drawer
+      sidebarToggle.addEventListener('click', () => {
+        terminalSidebar.classList.toggle('collapsed');
+        terminalSidebar.classList.toggle('mobile-open');
+        mainViewport.classList.toggle('expanded');
+      });
+
+      startTerminalTimerClock();
+      initializeSettingsListener();
+    });
+
+    function showToast(message, type = 'success') {
+      const toast = document.createElement('div');
+      toast.classList.add('toast', type);
+      const icon = type === 'success' ? 'fa-circle-check' : 'fa-triangle-exclamation';
+      toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${message}</span>`;
+      toastContainer.appendChild(toast);
+      setTimeout(() => toast.classList.add('show'), 50);
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    function startTerminalTimerClock() {
+      setInterval(() => {
+        const utcDate = new Date();
+        navLiveDate.textContent = utcDate.toLocaleDateString('en-US', {
+          year: 'numeric', month: 'long', day: 'numeric'
+        });
+        navLiveTime.textContent = utcDate.toUTCString().replace("GMT", "UTC");
+      }, 1000);
+    }
+
+    // Toggle sub settings navigation tabs
+    window.switchSettingsTab = function(tabId, el) {
+      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+
+      document.getElementById(tabId).classList.add('active');
+      el.classList.add('active');
+    };
+
+    // Project default static variables configurations
+    const platformDefaultsObj = {
+      general: {
+        name: "TNMINING",
+        favicon: "https://unlimited-earning.github.io/-/favicon.ico",
+        supportEmail: "rafsanvai388@gmail.com",
+        supportTelegram: "https://t.me/your_support",
+        description: "Premium decentralized cloud hashing networks."
+      },
+      mining: {
+        duration: 5,
+        joinPowerBonus: 1000,
+        rewardRatePer1K: 0.00025,
+        autoClaim: false,
+        minPower: 1000,
+        enabled: true
+      },
+      withdraw: {
+        minimumLimit: 0.20,
+        maximumLimit: 50.00,
+        feePercent: 2.0,
+        network: "TON Network",
+        enabled: true
+      },
+      referral: {
+        p1Bonus: 200,
+        p2Bonus: 1000,
+        p3Bonus: 2000,
+        buyPowerCommissionPct: 20,
+        invitePrefix: "https://unlimited-earning.github.io/-"
+      },
+      security: {
+        maintenanceMode: false,
+        maintenanceMessage: "Systems are being updated. Active streams are hashing normally.",
+        debugMode: false
+      }
+    };
+
+    // Connect real-time Settings node (Seeding is automated Rule 13 Self-seeding on empty states)
+    function initializeSettingsListener() {
+      db.ref('Settings').on('value', (snapshot) => {
+        skeletonContainer.style.display = 'none';
+
+        if (!snapshot.exists()) {
+          showToast("Settings variables empty. Automatic self-seeding defaults payload...", "warning");
+          // Seed defaults automatically (Rule 13 Dynamic Initialisation)
+          db.ref('Settings').set(platformDefaultsObj);
+          return;
+        }
+
+        const data = snapshot.val();
+        populateFields(data);
+      });
+    }
+
+    // Fill form elements
+    function populateFields(data) {
+      // 1. General Info
+      const gen = data.general || {};
+      gName.value = gen.name || "TNMINING";
+      gFavicon.value = gen.favicon || "";
+      gEmail.value = gen.supportEmail || "";
+      gTelegram.value = gen.supportTelegram || "";
+      gDesc.value = gen.description || "";
+
+      // 2. Mining Info
+      const min = data.mining || {};
+      mDuration.value = min.duration || 5;
+      mJoinPower.value = min.joinPowerBonus || 1000;
+      mRewardRate.value = min.rewardRatePer1K || 0.00025;
+      mAutoClaim.value = String(min.autoClaim);
+      mMinPower.value = min.minPower || 1000;
+      mMiningEnabled.value = String(min.enabled);
+
+      // 3. Withdraw Info
+      const wit = data.withdraw || {};
+      wMinWithdraw.value = wit.minimumLimit || 0.20;
+      wMaxWithdraw.value = wit.maximumLimit || 50.00;
+      wFee.value = wit.feePercent || 2.0;
+      wNetwork.value = wit.network || "TON Network";
+      wEnabled.value = String(wit.enabled);
+
+      // 4. Referral Info
+      const ref = data.referral || {};
+      rP1Bonus.value = ref.p1Bonus || 200;
+      rP2Bonus.value = ref.p2Bonus || 1000;
+      rP3Bonus.value = ref.p3Bonus || 2000;
+      rBuyPowerCommission.value = ref.buyPowerCommissionPct || 20;
+      rInvitePrefix.value = ref.invitePrefix || "https://unlimited-earning.github.io/-";
+
+      // 5. Security Info
+      const sec = data.security || {};
+      sMaintenance.value = String(sec.maintenanceMode);
+      sMaintMessage.value = sec.maintenanceMessage || "";
+      sDebug.value = String(sec.debugMode);
+    }
+
+    // Save configurations back to Realtime Database
+    saveSettingsBtn.addEventListener('click', () => {
+      const payload = {
+        general: {
+          name: gName.value.trim(),
+          favicon: gFavicon.value.trim(),
+          supportEmail: gEmail.value.trim(),
+          supportTelegram: gTelegram.value.trim(),
+          description: gDesc.value.trim()
+        },
+        mining: {
+          duration: parseInt(mDuration.value) || 5,
+          joinPowerBonus: parseInt(mJoinPower.value) || 1000,
+          rewardRatePer1K: parseFloat(mRewardRate.value) || 0.00025,
+          autoClaim: mAutoClaim.value === "true",
+          minPower: parseInt(mMinPower.value) || 1000,
+          enabled: mMiningEnabled.value === "true"
+        },
+        withdraw: {
+          minimumLimit: parseFloat(wMinWithdraw.value) || 0.20,
+          maximumLimit: parseFloat(wMaxWithdraw.value) || 50.00,
+          feePercent: parseFloat(wFee.value) || 2.0,
+          network: "TON Network",
+          enabled: wEnabled.value === "true"
+        },
+        referral: {
+          p1Bonus: parseInt(rP1Bonus.value) || 200,
+          p2Bonus: parseInt(rP2Bonus.value) || 1000,
+          p3Bonus: parseInt(rP3Bonus.value) || 2000,
+          buyPowerCommissionPct: parseInt(rBuyPowerCommission.value) || 20,
+          invitePrefix: rInvitePrefix.value.trim() || "https://unlimited-earning.github.io/-"
+        },
+        security: {
+          maintenanceMode: sMaintenance.value === "true",
+          maintenanceMessage: sMaintMessage.value.trim(),
+          debugMode: sDebug.value === "true"
+        },
+        updatedDate: firebase.database.ServerValue.TIMESTAMP
+      };
+
+      db.ref('Settings').set(payload)
+        .then(() => showToast("Website system-wide variables updated successfully!", "success"))
+        .catch(() => showToast("Database synchronization write policy block.", "error"));
+    });
+
+    // Reset settings triggers
+    restoreDefaultsBtn.addEventListener('click', () => {
+      if (confirm("Restore TNMINING platform defaults variables? This overrides customized thresholds.")) {
+        db.ref('Settings').set(platformDefaultsObj)
+          .then(() => showToast("Variables restored to platform default limits successfully!", "success"));
+      }
+    });
+  </script>
+</body>
+</html>
