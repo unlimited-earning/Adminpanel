@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>TNMINING - Buy Power Orders Management</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    :root {
+      --bg-primary: #020009;
+      --bg-secondary: #070314;
+      --bg-card: rgba(13, 6, 30, 0.65);
+      --border-color: rgba(168, 85, 247, 0.18);
+      --primary: #a855f7;
+      --secondary: #06b6d4;
+      --gold: #fbbf24;
+      --gold-glow: rgba(251, 191, 36, 0.35);
+      --primary-glow: rgba(168, 85, 247, 0.3);
+      --secondary-glow: rgba(6, 182, 212, 0.2);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --success: #10b981;
+      --error: #ef4444;
+      --warning: #f59e0b;
+      --radius-premium: 24px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(168, 85, 247, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(6, 182, 212, 0.08) 0%, transparent 40%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+    }
+
+    /* Collapsible Navigation Sidebar (17 Items) */
+    aside.sidebar {
+      width: 270px;
+      background: rgba(8, 3, 20, 0.95);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 1000;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    aside.sidebar.collapsed {
+      transform: translateX(-270px);
+    }
+
+    .sidebar-header {
+      padding: 24px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+
+    .sidebar-logo {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: white;
+      box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+    }
+
+    .sidebar-title {
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    .sidebar-title span {
+      display: block;
+      font-size: 9px;
+      font-family: 'Share Tech Mono', monospace;
+      color: var(--secondary);
+    }
+
+    .sidebar-menu {
+      flex: 1;
+      padding: 16px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      overflow-y: auto;
+    }
+
+    .menu-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 14px;
+      border-radius: 12px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 12.5px;
+      font-weight: 600;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+
+    .menu-link i {
+      font-size: 14px;
+      width: 18px;
+      text-align: center;
+    }
+
+    .menu-link:hover, .menu-link.active {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.03);
+      border-color: var(--border-color);
+    }
+
+    .menu-link.active {
+      background: linear-gradient(135deg, rgba(168, 85, 247, 0.12) 0%, rgba(6, 182, 212, 0.12) 100%);
+      border-color: var(--primary);
+    }
+
+    /* Main Content Wrapper */
+    main.main-viewport {
+      margin-left: 270px;
+      flex: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    main.main-viewport.expanded {
+      margin-left: 0;
+    }
+
+    /* Top Navbar Bar */
+    .top-navbar {
+      height: 72px;
+      background: rgba(13, 6, 30, 0.5);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 24px;
+      position: sticky;
+      top: 0;
+      z-index: 999;
+    }
+
+    .navbar-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .menu-toggle-btn {
+      font-size: 18px;
+      color: var(--text-main);
+      cursor: pointer;
+      background: none;
+      border: none;
+    }
+
+    .nav-title { font-size: 16px; font-weight: 800; }
+
+    .navbar-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .live-clock-wrapper {
+      text-align: right;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px;
+      color: var(--secondary);
+    }
+
+    /* Content Area */
+    .dashboard-content {
+      padding: 24px;
+      flex: 1;
+    }
+
+    /* Analytics Dashboard Grid */
+    .stats-matrix-8 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .stat-metric-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .stat-metric-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      color: var(--secondary);
+    }
+
+    .stat-metric-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .stat-metric-label {
+      font-size: 9.5px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .stat-metric-val {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .stat-metric-val.purple { color: var(--primary); }
+    .stat-metric-val.cyan { color: var(--secondary); }
+    .stat-metric-val.gold { color: var(--gold); }
+
+    /* Action bar */
+    .action-toolbar-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.03);
+      border-radius: 20px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    @media (max-width: 768px) {
+      .action-toolbar-card { flex-direction: column; }
+    }
+
+    .search-input-wrapper {
+      flex: 1;
+      position: relative;
+    }
+
+    .search-input-wrapper i {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 13px 16px 13px 44px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      color: var(--text-main);
+      font-size: 13px;
+      outline: none;
+    }
+
+    .search-input:focus { border-color: var(--secondary); }
+
+    .select-filter {
+      background: rgba(13, 6, 30, 0.95);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 0 16px;
+      border-radius: 14px;
+      font-size: 13px;
+      font-weight: 600;
+      outline: none;
+      height: 44px;
+    }
+
+    /* Core Directory List Table Grid */
+    .table-container-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-premium);
+      padding: 20px;
+      overflow-x: auto;
+      margin-bottom: 20px;
+    }
+
+    .orders-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 12.5px;
+    }
+
+    .orders-table th {
+      color: var(--text-muted);
+      font-weight: 600;
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      text-transform: uppercase;
+      font-size: 9.5px;
+    }
+
+    .orders-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+      vertical-align: middle;
+    }
+
+    .orders-table tbody tr:hover { background: rgba(255,255,255,0.01); }
+
+    .avatar-cell {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 12px;
+    }
+
+    .tbl-status-badge {
+      font-size: 8.5px;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 12px;
+      text-transform: uppercase;
+    }
+
+    .tbl-status-badge.pending { background: rgba(245, 158, 11, 0.08); color: var(--warning); border: 1px solid rgba(245,158,11,0.2); }
+    .tbl-status-badge.completed { background: rgba(16, 185, 129, 0.08); color: var(--success); border: 1px solid rgba(16,185,129,0.2); }
+    .tbl-status-badge.rejected { background: rgba(239, 68, 68, 0.08); color: var(--error); border: 1px solid rgba(239,68,68,0.2); }
+
+    /* Column actions buttons styles */
+    .btn-panel-action {
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 800;
+      border: none;
+      cursor: pointer;
+      margin-right: 4px;
+      transition: all 0.2s;
+    }
+
+    .btn-panel-action.view { background: rgba(6, 182, 212, 0.12); color: var(--secondary); border: 1px solid rgba(6,182,212,0.2); }
+    .btn-panel-action.view:hover { background: var(--secondary); color: white; }
+
+    .btn-panel-action.approve { background: rgba(16, 185, 129, 0.12); color: var(--success); border: 1px solid rgba(16,185,129,0.2); }
+    .btn-panel-action.approve:hover { background: var(--success); color: white; }
+
+    .btn-panel-action.reject { background: rgba(239, 68, 68, 0.12); color: var(--error); border: 1px solid rgba(239,68,68,0.2); }
+    .btn-panel-action.reject:hover { background: var(--error); color: white; }
+
+    /* Unified Premium Modal Overlay Drawer */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 2, 12, 0.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease;
+    }
+
+    .modal-overlay.active { opacity: 1; pointer-events: all; }
+
+    .modal-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-premium);
+      width: 100%;
+      max-width: 520px;
+      padding: 24px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-title {
+      font-size: 15px;
+      font-weight: 800;
+      margin-bottom: 18px;
+      text-align: center;
+    }
+
+    /* Modal Grid details layout */
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .detail-item-card {
+      background: rgba(255,255,255,0.01);
+      border: 1px solid rgba(255,255,255,0.03);
+      padding: 10px;
+      border-radius: 12px;
+    }
+
+    .detail-item-label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; }
+    .detail-item-val { font-family: 'Share Tech Mono', monospace; font-size: 13px; font-weight: 700; color: #fff; margin-top: 3px; }
+
+    .modal-buttons-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .btn-modal {
+      flex: 1;
+      padding: 12.5px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-cancel { background: rgba(255,255,255,0.04); color: var(--text-main); border: 1px solid var(--border-color); }
+
+    /* Skeletons */
+    .skeleton-box { height: 74px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; position: relative; overflow: hidden; margin-bottom: 10px; }
+    .skeleton-box::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.02), transparent); transform: translateX(-100%); animation: shim 1.5s infinite; }
+    @keyframes shim { 100% { transform: translateX(100%); } }
+
+    /* Empty state */
+    .empty-state-card {
+      background: var(--bg-card);
+      border: 1.5px dashed var(--border-color);
+      border-radius: var(--radius-premium);
+      padding: 50px 24px;
+      text-align: center;
+      grid-column: span 3;
+    }
+
+    .empty-state-card i {
+      font-size: 38px;
+      color: rgba(168, 85, 247, 0.3);
+      margin-bottom: 14px;
+    }
+
+    .empty-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 6px;
+    }
+
+    .empty-subtitle {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Footer */
+    footer.terminal-footer {
+      background: rgba(13, 6, 30, 0.3);
+      border-top: 1px solid rgba(255,255,255,0.03);
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* Alerts Toasts */
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 11000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .toast {
+      background: rgba(18, 10, 36, 0.95);
+      border: 1px solid var(--border-color);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      padding: 12px 20px;
+      border-radius: 12px;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      transform: translateX(120%);
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .toast.show { transform: translateX(0); }
+    .toast.error { border-left: 4px solid var(--error); }
+    .toast.success { border-left: 4px solid var(--success); }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar Drawer Navigation menus (17 Items) -->
+  <aside class="sidebar" id="terminalSidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo"><i class="fa-solid fa-circle-nodes"></i></div>
+      <div class="sidebar-title">
+        TNMINING <span>Administrative Console</span>
+      </div>
+    </div>
+    <div class="sidebar-menu">
+      <a href="admin-dashboard.html" class="menu-link"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+      <a href="admin-users.html" class="menu-link"><i class="fa-solid fa-users"></i> Users</a>
+      <a href="admin-mining.html" class="menu-link"><i class="fa-solid fa-cube"></i> Mining</a>
+      <a href="admin-withdraw.html" class="menu-link"><i class="fa-solid fa-money-check-dollar"></i> Withdraw</a>
+      <a href="admin-buy-power.html" class="menu-link"><i class="fa-solid fa-bolt"></i> Buy Power</a>
+      <a href="admin-task.html" class="menu-link"><i class="fa-solid fa-list-check"></i> Tasks</a>
+      <a href="admin-referral.html" class="menu-link"><i class="fa-solid fa-people-roof"></i> Referral</a>
+      <a href="admin-announcement.html" class="menu-link"><i class="fa-solid fa-bullhorn"></i> Announcements</a>
+      <a href="admin-statistics.html" class="menu-link"><i class="fa-solid fa-database"></i> Statistics</a>
+      <a href="admin-package-orders.html" class="menu-link active"><i class="fa-solid fa-cart-shopping"></i> Package Orders</a>
+      <a href="admin-wallet.html" class="menu-link"><i class="fa-solid fa-wallet"></i> Wallet</a>
+      <a href="admin-notification.html" class="menu-link"><i class="fa-solid fa-bell"></i> Notifications</a>
+      <a href="admin-report.html" class="menu-link"><i class="fa-solid fa-flag"></i> Reports</a>
+      <a href="admin-logs.html" class="menu-link"><i class="fa-solid fa-clock-rotate-left"></i> Logs</a>
+      <a href="admin-settings.html" class="menu-link"><i class="fa-solid fa-sliders"></i> Settings</a>
+      <a href="admin-security.html" class="menu-link"><i class="fa-solid fa-user-shield"></i> Security</a>
+      <a href="admin-profile.html" class="menu-link"><i class="fa-solid fa-user-gear"></i> Profile</a>
+    </div>
+  </aside>
+
+  <!-- Main Viewport wrap -->
+  <main class="main-viewport" id="mainViewport">
+    
+    <!-- Top Nav -->
+    <nav class="top-navbar">
+      <div class="navbar-left">
+        <button class="menu-toggle-btn" id="sidebarToggle"><i class="fa-solid fa-bars-staggered"></i></button>
+        <span class="nav-title">Hardware Sales Purchase Orders Ledger</span>
+      </div>
+      <div class="navbar-right">
+        <div class="live-clock-wrapper">
+          <div id="navLiveDate">--- --, ----</div>
+          <div id="navLiveTime" style="font-weight:700;">--:--:-- UTC</div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Content Workspace -->
+    <div class="dashboard-content">
+      
+      <!-- Metrics deck (8 dynamic cards) -->
+      <section class="stats-matrix-8">
+        
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-file-invoice"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Total Orders</span>
+            <span class="stat-metric-val purple" id="cardTotalOrders">0</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Pending Reviews</span>
+            <span class="stat-metric-val gold" id="cardPendingCount">0</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-circle-check"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Approved sales</span>
+            <span class="stat-metric-val cyan" id="cardApprovedCount">0</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card" style="border-color: rgba(239, 68, 68, 0.2);">
+          <div class="stat-metric-icon" style="color:var(--error); border-color:var(--error);"><i class="fa-solid fa-circle-xmark"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Rejected sales</span>
+            <span class="stat-metric-val" id="cardRejectedCount" style="color:var(--error);">0</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-calendar-day"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Today's Orders</span>
+            <span class="stat-metric-val purple" id="cardTodayOrders">0</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-money-bill-trend-up"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Today's Revenue</span>
+            <span class="stat-metric-val cyan" id="cardTodayRevenue">$0.00</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-coins"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Total Revenue</span>
+            <span class="stat-metric-val gold" id="cardTotalRevenue">$0.00</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-bolt"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Total HP Sold</span>
+            <span class="stat-metric-val" id="cardTotalPowerSold">0 HP</span>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Advanced Filters box -->
+      <section class="action-toolbar-card">
+        <div class="search-input-wrapper">
+          <input type="text" class="search-input" id="searchField" placeholder="Search orders by Username, UID, Order ID, Transaction ID...">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </div>
+
+        <select class="select-filter" id="filterStatusSelect">
+          <option value="all">All Purchase Orders</option>
+          <option value="pending">Pending Verifications</option>
+          <option value="completed">Approved Sales</option>
+          <option value="rejected">Rejected/Canceled</option>
+        </select>
+
+        <select class="select-filter" id="filterSortingSelect">
+          <option value="newest">Sort: Newest requested</option>
+          <option value="oldest">Sort: Oldest requested</option>
+          <option value="highest">Sort: Highest price</option>
+        </select>
+      </section>
+
+      <!-- Shimmer loader boxes -->
+      <div id="skeletonsContainer">
+        <div class="skeleton-box"></div>
+        <div class="skeleton-box"></div>
+      </div>
+
+      <!-- Main Sales Orders table ledger card -->
+      <div class="table-container-card" id="ordersTableCard" style="display:none;">
+        <table class="orders-table">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Username</th>
+              <th>Hashing Hardware</th>
+              <th>Allocated Power</th>
+              <th>Deducted Cost</th>
+              <th>Transaction Hash (ID)</th>
+              <th>Order Timestamp</th>
+              <th>Status</th>
+              <th>Action metrics</th>
+            </tr>
+          </thead>
+          <tbody id="ordersTableBody">
+            <!-- Compiled inside Javascript loop -->
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+    <!-- Panel Footer -->
+    <footer class="terminal-footer">
+      <span>TNMINING SYSTEM CONTROL CORE - SALES & HARDWARE LEDGERS</span>
+      <span style="font-family:'Share Tech Mono', monospace; color:var(--secondary);">Realtime Status: Syncing</span>
+    </footer>
+
+  </main>
+
+  <!-- ==================== DETAILS VIEW MODAL DRAWER ==================== -->
+
+  <!-- Modal: View Deep details of Purchase Orders -->
+  <div class="modal-overlay" id="viewOrderModal">
+    <div class="modal-card">
+      <h3 class="modal-title"><i class="fa-solid fa-cart-shopping" style="color:var(--secondary);"></i> Hardware Sale Order Parameters</h3>
+      
+      <div class="detail-grid">
+        <div class="detail-item-card" style="grid-column: span 2;">
+          <span class="detail-item-label">Dynamic Order ID Reference</span>
+          <div class="detail-item-val" id="viewOrderId" style="font-size:11px; color:var(--secondary);">-----------</div>
+        </div>
+        <div class="detail-item-card">
+          <span class="detail-item-label">Alphanumeric Username</span>
+          <div class="detail-item-val" id="viewUsername">@username</div>
+        </div>
+        <div class="detail-item-card">
+          <span class="detail-item-label">Verified UID</span>
+          <div class="detail-item-val" id="viewUid" style="font-size:11px;">uid</div>
+        </div>
+        <div class="detail-item-card">
+          <span class="detail-item-label">Hardware Core Model</span>
+          <div class="detail-item-val" id="viewPackageName" style="color:var(--primary);">Giga stream</div>
+        </div>
+        <div class="detail-item-card">
+          <span class="detail-item-label">Allotted power</span>
+          <div class="detail-item-val" id="viewPowerAmount">0 HP</div>
+        </div>
+        <div class="detail-item-card">
+          <span class="detail-item-label">Cost Price ($)</span>
+          <div class="detail-item-val" id="viewPrice" style="color:var(--gold);">$0.00</div>
+        </div>
+        <div class="detail-item-card">
+          <span class="detail-item-label">Gateway Network target</span>
+          <div class="detail-item-val">TON Coin (Manual)</div>
+        </div>
+        <div class="detail-item-card" style="grid-column: span 2;">
+          <span class="detail-item-label">Transaction ID / Hash verify</span>
+          <div class="detail-item-val" id="viewTransactionId" style="font-size:11px; word-break:break-all;">-----------</div>
+        </div>
+        <div class="detail-item-card" style="grid-column: span 2;">
+          <span class="detail-item-label">Affiliate Connections Werber</span>
+          <div class="detail-item-val" id="viewReferralInfo">none</div>
+        </div>
+      </div>
+
+      <div class="modal-buttons-row">
+        <button class="btn-modal btn-cancel" onclick="closeModal('viewOrderModal')" style="flex:auto;">Close telemetry board</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Firebase Legacy Compat SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+  <script>
+    // Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDuQICVoC10i62PQMS6cX37t1eoeTg5zsc",
+      authDomain: "mining-c7b26.firebaseapp.com",
+      databaseURL: "https://mining-c7b26-default-rtdb.firebaseio.com",
+      projectId: "mining-c7b26",
+      storageBucket: "mining-c7b26.firebasestorage.app",
+      messagingSenderId: "873757658723",
+      appId: "1:873757658723:web:18a4af95953a08b440b256"
+    };
+
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.database();
+
+    // DOM selectors
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const terminalSidebar = document.getElementById('terminalSidebar');
+    const mainViewport = document.getElementById('mainViewport');
+    const navLiveDate = document.getElementById('navLiveDate');
+    const navLiveTime = document.getElementById('navLiveTime');
+
+    // Cards stats
+    const cardTotalOrders = document.getElementById('cardTotalOrders');
+    const cardPendingCount = document.getElementById('cardPendingCount');
+    const cardApprovedCount = document.getElementById('cardApprovedCount');
+    const cardRejectedCount = document.getElementById('cardRejectedCount');
+    const cardTodayOrders = document.getElementById('cardTodayOrders');
+    const cardTodayRevenue = document.getElementById('cardTodayRevenue');
+    const cardTotalRevenue = document.getElementById('cardTotalRevenue');
+    const cardTotalPowerSold = document.getElementById('cardTotalPowerSold');
+
+    const searchField = document.getElementById('searchField');
+    const filterStatusSelect = document.getElementById('filterStatusSelect');
+    const filterSortingSelect = document.getElementById('filterSortingSelect');
+
+    const skeletonsContainer = document.getElementById('skeletonsContainer');
+    const ordersTableCard = document.getElementById('ordersTableCard');
+    const ordersTableBody = document.getElementById('ordersTableBody');
+
+    // Modal elements
+    const viewOrderModal = document.getElementById('viewOrderModal');
+    const viewOrderId = document.getElementById('viewOrderId');
+    const viewUsername = document.getElementById('viewUsername');
+    const viewUid = document.getElementById('viewUid');
+    const viewPackageName = document.getElementById('viewPackageName');
+    const viewPowerAmount = document.getElementById('viewPowerAmount');
+    const viewPrice = document.getElementById('viewPrice');
+    const viewTransactionId = document.getElementById('viewTransactionId');
+    const viewReferralInfo = document.getElementById('viewReferralInfo');
+    const toastContainer = document.getElementById('toastContainer');
+
+    let globalOrdersList = {};
+    let cachePlatformUsersList = {};
+
+    window.addEventListener('DOMContentLoaded', () => {
+      // Toggle collapsible navigation sidebar drawer
+      sidebarToggle.addEventListener('click', () => {
+        terminalSidebar.classList.toggle('collapsed');
+        terminalSidebar.classList.toggle('mobile-open');
+        mainViewport.classList.toggle('expanded');
+      });
+
+      startTerminalTimerClock();
+      initializeOrdersListener();
+    });
+
+    function showToast(message, type = 'success') {
+      const toast = document.createElement('div');
+      toast.classList.add('toast', type);
+      const icon = type === 'success' ? 'fa-circle-check' : 'fa-triangle-exclamation';
+      toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${message}</span>`;
+      toastContainer.appendChild(toast);
+      setTimeout(() => toast.classList.add('show'), 50);
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    function startTerminalTimerClock() {
+      setInterval(() => {
+        const utcDate = new Date();
+        navLiveDate.textContent = utcDate.toLocaleDateString('en-US', {
+          year: 'numeric', month: 'long', day: 'numeric'
+        });
+        navLiveTime.textContent = utcDate.toUTCString().replace("GMT", "UTC");
+      }, 1000);
+    }
+
+    // Connect real-time dynamic listeners (Rule 10 & 15)
+    function initializeOrdersListener() {
+      // Fetch users in background to process mapping values accurately
+      db.ref('Users').once('value', (snap) => {
+        cachePlatformUsersList = snap.exists() ? snap.val() : {};
+
+        db.ref('BuyPowerOrders').on('value', (snapshot) => {
+          skeletonsContainer.style.display = 'none';
+          ordersTableCard.style.display = 'block';
+
+          if (!snapshot.exists()) {
+            // Self-seed standard placeholder template orders if empty
+            seedInitialDefaultPlatformOrders();
+            return;
+          }
+
+          globalOrdersList = snapshot.val();
+          
+          calculateBuyPowerOrdersStats();
+          processSortingAndFiltering();
+        });
+      });
+    }
+
+    function seedInitialDefaultPlatformOrders() {
+      const orderKey = db.ref('BuyPowerOrders').push().key;
+      
+      const initOrders = {};
+      initOrders[orderKey] = {
+        id: orderKey,
+        uid: "MOCKUP_USER_ID",
+        username: "miner_pilot",
+        packageId: "p_micro",
+        packageName: "Micro Grid Node",
+        powerAmount: 2000,
+        price: 1.00,
+        paymentMethod: "TON Manual Coin",
+        transactionId: "MOCK_TRANSACTION_HASH_9824AB",
+        status: "Completed",
+        createdDate: firebase.database.ServerValue.TIMESTAMP
+      };
+
+      db.ref('BuyPowerOrders').set(initOrders);
+    }
+
+    // Compute dynamic metrics stats (Rule 3)
+    function calculateBuyPowerOrdersStats() {
+      const list = Object.values(globalOrdersList);
+
+      let totalCount = list.length;
+      let pendingCount = 0;
+      let approvedCount = 0;
+      let rejectedCount = 0;
+
+      let todayCount = 0;
+      let todayRev = 0;
+      let netRevSum = 0;
+      let netPowerHPCount = 0;
+
+      const startOfToday = new Date().setHours(0,0,0,0);
+
+      list.forEach((ord) => {
+        const cost = parseFloat(ord.price || 0);
+
+        if (ord.status === 'Pending') {
+          pendingCount++;
+        } else if (ord.status === 'Completed' || ord.status === 'Approved') {
+          approvedCount++;
+          netRevSum += cost;
+          netPowerHPCount += parseInt(ord.powerAmount || 0);
+
+          if (ord.createdDate && ord.createdDate > startOfToday) {
+            todayCount++;
+            todayRev += cost;
+          }
+        } else if (ord.status === 'Rejected') {
+          rejectedCount++;
+        }
+      });
+
+      cardTotalOrders.textContent = totalCount;
+      cardPendingCount.textContent = pendingCount;
+      cardApprovedCount.textContent = approvedCount;
+      cardRejectedCount.textContent = rejectedCount;
+
+      cardTodayOrders.textContent = todayCount;
+      cardTodayRevenue.textContent = `$${todayRev.toFixed(2)}`;
+      cardTotalRevenue.textContent = `$${netRevSum.toFixed(2)}`;
+      cardTotalPowerSold.textContent = `${Number(netPowerHPCount).toLocaleString()} HP`;
+    }
+
+    // Process searches and filters on active orders arrays (Rule 6 & 7)
+    function processSortingAndFiltering() {
+      const query = searchField.value.trim().toLowerCase();
+      const statusFilter = filterStatusSelect.value;
+      const sortingFilter = filterSortingSelect.value;
+
+      let ordersArray = Object.keys(globalOrdersList).map(key => globalOrdersList[key]);
+
+      // Apply Search Filter (Rule 6)
+      if (query) {
+        ordersArray = ordersArray.filter(o => 
+          (o.id && o.id.toLowerCase().includes(query)) ||
+          (o.uid && o.uid.toLowerCase().includes(query)) ||
+          (o.username && o.username.toLowerCase().includes(query)) ||
+          (o.packageName && o.packageName.toLowerCase().includes(query)) ||
+          (o.transactionId && o.transactionId.toLowerCase().includes(query))
+        );
+      }
+
+      // Apply Status Selectors filter Check (Rule 7)
+      if (statusFilter !== 'all') {
+        if (statusFilter === 'pending') {
+          ordersArray = ordersArray.filter(o => o.status === 'Pending');
+        } else if (statusFilter === 'completed') {
+          ordersArray = ordersArray.filter(o => o.status === 'Completed' || o.status === 'Approved');
+        } else if (statusFilter === 'rejected') {
+          ordersArray = ordersArray.filter(o => o.status === 'Rejected');
+        }
+      }
+
+      // Apply Sorters
+      if (sortingFilter === 'newest') {
+        ordersArray.sort((a,b) => (b.createdDate || 0) - (a.createdDate || 0));
+      } else if (sortingFilter === 'oldest') {
+        ordersArray.sort((a,b) => (a.createdDate || 0) - (b.createdDate || 0));
+      } else if (sortingFilter === 'highest') {
+        ordersArray.sort((a,b) => (b.price || 0) - (a.price || 0));
+      }
+
+      renderOrdersTable(ordersArray);
+    }
+
+    // Render Table row components
+    function renderOrdersTable(list) {
+      ordersTableBody.innerHTML = "";
+
+      if (list.length === 0) {
+        ordersTableBody.innerHTML = `<tr><td colspan="9" class="empty-state">No matching orders found.</td></tr>`;
+        return;
+      }
+
+      list.forEach((ord) => {
+        const tr = document.createElement('tr');
+        
+        const shortId = ord.id.substring(1, 8).toUpperCase();
+        const cleanName = ord.username ? (ord.username.charAt(0).toUpperCase() + ord.username.slice(1)) : "Miner";
+        const initials = cleanName.charAt(0).toUpperCase();
+
+        const formattedDate = new Date(ord.createdDate || Date.now()).toLocaleDateString();
+        const formattedTime = new Date(ord.createdDate || Date.now()).toLocaleTimeString();
+
+        let actionButtonsHTML = "";
+        if (ord.status === 'Pending') {
+          actionButtonsHTML = `
+            <button class="btn-panel-action approve" onclick="processOrderDecision('${ord.id}', '${ord.uid}', 'Completed')">Approve</button>
+            <button class="btn-panel-action reject" onclick="processOrderDecision('${ord.id}', '${ord.uid}', 'Rejected')">Reject</button>
+          `;
+        } else {
+          actionButtonsHTML = `<span style="font-size:11px; color:var(--text-muted); font-weight:700;">Finalized</span>`;
+        }
+
+        tr.innerHTML = `
+          <td><strong style="font-family:'Share Tech Mono', monospace; color:var(--secondary);">${shortId}</strong></td>
+          <td>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <div class="avatar-cell">${initials}</div>
+              <strong>@${cleanName}</strong>
+            </div>
+          </td>
+          <td><strong>${ord.packageName}</strong></td>
+          <td style="font-family:'Share Tech Mono', monospace; color:var(--primary); font-weight:700;">+${Number(ord.powerAmount).toLocaleString()} HP</td>
+          <td style="font-family:'Share Tech Mono', monospace; font-weight:700;">$${Number(ord.price).toFixed(2)}</td>
+          <td style="font-family:'Share Tech Mono', monospace; font-size:11px;">${ord.transactionId || "No TX Hash"}</td>
+          <td>${formattedDate}<br><span style="font-size:9.5px; color:var(--text-muted);">${formattedTime}</span></td>
+          <td><span class="status-badge ${ord.status.toLowerCase()}">${ord.status}</span></td>
+          <td>
+            <button class="btn-panel-action view" onclick="openOrderDeepViewModal('${ord.id}')">View</button>
+            ${actionButtonsHTML}
+            <button class="btn-panel-action reject" onclick="purgeOrderNode('${ord.id}')" style="background:rgba(239, 68, 68, 0.05); border-color:rgba(239, 68, 68, 0.15);"><i class="fa-solid fa-trash-can"></i></button>
+          </td>
+        `;
+        ordersTableBody.appendChild(tr);
+      });
+    }
+
+    // Modal deep viewer
+    window.openOrderDeepViewModal = function(orderId) {
+      const match = globalOrdersList[orderId];
+      if (!match) return;
+
+      viewOrderId.textContent = match.id;
+      viewUsername.textContent = `@${match.username || "Miner"}`;
+      viewUid.textContent = match.uid;
+      viewPackageName.textContent = match.packageName;
+      viewPowerAmount.textContent = `+${Number(match.powerAmount).toLocaleString()} HP`;
+      viewPrice.textContent = `$${Number(match.price).toFixed(2)}`;
+      viewTransactionId.textContent = match.transactionId || "none";
+
+      // Render custom affiliate mappings detail in modal
+      const buyerProfile = cachePlatformUsersList[match.uid];
+      if (buyerProfile && buyerProfile.referredBy) {
+        const referrer = cachePlatformUsersList[buyerProfile.referredBy];
+        const refName = referrer ? `@${referrer.username}` : "alliance_operator";
+        const estimatedCommission = Math.floor(parseInt(match.powerAmount) * 0.20);
+        viewReferralInfo.innerHTML = `Invited by <strong>${refName}</strong> (Eligible to receive: <strong>+${estimatedCommission.toLocaleString()} HP</strong>)`;
+      } else {
+        viewReferralInfo.textContent = "Purchased directly (No alliance affiliate connections mapped)";
+      }
+
+      document.getElementById('viewOrderModal').classList.add('active');
+    };
+
+    window.closeModal = function(modalId) {
+      document.getElementById(modalId).classList.remove('active');
+    };
+
+    // Process secure purchase order decision (Rule 5 Buy Power Commission, Rules approvals)
+    window.processOrderDecision = function(orderId, uid, targetStatus) {
+      if (confirm(`Do you want to verify this sale order processing status as: ${targetStatus}?`)) {
+        
+        const orderObj = globalOrdersList[orderId];
+        if (!orderObj) return;
+
+        if (targetStatus === 'Completed') {
+          // APPROVAL SCENARIO: Credit purchased power to buyer permanently (Rule 5)
+          const powerAllotted = parseInt(orderObj.powerAmount);
+
+          const buyerRef = db.ref(`Users/${uid}`);
+          buyerRef.transaction((currBuyer) => {
+            if (currBuyer) {
+              currBuyer.power = (currBuyer.power || 1000) + powerAllotted;
+            }
+            return currBuyer;
+          }, async (error, committed) => {
+            if (committed) {
+              // Successfully credited power to buyer. Close order node status
+              const orderUpdates = {};
+              orderUpdates[`BuyPowerOrders/${orderId}/status`] = "Completed";
+              orderUpdates[`BuyPowerOrders/${orderId}/approvedDate`] = firebase.database.ServerValue.TIMESTAMP;
+              orderUpdates[`BuyPowerOrders/${orderId}/approvedBy`] = "Root Admin (Rafsan)";
+              
+              // Push User Profile inner BuyPower purchase ledger History
+              orderUpdates[`Users/${uid}/buyPowerHistory/${orderId}`] = {
+                id: orderId,
+                packageName: orderObj.packageName,
+                powerAmount: powerAllotted,
+                price: orderObj.price,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+              };
+
+              await db.ref().update(orderUpdates);
+
+              // IN-APP Notification push directly to Buyer
+              const buyerNotifRef = db.ref(`Users/${uid}/notifications`).push();
+              await buyerNotifRef.set({
+                text: `Your order for ${orderObj.packageName} (+${Number(powerAllotted).toLocaleString()} HP) has been approved and activated!`,
+                timestamp: firebase.database.ServerValue.TIMESTAMP,
+                read: false
+              });
+
+              // PROCESS REFERRAL 20% commission dynamically (Rule 5 & 20% Comm)
+              const buyerProfile = cachePlatformUsersList[uid];
+              if (buyerProfile && buyerProfile.referredBy) {
+                const referrerUid = buyerProfile.referredBy;
+                const commissionHP = Math.floor(powerAllotted * 0.20); // 20% POWER
+
+                // 1. Transactionally credit Referrer profile
+                const referrerRef = db.ref(`Users/${referrerUid}`);
+                await referrerRef.transaction((currRef) => {
+                  if (currRef) {
+                    currRef.power = (currRef.power || 1000) + commissionHP;
+                  }
+                  return currRef;
+                });
+
+                // 2. Log connection commissions inside Referrals connected connection metrics accumulator
+                const affiliateLogRef = db.ref(`Referrals/${referrerUid}/${uid}`);
+                await affiliateLogRef.transaction((log) => {
+                  if (log) {
+                    log.commissionsGained = (parseInt(log.commissionsGained) || 0) + commissionHP;
+                  }
+                  return log;
+                });
+
+                // 3. IN-APP notification push directly to Referrer
+                const refNotifRef = db.ref(`Users/${referrerUid}/notifications`).push();
+                await refNotifRef.set({
+                  text: `Your alliance partner @${buyerProfile.username || "Miner"} purchased a hashrate package! Gained +${commissionHP.toLocaleString()} POWER affiliate commission!`,
+                  timestamp: firebase.database.ServerValue.TIMESTAMP,
+                  read: false
+                });
+              }
+
+              showToast("Hardware Sale approved! Hashing metrics dispatched and referrals commission credited successfully.", "success");
+            } else {
+              showToast("Deduction error writing buyer stats.", "error");
+            }
+          });
+
+        } else {
+          // REJECTED SCENARIO: Simple status change
+          const rejectUpdates = {};
+          rejectUpdates[`BuyPowerOrders/${orderId}/status`] = "Rejected";
+          rejectUpdates[`BuyPowerOrders/${orderId}/updatedDate`] = firebase.database.ServerValue.TIMESTAMP;
+
+          db.ref().update(rejectUpdates)
+            .then(() => {
+              showToast("Purchase order marked as Rejected.", "success");
+              
+              // In-app notification to buyer
+              const buyerNotifRef = db.ref(`Users/${uid}/notifications`).push();
+              buyerNotifRef.set({
+                text: `Your purchase order for ${orderObj.packageName} ($${Number(orderObj.price).toFixed(2)}) has been rejected. Please verify Tx details.`,
+                timestamp: firebase.database.ServerValue.TIMESTAMP,
+                read: false
+              });
+            });
+        }
+      }
+    };
+
+    // Purge order traces
+    window.purgeOrderNode = function(orderId) {
+      if (confirm("Delete this hardware sales record from administrative listings?")) {
+        db.ref(`BuyPowerOrders/${orderId}`).remove()
+          .then(() => showToast("Order record deleted.", "success"));
+      }
+    };
+
+    // Filters event listeners
+    searchField.addEventListener('input', () => {
+      processSortingAndFiltering();
+    });
+
+    filterStatusSelect.addEventListener('change', () => {
+      processSortingAndFiltering();
+    });
+
+    filterSortingSelect.addEventListener('change', () => {
+      processSortingAndFiltering();
+    });
+  </script>
+</body>
+</html>
