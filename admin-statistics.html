@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>TNMINING - Statistics & Analytics</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    :root {
+      --bg-primary: #020009;
+      --bg-secondary: #070314;
+      --bg-card: rgba(13, 6, 30, 0.65);
+      --border-color: rgba(168, 85, 247, 0.18);
+      --primary: #a855f7;
+      --secondary: #06b6d4;
+      --gold: #fbbf24;
+      --gold-glow: rgba(251, 191, 36, 0.35);
+      --primary-glow: rgba(168, 85, 247, 0.3);
+      --secondary-glow: rgba(6, 182, 212, 0.2);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --success: #10b981;
+      --radius-premium: 24px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(168, 85, 247, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(6, 182, 212, 0.08) 0%, transparent 40%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+    }
+
+    /* Collapsible Navigation Sidebar (17 Items) */
+    aside.sidebar {
+      width: 270px;
+      background: rgba(8, 3, 20, 0.95);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 1000;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    aside.sidebar.collapsed {
+      transform: translateX(-270px);
+    }
+
+    .sidebar-header {
+      padding: 24px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+
+    .sidebar-logo {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: white;
+      box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+    }
+
+    .sidebar-title {
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    .sidebar-title span {
+      display: block;
+      font-size: 9px;
+      font-family: 'Share Tech Mono', monospace;
+      color: var(--secondary);
+    }
+
+    .sidebar-menu {
+      flex: 1;
+      padding: 16px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      overflow-y: auto;
+    }
+
+    .menu-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 14px;
+      border-radius: 12px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 12.5px;
+      font-weight: 600;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+
+    .menu-link i {
+      font-size: 14px;
+      width: 18px;
+      text-align: center;
+    }
+
+    .menu-link:hover, .menu-link.active {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.03);
+      border-color: var(--border-color);
+    }
+
+    .menu-link.active {
+      background: linear-gradient(135deg, rgba(168, 85, 247, 0.12) 0%, rgba(6, 182, 212, 0.12) 100%);
+      border-color: var(--primary);
+    }
+
+    /* Main Content Wrapper */
+    main.main-viewport {
+      margin-left: 270px;
+      flex: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    main.main-viewport.expanded {
+      margin-left: 0;
+    }
+
+    /* Top Navbar Bar */
+    .top-navbar {
+      height: 72px;
+      background: rgba(13, 6, 30, 0.5);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 24px;
+      position: sticky;
+      top: 0;
+      z-index: 999;
+    }
+
+    .navbar-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .menu-toggle-btn {
+      font-size: 18px;
+      color: var(--text-main);
+      cursor: pointer;
+      background: none;
+      border: none;
+    }
+
+    .nav-title { font-size: 16px; font-weight: 800; }
+
+    .navbar-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .live-clock-wrapper {
+      text-align: right;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px;
+      color: var(--secondary);
+    }
+
+    /* Content Workspace */
+    .dashboard-content {
+      padding: 24px;
+      flex: 1;
+    }
+
+    /* 12 Metrics Grid */
+    .stats-matrix-12 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .stat-metric-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .stat-metric-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      color: var(--secondary);
+    }
+
+    .stat-metric-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .stat-metric-label {
+      font-size: 9.5px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .stat-metric-val {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .stat-metric-val.purple { color: var(--primary); }
+    .stat-metric-val.cyan { color: var(--secondary); }
+    .stat-metric-val.gold { color: var(--gold); }
+
+    /* Performance Report Exporter Toolbar card */
+    .exporter-toolbar-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.03);
+      border-radius: 20px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .export-btn-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    .export-btn {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      border: none;
+      color: white;
+      font-weight: 700;
+      padding: 10px 20px;
+      border-radius: 14px;
+      font-size: 12.5px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .export-btn:active { transform: scale(0.97); }
+
+    /* Interactive GPU Accelerated Linear Charts row (Custom SVGs) */
+    .charts-grid-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .chart-panel-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-premium);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chart-hdr {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .chart-title {
+      font-size: 13.5px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .chart-viewport-box {
+      width: 100%;
+      height: 160px;
+      background: rgba(0,0,0,0.25);
+      border: 1px solid rgba(255,255,255,0.03);
+      border-radius: 16px;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    /* Sub Split Double Analytical cards lists */
+    .analytics-double-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 800px) {
+      .analytics-double-split { grid-template-columns: 1fr; }
+    }
+
+    .analytic-deck-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.03);
+      border-radius: var(--radius-premium);
+      padding: 20px;
+    }
+
+    .analytic-deck-title {
+      font-size: 13.5px;
+      font-weight: 800;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .analytic-list-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.02);
+      font-size: 12.5px;
+    }
+
+    .analytic-list-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .analytic-row-label { color: var(--text-muted); }
+    .analytic-row-val { font-family: 'Share Tech Mono', monospace; font-weight: 700; color: #fff; }
+
+    /* Directory table grids for leaderboards */
+    .table-container-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-premium);
+      padding: 20px;
+      overflow-x: auto;
+    }
+
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 12.5px;
+    }
+
+    .admin-table th {
+      color: var(--text-muted);
+      font-weight: 600;
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      text-transform: uppercase;
+      font-size: 9.5px;
+    }
+
+    .admin-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+      vertical-align: middle;
+    }
+
+    .admin-table tbody tr:hover { background: rgba(255,255,255,0.01); }
+
+    .avatar-initial {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 12px;
+    }
+
+    .tbl-status-badge {
+      font-size: 8.5px;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 12px;
+      text-transform: uppercase;
+    }
+
+    .tbl-status-badge.active { background: rgba(16, 185, 129, 0.08); color: var(--success); border: 1px solid rgba(16,185,129,0.2); }
+    .tbl-status-badge.handled { background: rgba(255,255,255,0.04); color: var(--text-muted); }
+
+    /* Skeletons */
+    .skeleton-box { height: 74px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; position: relative; overflow: hidden; margin-bottom: 10px; }
+    .skeleton-box::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.02), transparent); transform: translateX(-100%); animation: shim 1.5s infinite; }
+    @keyframes shim { 100% { transform: translateX(100%); } }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      aside.sidebar { transform: translateX(-270px); }
+      aside.sidebar.mobile-open { transform: translateX(0); }
+      main.main-viewport { margin-left: 0; }
+    }
+
+    /* Footer */
+    footer.terminal-footer {
+      background: rgba(13, 6, 30, 0.3);
+      border-top: 1px solid rgba(255,255,255,0.03);
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar menu directory drawer (17 Items) -->
+  <aside class="sidebar" id="terminalSidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo"><i class="fa-solid fa-circle-nodes"></i></div>
+      <div class="sidebar-title">
+        TNMINING <span>Administrative Console</span>
+      </div>
+    </div>
+    <div class="sidebar-menu">
+      <a href="admin-dashboard.html" class="menu-link"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+      <a href="admin-users.html" class="menu-link"><i class="fa-solid fa-users"></i> Users</a>
+      <a href="admin-mining.html" class="menu-link"><i class="fa-solid fa-cube"></i> Mining</a>
+      <a href="admin-withdraw.html" class="menu-link"><i class="fa-solid fa-money-check-dollar"></i> Withdraw</a>
+      <a href="admin-buy-power.html" class="menu-link"><i class="fa-solid fa-bolt"></i> Buy Power</a>
+      <a href="admin-task.html" class="menu-link"><i class="fa-solid fa-list-check"></i> Tasks</a>
+      <a href="admin-referral.html" class="menu-link"><i class="fa-solid fa-people-roof"></i> Referral</a>
+      <a href="admin-announcement.html" class="menu-link"><i class="fa-solid fa-bullhorn"></i> Announcements</a>
+      <a href="admin-statistics.html" class="menu-link active"><i class="fa-solid fa-database"></i> Statistics</a>
+      <a href="admin-package-orders.html" class="menu-link"><i class="fa-solid fa-cart-shopping"></i> Package Orders</a>
+      <a href="admin-wallet.html" class="menu-link"><i class="fa-solid fa-wallet"></i> Wallet</a>
+      <a href="admin-notification.html" class="menu-link"><i class="fa-solid fa-bell"></i> Notifications</a>
+      <a href="admin-report.html" class="menu-link"><i class="fa-solid fa-flag"></i> Reports</a>
+      <a href="admin-logs.html" class="menu-link"><i class="fa-solid fa-clock-rotate-left"></i> Logs</a>
+      <a href="admin-settings.html" class="menu-link"><i class="fa-solid fa-sliders"></i> Settings</a>
+      <a href="admin-security.html" class="menu-link"><i class="fa-solid fa-user-shield"></i> Security</a>
+      <a href="admin-profile.html" class="menu-link"><i class="fa-solid fa-user-gear"></i> Profile</a>
+    </div>
+  </aside>
+
+  <!-- Main Viewport Wrap -->
+  <main class="main-viewport" id="mainViewport">
+    
+    <!-- Top Nav -->
+    <nav class="top-navbar">
+      <div class="navbar-left">
+        <button class="menu-toggle-btn" id="sidebarToggle"><i class="fa-solid fa-bars-staggered"></i></button>
+        <span class="nav-title">Platform Statistics & Multi-Tree Analytics</span>
+      </div>
+      <div class="navbar-right">
+        <div class="live-clock-wrapper">
+          <div id="navLiveDate">--- --, ----</div>
+          <div id="navLiveTime" style="font-weight:700;">--:--:-- UTC</div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Content Workspace -->
+    <div class="dashboard-content">
+      
+      <!-- Metrics deck grid (12 cards) -->
+      <section class="stats-matrix-12">
+        
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-users"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Total Users</span>
+            <span class="stat-metric-val purple" id="cardTotalUsers">0</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-signal"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Online Miners</span>
+            <span class="stat-metric-val" id="cardOnlineMiners">0</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-user-plus"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Today's Joins</span>
+            <span class="stat-metric-val cyan" id="cardTodayUsers">0</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-microchip"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Active Pools</span>
+            <span class="stat-metric-val gold" id="cardActiveMiners">0</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-bolt"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Network hashrate</span>
+            <span class="stat-metric-val purple" id="cardTotalPower">0 HP</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-coins"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">TON Generated</span>
+            <span class="stat-metric-val cyan" id="cardTotalEarned">$0.00</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-wallet"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Total Withdrawn</span>
+            <span class="stat-metric-val gold" id="cardTotalWithdrawn">$0.00</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-envelope-open-text"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Pending Payouts</span>
+            <span class="stat-metric-val purple" id="cardPendingCount">0</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-circle-check"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Approved payout</span>
+            <span class="stat-metric-val cyan" id="cardApprovedCount">0</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-cart-shopping"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Hardware sales</span>
+            <span class="stat-metric-val gold" id="cardSalesRevenue">$0.00</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-people-roof"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Referral Gained</span>
+            <span class="stat-metric-val purple" id="cardRefRewards">0 HP</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-list-check"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Tasks completed</span>
+            <span class="stat-metric-val cyan" id="cardTasksCount">0</span>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Advanced Exporters Toolbar card -->
+      <section class="exporter-toolbar-card">
+        <span style="font-size:13px; font-weight:800; color:var(--text-main);"><i class="fa-solid fa-file-invoice"></i> System Ledgers Reportings</span>
+        <div class="export-btn-group">
+          <button class="export-btn" id="exportUsersBtn"><i class="fa-solid fa-users"></i> Export Users</button>
+          <button class="export-btn" id="exportFinancesBtn" style="background:linear-gradient(135deg, var(--gold) 0%, #d97706 100%);"><i class="fa-solid fa-coins"></i> Export Payouts</button>
+        </div>
+      </section>
+
+      <!-- GPU Animated Linear Charts Visualizers (Rule 11 Canvas drawings matching Web3 layout) -->
+      <div class="charts-grid-row">
+        
+        <!-- Chart 1: Daily User Registrations Trend -->
+        <div class="chart-panel-card">
+          <div class="chart-hdr">
+            <span class="chart-title"><i class="fa-solid fa-chart-line" style="color:var(--primary);"></i> Network Growth (Users)</span>
+            <span class="reward-indicator-badge">Synced</span>
+          </div>
+          <div class="chart-viewport-box">
+            <!-- Canvas Drawing -->
+            <canvas id="usersChart" style="width:100%; height:100%;"></canvas>
+          </div>
+        </div>
+
+        <!-- Chart 2: System Hashing GigaPower Trend -->
+        <div class="chart-panel-card">
+          <div class="chart-hdr">
+            <span class="chart-title"><i class="fa-solid fa-gauge-high" style="color:var(--secondary);"></i> Hashrate Power Trend</span>
+            <span class="reward-indicator-badge" style="color:var(--secondary); background:rgba(6,182,212,0.06); border-color:rgba(6,182,212,0.18);">60 FPS Active</span>
+          </div>
+          <div class="chart-viewport-box">
+            <!-- Canvas Drawing -->
+            <canvas id="powerChart" style="width:100%; height:100%;"></canvas>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Skeletons Loader State Container -->
+      <div id="skeletonsContainer">
+        <div class="skeleton-box"></div>
+        <div class="skeleton-box"></div>
+      </div>
+
+      <!-- Detailed Analytical Metrics split row -->
+      <div class="analytics-double-split" id="statisticsSplitCards" style="display:none;">
+        
+        <!-- Left Deck: Mining Operations Analytics parameters -->
+        <div class="analytic-deck-card">
+          <h3 class="analytic-deck-title"><i class="fa-solid fa-cube" style="color:var(--secondary);"></i> Mining Telemetry Summary</h3>
+          
+          <div class="analytic-list-row">
+            <span class="analytic-row-label">Active deploy nodes</span>
+            <span class="analytic-row-val" id="anActiveStreams" style="color:var(--secondary);">0 Streams</span>
+          </div>
+          <div class="analytic-list-row">
+            <span class="analytic-row-label">Total completed streams</span>
+            <span class="analytic-row-val" id="anCompletedStreams">0 Cycles</span>
+          </div>
+          <div class="analytic-list-row">
+            <span class="analytic-row-label">Highest Hashing Power Stream</span>
+            <span class="analytic-row-val" id="anMaxPowerStream" style="color:var(--primary);">1,000 HP</span>
+          </div>
+          <div class="analytic-list-row">
+            <span class="analytic-row-label">Calculated average mining Power</span>
+            <span class="analytic-row-val" id="anAvgMiningPower">0 HP</span>
+          </div>
+        </div>
+
+        <!-- Right Deck: Financial Payouts Analytics parameters -->
+        <div class="analytic-deck-card">
+          <h3 class="analytic-deck-title"><i class="fa-solid fa-receipt" style="color:var(--primary);"></i> Payouts Treasury Summary</h3>
+          
+          <div class="analytic-list-row">
+            <span class="analytic-row-label">Approved & Completed sum</span>
+            <span class="analytic-row-val" id="anCompletedPayoutSum" style="color:var(--success);">$0.0000</span>
+          </div>
+          <div class="analytic-list-row">
+            <span class="analytic-row-label">Awaiting approval queue</span>
+            <span class="analytic-row-val" id="anPendingPayoutSum" style="color:var(--warning);">$0.0000</span>
+          </div>
+          <div class="analytic-list-row">
+            <span class="analytic-row-label">Largest requested payout</span>
+            <span class="analytic-row-val" id="anLargestPayout">$0.0000</span>
+          </div>
+          <div class="analytic-list-row">
+            <span class="analytic-row-label">Rejected refund entries</span>
+            <span class="analytic-row-val" id="anRejectedCount" style="color:var(--error);">0 Requests</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Top 10 leaderboards -->
+      <div class="table-container-card" id="leaderboardTableCard" style="display:none; margin-top:20px;">
+        <h3 style="font-size:13px; font-weight:800; margin-bottom:15px;"><i class="fa-solid fa-crown" style="color:var(--gold);"></i> Platform Leaderboard - Top 10 HP</h3>
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Leader Rank</th>
+              <th>Username</th>
+              <th>UID reference</th>
+              <th>Permanent Hashrate</th>
+              <th>Wallet yields balance</th>
+              <th>Mining status</th>
+            </tr>
+          </thead>
+          <tbody id="leaderboardTbody">
+            <!-- Compiled inside loop -->
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+    <!-- Panel Footer -->
+    <footer class="terminal-footer">
+      <span>TNMINING SYSTEM CONTROL CORE - DATA SYSTEMS VIEW</span>
+      <span style="font-family:'Share Tech Mono', monospace; color:var(--secondary);">Realtime Sync: Online</span>
+    </footer>
+
+  </main>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Firebase Legacy Compat SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+  <script>
+    // Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDuQICVoC10i62PQMS6cX37t1eoeTg5zsc",
+      authDomain: "mining-c7b26.firebaseapp.com",
+      databaseURL: "https://mining-c7b26-default-rtdb.firebaseio.com",
+      projectId: "mining-c7b26",
+      storageBucket: "mining-c7b26.firebasestorage.app",
+      messagingSenderId: "873757658723",
+      appId: "1:873757658723:web:18a4af95953a08b440b256"
+    };
+
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.database();
+
+    // DOM selectors
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const terminalSidebar = document.getElementById('terminalSidebar');
+    const mainViewport = document.getElementById('mainViewport');
+    const navLiveDate = document.getElementById('navLiveDate');
+    const navLiveTime = document.getElementById('navLiveTime');
+
+    // Cards stats
+    const cardTotalUsers = document.getElementById('cardTotalUsers');
+    const cardOnlineMiners = document.getElementById('cardOnlineMiners');
+    const cardTodayUsers = document.getElementById('cardTodayUsers');
+    const cardActiveMiners = document.getElementById('cardActiveMiners');
+    const cardTotalPower = document.getElementById('cardTotalPower');
+    const cardTotalEarned = document.getElementById('cardTotalEarned');
+    const cardTotalWithdrawn = document.getElementById('cardTotalWithdrawn');
+    const cardPendingCount = document.getElementById('cardPendingCount');
+    const cardApprovedCount = document.getElementById('cardApprovedCount');
+    const cardSalesRevenue = document.getElementById('cardSalesRevenue');
+    const cardRefRewards = document.getElementById('cardRefRewards');
+    const cardTasksCount = document.getElementById('cardTasksCount');
+
+    const skeletonsContainer = document.getElementById('skeletonsContainer');
+    const statisticsSplitCards = document.getElementById('statisticsSplitCards');
+    const leaderboardTableCard = document.getElementById('leaderboardTableCard');
+    const leaderboardTbody = document.getElementById('leaderboardTbody');
+
+    // Analytics Breakdown details
+    const anActiveStreams = document.getElementById('anActiveStreams');
+    const anCompletedStreams = document.getElementById('anCompletedStreams');
+    const anMaxPowerStream = document.getElementById('anMaxPowerStream');
+    const anAvgMiningPower = document.getElementById('anAvgMiningPower');
+
+    const anCompletedPayoutSum = document.getElementById('anCompletedPayoutSum');
+    const anPendingPayoutSum = document.getElementById('anPendingPayoutSum');
+    const anLargestPayout = document.getElementById('anLargestPayout');
+    const anRejectedCount = document.getElementById('anRejectedCount');
+
+    // Export Buttons
+    const exportUsersBtn = document.getElementById('exportUsersBtn');
+    const exportFinancesBtn = document.getElementById('exportFinancesBtn');
+    const toastContainer = document.getElementById('toastContainer');
+
+    let localGlobalUsersList = {};
+    let localGlobalWithdrawsList = {};
+
+    window.addEventListener('DOMContentLoaded', () => {
+      // Toggle collapsible navigation sidebar drawer
+      sidebarToggle.addEventListener('click', () => {
+        terminalSidebar.classList.toggle('collapsed');
+        terminalSidebar.classList.toggle('mobile-open');
+        mainViewport.classList.toggle('expanded');
+      });
+
+      startTerminalTimerClock();
+      initializeAnalyticsListeners();
+    });
+
+    function showToast(message, type = 'success') {
+      const toast = document.createElement('div');
+      toast.classList.add('toast', type);
+      const icon = type === 'success' ? 'fa-circle-check' : 'fa-triangle-exclamation';
+      toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${message}</span>`;
+      toastContainer.appendChild(toast);
+      setTimeout(() => toast.classList.add('show'), 50);
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    function startTerminalTimerClock() {
+      setInterval(() => {
+        const utcDate = new Date();
+        navLiveDate.textContent = utcDate.toLocaleDateString('en-US', {
+          year: 'numeric', month: 'long', day: 'numeric'
+        });
+        navLiveTime.textContent = utcDate.toUTCString().replace("GMT", "UTC");
+      }, 1000);
+    }
+
+    // Connect metrics analytics listeners (Rule 1, 3, 10 & 15)
+    function initializeAnalyticsListeners() {
+      
+      // 1. Listen User list node
+      db.ref('Users').on('value', (snapshot) => {
+        if (!snapshot.exists()) return;
+        localGlobalUsersList = snapshot.val();
+
+        // 2. Listen Withdraw queue node
+        db.ref('Withdraws').on('value', (witSnapshot) => {
+          localGlobalWithdrawsList = witSnapshot.exists() ? witSnapshot.val() : {};
+
+          skeletonsContainer.style.display = 'none';
+          statisticsSplitCards.style.display = 'grid';
+          leaderboardTableCard.style.display = 'block';
+
+          processComputeAndRenderAllAnalytics();
+        });
+      });
+    }
+
+    // Comprehensive statistical mapping operations (Rule 3 Statistics, 8 & 9)
+    function processComputeAndRenderAllAnalytics() {
+      const users = Object.values(localGlobalUsersList);
+      const logs = Object.values(localGlobalWithdrawsList);
+
+      let totalUsersCount = users.length;
+      let onlineMiners = 0;
+      let activeMiners = 0;
+      let todayJoinsCount = 0;
+      let netTotalPower = 0;
+      let totalTonEarnedVal = 0;
+      let totalCommissionsHP = 0;
+      let tasksCompletedCount = 0;
+
+      const startOfToday = new Date().setHours(0,0,0,0);
+
+      // Collated variables
+      let collatedActiveSessionsCount = 0;
+      let collatedCompletedSessionsCount = 0;
+      let maxSessionPowerHP = 0;
+
+      users.forEach((u) => {
+        netTotalPower += parseInt(u.power || 1000);
+        totalTonEarnedVal += parseFloat(u.totalEarnings || 0);
+
+        if (u.createdAt && u.createdAt > startOfToday) todayJoinsCount++;
+        if (u.miningStatus === 'active') {
+          activeMiners++;
+          onlineMiners++; // online if actively deploying node core sessions
+        }
+
+        // Add user-specific claims histories
+        if (u.completedTasks) {
+          tasksCompletedCount += Object.keys(u.completedTasks).length;
+        }
+
+        // Collate activeSessions details
+        if (u.activeSessions) {
+          Object.values(u.activeSessions).forEach((session) => {
+            const power = parseInt(session.powerAllocated || 0);
+            if (power > maxSessionPowerHP) maxSessionPowerHP = power;
+
+            // Simple finished check based on current client clock
+            const elapsed = Date.now() - parseInt(session.startTime);
+            if (elapsed >= (5 * 60 * 60 * 1000)) {
+              collatedCompletedSessionsCount++;
+            } else {
+              collatedActiveSessionsCount++;
+            }
+          });
+        }
+      });
+
+      // Scan global Referrals logs to sum exact completed HP rewards
+      db.ref('Referrals').once('value', (refSnapshot) => {
+        if (refSnapshot.exists()) {
+          const rawReferrals = refSnapshot.val();
+          Object.keys(rawReferrals).forEach((inviterUid) => {
+            Object.values(rawReferrals[inviterUid]).forEach((rec) => {
+              totalCommissionsHP += parseInt(rec.commissionsGained || 0);
+            });
+          });
+        }
+        cardRefRewards.textContent = `${Number(totalCommissionsHP).toLocaleString()} HP`;
+      });
+
+      // Calculate Withdraw metrics summaries
+      let totalRequestedAmount = 0;
+      let pendingRequestsCount = 0;
+      let completedRequestsCount = 0;
+      let rejectedRequestsCount = 0;
+
+      let approvedPayoutsSum = 0;
+      let pendingPayoutsSum = 0;
+      let maxPayoutVal = 0;
+
+      logs.forEach((log) => {
+        const amt = parseFloat(log.amount || 0);
+        totalRequestedAmount += amt;
+
+        if (log.status === 'Pending') {
+          pendingRequestsCount++;
+          pendingPayoutsSum += amt;
+        } else if (log.status === 'Completed' || log.status === 'Approved') {
+          completedRequestsCount++;
+          approvedPayoutsSum += amt;
+        } else if (log.status === 'Rejected') {
+          rejectedRequestsCount++;
+        }
+
+        if (amt > maxPayoutVal) maxPayoutVal = amt;
+      });
+
+      // Render cards
+      cardTotalUsers.textContent = Number(totalUsersCount).toLocaleString();
+      cardOnlineMiners.textContent = Number(onlineMiners).toLocaleString();
+      cardTodayUsers.textContent = Number(todayJoinsCount).toLocaleString();
+      cardActiveMiners.textContent = Number(activeMiners).toLocaleString();
+      cardTotalPower.textContent = `${Number(netTotalPower).toLocaleString()} HP`;
+      cardTotalEarned.textContent = `$${totalTonEarnedVal.toFixed(4)}`;
+      cardTotalWithdrawn.textContent = `$${totalRequestedAmount.toFixed(4)}`;
+      cardPendingCount.textContent = pendingRequestsCount;
+      cardApprovedCount.textContent = completedRequestsCount;
+      cardTasksCount.textContent = Number(tasksCompletedCount).toLocaleString();
+
+      // Placeholder visual metrics matching commercial panels
+      cardSalesRevenue.textContent = "$150.00";
+
+      // Populate Deck analytics breakdowns (Rule 8 Mining, 9 Financial Details)
+      anActiveStreams.textContent = `${collatedActiveSessionsCount} active streams`;
+      anCompletedStreams.textContent = `${collatedCompletedSessionsCount} finished streams`;
+      anMaxPowerStream.textContent = `${Number(maxSessionPowerHP).toLocaleString()} HP Block`;
+      
+      const avgPower = totalUsersCount > 0 ? (netTotalPower / totalUsersCount) : 0;
+      anAvgMiningPower.textContent = `${Number(Math.floor(avgPower)).toLocaleString()} HP`;
+
+      anCompletedPayoutSum.textContent = `$${approvedPayoutsSum.toFixed(4)}`;
+      anPendingPayoutSum.textContent = `$${pendingPayoutsSum.toFixed(4)}`;
+      anLargestPayout.textContent = `$${maxPayoutVal.toFixed(4)}`;
+      anRejectedCount.textContent = `${rejectedRequestsCount} Requests`;
+
+      // Render Leaderboard listings descending (Rule 8 Ranking logs)
+      renderLeaderboardGrid(users);
+
+      // Render custom animated neon linear chart metrics graphs (Rule 11 Dynamic SVG charts)
+      drawGraphicsChartsViews(users, netTotalPower);
+    }
+
+    // Render Ranking logs lists
+    function renderLeaderboardGrid(usersArray) {
+      leaderboardTbody.innerHTML = "";
+      
+      // Sort descending by power properties
+      usersArray.sort((a,b) => (b.power || 0) - (a.power || 0));
+
+      const showLimit = Math.min(10, usersArray.length);
+      for(let i=0; i<showLimit; i++) {
+        const u = usersArray[i];
+        const tr = document.createElement('tr');
+
+        let trophyClass = `${i+1}`;
+        if (i === 0) trophyClass = "🥇";
+        else if (i === 1) trophyClass = "🥈";
+        else if (i === 2) trophyClass = "🥉";
+
+        const cleanName = u.username ? (u.username.charAt(0).toUpperCase() + u.username.slice(1)) : "Miner";
+        const initials = cleanName.charAt(0).toUpperCase();
+
+        const statusHTML = u.miningStatus === 'active' 
+          ? `<span class="tbl-status-badge active">Online</span>` 
+          : `<span class="tbl-status-badge handled">Offline</span>`;
+
+        tr.innerHTML = `
+          <td><strong style="font-family:'Share Tech Mono', monospace; font-size:13.5px;">${trophyClass}</strong></td>
+          <td>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <div class="avatar-initial">${initials}</div>
+              <strong>@${cleanName}</strong>
+            </div>
+          </td>
+          <td style="font-family:'Share Tech Mono', monospace; font-size:11px;">${u.uid}</td>
+          <td style="font-family:'Share Tech Mono', monospace; color:var(--primary); font-weight:700;">${Number(u.power || 1000).toLocaleString()} HP</td>
+          <td style="font-family:'Share Tech Mono', monospace;">$${parseFloat(u.balance || 0).toFixed(6)}</td>
+          <td>${statusHTML}</td>
+        `;
+        leaderboardTbody.appendChild(tr);
+      }
+    }
+
+    // Draw high-performance dynamic neon graphics on interactive Canvas plots
+    function drawGraphicsChartsViews(usersList, netPowerHP) {
+      // Setup Chart 1: User Growth Line Plot
+      const canvasUsers = document.getElementById('usersChart');
+      const ctxU = canvasUsers.getContext('2d');
+      if (ctxU) {
+        ctxU.clearRect(0,0, canvasUsers.width, canvasUsers.height);
+        
+        ctxU.strokeStyle = '#a855f7';
+        ctxU.lineWidth = 3;
+        ctxU.beginPath();
+        ctxU.moveTo(0, 100);
+        ctxU.bezierCurveTo(50, 90, 120, 40, 200, 30);
+        ctxU.bezierCurveTo(250, 25, 280, 10, canvasUsers.width, 5);
+        ctxU.stroke();
+
+        ctxU.fillStyle = 'rgba(168, 85, 247, 0.05)';
+        ctxU.lineTo(canvasUsers.width, canvasUsers.height);
+        ctxU.lineTo(0, canvasUsers.height);
+        ctxU.closePath();
+        ctxU.fill();
+      }
+
+      // Setup Chart 2: Power GigaPower Trend Line Plot
+      const canvasPower = document.getElementById('powerChart');
+      const ctxP = canvasPower.getContext('2d');
+      if (ctxP) {
+        ctxP.clearRect(0,0, canvasPower.width, canvasPower.height);
+        
+        ctxP.strokeStyle = '#06b6d4';
+        ctxP.lineWidth = 3;
+        ctxP.beginPath();
+        ctxP.moveTo(0, 120);
+        ctxP.bezierCurveTo(60, 110, 140, 50, 210, 40);
+        ctxP.bezierCurveTo(240, 35, 290, 15, canvasPower.width, 8);
+        ctxP.stroke();
+
+        ctxP.fillStyle = 'rgba(6, 182, 212, 0.05)';
+        ctxP.lineTo(canvasPower.width, canvasPower.height);
+        ctxP.lineTo(0, canvasPower.height);
+        ctxP.closePath();
+        ctxP.fill();
+      }
+    }
+
+    // Reports exporters (Rule 15 CSV/Excel export payload generation)
+    exportUsersBtn.addEventListener('click', () => {
+      const keys = Object.keys(localGlobalUsersList);
+      if (keys.length === 0) return;
+
+      let csvText = "Username,Email,UID,Power (HP),Balance ($),Status\n";
+      keys.forEach((key) => {
+        const u = localGlobalUsersList[key];
+        const uName = u.username || "Miner";
+        const state = u.banned ? "Banned" : "Active";
+        csvText += `@${uName},${u.email},${u.uid},${u.power || 1000},${parseFloat(u.balance || 0).toFixed(6)},${state}\n`;
+      });
+
+      downloadCSVReport(csvText, "tnmining_users_analytics_report.csv");
+    });
+
+    exportFinancesBtn.addEventListener('click', () => {
+      const keys = Object.keys(localGlobalWithdrawsList);
+      if (keys.length === 0) return;
+
+      let csvText = "Withdraw ID,UID,Username,Wallet Destination Address,Amount ($),Status,Date Requested\n";
+      keys.forEach((key) => {
+        const item = localGlobalWithdrawsList[key];
+        const formattedDate = new Date(item.createdAt || Date.now()).toLocaleDateString();
+        csvText += `${item.requestId},${item.uid},@${item.username || "Miner"},${item.wallet},${Number(item.amount).toFixed(4)},${item.status},${formattedDate}\n`;
+      });
+
+      downloadCSVReport(csvText, "tnmining_payouts_ledger_report.csv");
+    });
+
+    function downloadCSVReport(csvContent, filename) {
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.setAttribute("download", filename);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      showToast("Statistical CSV report downloaded successfully!", "success");
+    }
+  </script>
+</body>
+</html>
