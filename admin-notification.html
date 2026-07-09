@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>TNMINING - Notifications Management</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    :root {
+      --bg-primary: #020009;
+      --bg-secondary: #070314;
+      --bg-card: rgba(13, 6, 30, 0.65);
+      --border-color: rgba(168, 85, 247, 0.18);
+      --primary: #a855f7;
+      --secondary: #06b6d4;
+      --gold: #fbbf24;
+      --gold-glow: rgba(251, 191, 36, 0.35);
+      --primary-glow: rgba(168, 85, 247, 0.3);
+      --secondary-glow: rgba(6, 182, 212, 0.2);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --success: #10b981;
+      --error: #ef4444;
+      --warning: #f59e0b;
+      --radius-premium: 24px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(168, 85, 247, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(6, 182, 212, 0.08) 0%, transparent 40%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+    }
+
+    /* Collapsible Navigation Sidebar (17 Items) */
+    aside.sidebar {
+      width: 270px;
+      background: rgba(8, 3, 20, 0.95);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 1000;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    aside.sidebar.collapsed {
+      transform: translateX(-270px);
+    }
+
+    .sidebar-header {
+      padding: 24px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+
+    .sidebar-logo {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: white;
+      box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+    }
+
+    .sidebar-title {
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    .sidebar-title span {
+      display: block;
+      font-size: 9px;
+      font-family: 'Share Tech Mono', monospace;
+      color: var(--secondary);
+    }
+
+    .sidebar-menu {
+      flex: 1;
+      padding: 16px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      overflow-y: auto;
+    }
+
+    .menu-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 14px;
+      border-radius: 12px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 12.5px;
+      font-weight: 600;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+
+    .menu-link i {
+      font-size: 14px;
+      width: 18px;
+      text-align: center;
+    }
+
+    .menu-link:hover, .menu-link.active {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.03);
+      border-color: var(--border-color);
+    }
+
+    .menu-link.active {
+      background: linear-gradient(135deg, rgba(168, 85, 247, 0.12) 0%, rgba(6, 182, 212, 0.12) 100%);
+      border-color: var(--primary);
+    }
+
+    /* Main Content Wrapper */
+    main.main-viewport {
+      margin-left: 270px;
+      flex: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    main.main-viewport.expanded {
+      margin-left: 0;
+    }
+
+    /* Top Navbar Bar */
+    .top-navbar {
+      height: 72px;
+      background: rgba(13, 6, 30, 0.5);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 24px;
+      position: sticky;
+      top: 0;
+      z-index: 999;
+    }
+
+    .navbar-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .menu-toggle-btn {
+      font-size: 18px;
+      color: var(--text-main);
+      cursor: pointer;
+      background: none;
+      border: none;
+    }
+
+    .nav-title { font-size: 16px; font-weight: 800; }
+
+    .navbar-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .live-clock-wrapper {
+      text-align: right;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px;
+      color: var(--secondary);
+    }
+
+    /* Content Area */
+    .dashboard-content {
+      padding: 24px;
+      flex: 1;
+    }
+
+    /* Analytics Dashboard Grid */
+    .stats-matrix-8 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .stat-metric-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .stat-metric-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      color: var(--secondary);
+    }
+
+    .stat-metric-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .stat-metric-label {
+      font-size: 9.5px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .stat-metric-val {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .stat-metric-val.purple { color: var(--primary); }
+    .stat-metric-val.cyan { color: var(--secondary); }
+    .stat-metric-val.gold { color: var(--gold); }
+
+    /* Action bar */
+    .action-toolbar-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.03);
+      border-radius: 20px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    @media (max-width: 600px) {
+      .action-toolbar-card { flex-direction: column; }
+    }
+
+    .search-input-wrapper {
+      flex: 1;
+      position: relative;
+    }
+
+    .search-input-wrapper i {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 13px 16px 13px 44px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      color: var(--text-main);
+      font-size: 13px;
+      outline: none;
+    }
+
+    .search-input:focus { border-color: var(--secondary); }
+
+    .select-filter {
+      background: rgba(13, 6, 30, 0.95);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 0 16px;
+      border-radius: 14px;
+      font-size: 13px;
+      font-weight: 600;
+      outline: none;
+      height: 44px;
+    }
+
+    .btn-trigger-modal {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      border: none;
+      color: white;
+      font-weight: 700;
+      padding: 0 20px;
+      border-radius: 14px;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      height: 44px;
+    }
+
+    /* Notifications stack grid cards */
+    .notifs-grid-board {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .notif-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 22px;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .notif-card:hover { border-color: var(--secondary); }
+
+    .notif-card-hdr {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .notif-card-title {
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .notif-badge {
+      font-size: 9px;
+      font-weight: 800;
+      color: var(--secondary);
+      background: rgba(6, 182, 212, 0.08);
+      border: 1px solid rgba(6, 182, 212, 0.2);
+      padding: 2px 8px;
+      border-radius: 12px;
+    }
+
+    .notif-msg-text {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .notif-properties-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      background: rgba(255,255,255,0.01);
+      border: 1px solid rgba(255,255,255,0.03);
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .notif-property-row {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .notif-property-val {
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .notif-actions-row {
+      display: flex;
+      gap: 8px;
+      margin-top: auto;
+    }
+
+    .btn-notif-opt {
+      flex: 1;
+      padding: 9px;
+      border-radius: 12px;
+      font-size: 11.5px;
+      font-weight: 800;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+
+    .btn-notif-opt.edit { background: rgba(6, 182, 212, 0.12); color: var(--secondary); border: 1px solid rgba(6,182,212,0.2); }
+    .btn-notif-opt.edit:hover { background: var(--secondary); color: white; }
+
+    .btn-notif-opt.resend { background: rgba(168, 85, 247, 0.12); color: var(--primary); border: 1px solid rgba(168,85,247,0.2); }
+    .btn-notif-opt.resend:hover { background: var(--primary); color: white; }
+
+    .btn-notif-opt.delete { background: rgba(239, 68, 68, 0.12); color: var(--error); border: 1px solid rgba(239,68,68,0.2); }
+    .btn-notif-opt.delete:hover { background: var(--error); color: white; }
+
+    /* Modal Form drawer overlay */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 2, 12, 0.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease;
+    }
+
+    .modal-overlay.active { opacity: 1; pointer-events: all; }
+
+    .modal-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-premium);
+      width: 100%;
+      max-width: 480px;
+      padding: 24px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-card::-webkit-scrollbar { width: 3px; }
+    .modal-card::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.05); }
+
+    .modal-title {
+      font-size: 15px;
+      font-weight: 800;
+      margin-bottom: 18px;
+      text-align: center;
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 5px;
+      text-transform: uppercase;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 11px 14px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      color: var(--text-main);
+      font-size: 13px;
+      outline: none;
+    }
+
+    .form-input:focus { border-color: var(--secondary); }
+
+    .modal-buttons-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .btn-modal {
+      flex: 1;
+      padding: 12.5px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-cancel { background: rgba(255,255,255,0.04); color: var(--text-main); border: 1px solid var(--border-color); }
+    .btn-save { background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); color: white; }
+
+    /* Empty state placeholders */
+    .empty-state-card {
+      background: var(--bg-card);
+      border: 1.5px dashed var(--border-color);
+      border-radius: var(--radius-premium);
+      padding: 50px 24px;
+      text-align: center;
+      grid-column: span 3;
+    }
+
+    .empty-state-card i {
+      font-size: 38px;
+      color: rgba(168, 85, 247, 0.3);
+      margin-bottom: 14px;
+    }
+
+    .empty-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 6px;
+    }
+
+    .empty-subtitle {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Skeletons */
+    .skeleton-box { height: 160px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 22px; position: relative; overflow: hidden; margin-bottom: 10px; }
+    .skeleton-box::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.02), transparent); transform: translateX(-100%); animation: shim 1.5s infinite; }
+    @keyframes shim { 100% { transform: translateX(100%); } }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      aside.sidebar { transform: translateX(-270px); }
+      aside.sidebar.mobile-open { transform: translateX(0); }
+      main.main-viewport { margin-left: 0; }
+    }
+
+    /* Footer */
+    footer.terminal-footer {
+      background: rgba(13, 6, 30, 0.3);
+      border-top: 1px solid rgba(255,255,255,0.03);
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar drawers targets (17 Items) -->
+  <aside class="sidebar" id="terminalSidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo"><i class="fa-solid fa-circle-nodes"></i></div>
+      <div class="sidebar-title">
+        TNMINING <span>Administrative Console</span>
+      </div>
+    </div>
+    <div class="sidebar-menu">
+      <a href="admin-dashboard.html" class="menu-link"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+      <a href="admin-users.html" class="menu-link"><i class="fa-solid fa-users"></i> Users</a>
+      <a href="admin-mining.html" class="menu-link"><i class="fa-solid fa-cube"></i> Mining</a>
+      <a href="admin-withdraw.html" class="menu-link"><i class="fa-solid fa-money-check-dollar"></i> Withdraw</a>
+      <a href="admin-buy-power.html" class="menu-link"><i class="fa-solid fa-bolt"></i> Buy Power</a>
+      <a href="admin-task.html" class="menu-link"><i class="fa-solid fa-list-check"></i> Tasks</a>
+      <a href="admin-referral.html" class="menu-link"><i class="fa-solid fa-people-roof"></i> Referral</a>
+      <a href="admin-announcement.html" class="menu-link"><i class="fa-solid fa-bullhorn"></i> Announcements</a>
+      <a href="admin-statistics.html" class="menu-link"><i class="fa-solid fa-database"></i> Statistics</a>
+      <a href="admin-package-orders.html" class="menu-link"><i class="fa-solid fa-cart-shopping"></i> Package Orders</a>
+      <a href="admin-wallet.html" class="menu-link"><i class="fa-solid fa-wallet"></i> Wallet</a>
+      <a href="admin-notification.html" class="menu-link active"><i class="fa-solid fa-bell"></i> Notifications</a>
+      <a href="admin-report.html" class="menu-link"><i class="fa-solid fa-flag"></i> Reports</a>
+      <a href="admin-logs.html" class="menu-link"><i class="fa-solid fa-clock-rotate-left"></i> Logs</a>
+      <a href="admin-settings.html" class="menu-link"><i class="fa-solid fa-sliders"></i> Settings</a>
+      <a href="admin-security.html" class="menu-link"><i class="fa-solid fa-user-shield"></i> Security</a>
+      <a href="admin-profile.html" class="menu-link"><i class="fa-solid fa-user-gear"></i> Profile</a>
+    </div>
+  </aside>
+
+  <!-- Main Viewport wrap -->
+  <main class="main-viewport" id="mainViewport">
+    
+    <!-- Top Nav -->
+    <nav class="top-navbar">
+      <div class="navbar-left">
+        <button class="menu-toggle-btn" id="sidebarToggle"><i class="fa-solid fa-bars-staggered"></i></button>
+        <span class="nav-title">Notifications Dispatch & Management</span>
+      </div>
+      <div class="navbar-right">
+        <div class="live-clock-wrapper">
+          <div id="navLiveDate">--- --, ----</div>
+          <div id="navLiveTime" style="font-weight:700;">--:--:-- UTC</div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Content Workspace -->
+    <div class="dashboard-content">
+      
+      <!-- Metrics deck (8 dynamic cards) -->
+      <section class="stats-matrix-8">
+        
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-bell"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Total Notifications</span>
+            <span class="stat-metric-val purple" id="cardTotalNotifs">0</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-calendar-day"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Sent Today</span>
+            <span class="stat-metric-val cyan" id="cardSentToday">0</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-clock"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Scheduled</span>
+            <span class="stat-metric-val gold" id="cardScheduledCount">0</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-envelope-open"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Unread Sum</span>
+            <span class="stat-metric-val" id="cardUnreadCount" style="color:var(--warning);">0</span>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Advanced actions toolbar filter -->
+      <section class="action-toolbar-card">
+        <div class="search-input-wrapper">
+          <input type="text" class="search-input" id="searchField" placeholder="Search notices by Title, Category, Audience Target...">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </div>
+
+        <select class="select-filter" id="filterStatusSelect">
+          <option value="all">All listed notifications</option>
+          <option value="sent">Sent</option>
+          <option value="draft">Drafts</option>
+        </select>
+
+        <button class="btn-trigger-modal" onclick="openNotificationModal()"><i class="fa-solid fa-square-plus"></i> Compose Notif</button>
+      </section>
+
+      <!-- Shimmer skeletons wrapper -->
+      <div class="notifs-grid-board" id="skeletonsContainer">
+        <div class="skeleton-box"></div>
+        <div class="skeleton-box"></div>
+        <div class="skeleton-box"></div>
+      </div>
+
+      <!-- Main Notifications Grid lists (Rule Empty default handles) -->
+      <div class="notifs-grid-board" id="notificationsGrid" style="display:none;">
+        <!-- Generated dynamically inside script loop -->
+      </div>
+
+    </div>
+
+    <!-- Panel Footer -->
+    <footer class="terminal-footer">
+      <span>TNMINING SYSTEM CONTROL CORE - NOTIFICATIONS CENTER</span>
+      <span style="font-family:'Share Tech Mono', monospace; color:var(--secondary);">Realtime Sync: Synced</span>
+    </footer>
+
+  </main>
+
+  <!-- ==================== PREMIUM EDIT DETAILS MODAL DRAWER ==================== -->
+
+  <!-- Modal: Create / Edit Notification configurations form -->
+  <div class="modal-overlay" id="notificationModal">
+    <div class="modal-card">
+      <h3 class="modal-title" id="modalTitleLabel">Compose Platform Notification</h3>
+      
+      <div class="form-group">
+        <label class="form-label">Notification Title</label>
+        <input type="text" class="form-input" id="formTitle" placeholder="Payout Processed successfully!" required autocomplete="off">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Notification Message Body</label>
+        <textarea class="form-input" id="formMessage" placeholder="Your payout order has been approved and completes transaction hashes." style="height:80px; resize:none;" required></textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Category Classification Type</label>
+        <select class="form-input" id="formType" style="background:#09041a;">
+          <option value="Information">Information</option>
+          <option value="Mining Reward">Mining Reward Alerts</option>
+          <option value="Withdraw Update">Withdrawal Progress</option>
+          <option value="Referral Reward">Alliance Referral Bonus</option>
+          <option value="Buy Power">Hardware Purchase node</option>
+          <option value="Task Reward">Rewards Tasks completions</option>
+          <option value="Warning">System Urgencies</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Target Audience Pool</label>
+        <select class="form-input" id="formAudience" style="background:#09041a;">
+          <option value="All Users">All registered Miners</option>
+          <option value="Mining Users">Active stream nodes</option>
+          <option value="Buy Power Users">Hardware owners</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Priority Load Rating</label>
+        <select class="form-input" id="formPriority" style="background:#09041a;">
+          <option value="Low">Low</option>
+          <option value="Medium">Medium</option>
+          <option value="High">High</option>
+          <option value="Urgent">Urgent / Critical</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Active Node Status state</label>
+        <select class="form-input" id="formStatus" style="background:#09041a;">
+          <option value="Sent">Sent (Dispatch immediately)</option>
+          <option value="Draft">Draft (Save as outline)</option>
+        </select>
+      </div>
+
+      <div class="modal-buttons-row">
+        <button class="btn-modal btn-cancel" onclick="closeModal('notificationModal')">Cancel</button>
+        <button class="btn-modal btn-save" id="saveNotifBtn">Dispatch Message</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Firebase Legacy Compat SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+  <script>
+    // Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDuQICVoC10i62PQMS6cX37t1eoeTg5zsc",
+      authDomain: "mining-c7b26.firebaseapp.com",
+      databaseURL: "https://mining-c7b26-default-rtdb.firebaseio.com",
+      projectId: "mining-c7b26",
+      storageBucket: "mining-c7b26.firebasestorage.app",
+      messagingSenderId: "873757658723",
+      appId: "1:873757658723:web:18a4af95953a08b440b256"
+    };
+
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.database();
+
+    // DOM selectors
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const terminalSidebar = document.getElementById('terminalSidebar');
+    const mainViewport = document.getElementById('mainViewport');
+    const navLiveDate = document.getElementById('navLiveDate');
+    const navLiveTime = document.getElementById('navLiveTime');
+
+    // Cards stats
+    const cardTotalNotifs = document.getElementById('cardTotalNotifs');
+    const cardSentToday = document.getElementById('cardSentToday');
+    const cardScheduledCount = document.getElementById('cardScheduledCount');
+    const cardUnreadCount = document.getElementById('cardUnreadCount');
+
+    const searchField = document.getElementById('searchField');
+    const filterStatusSelect = document.getElementById('filterStatusSelect');
+
+    const skeletonsContainer = document.getElementById('skeletonsContainer');
+    const notificationsGrid = document.getElementById('notificationsGrid');
+
+    // Form elements selectors
+    const formTitle = document.getElementById('formTitle');
+    const formMessage = document.getElementById('formMessage');
+    const formType = document.getElementById('formType');
+    const formAudience = document.getElementById('formAudience');
+    const formPriority = document.getElementById('formPriority');
+    const formStatus = document.getElementById('formStatus');
+    const saveNotifBtn = document.getElementById('saveNotifBtn');
+    const toastContainer = document.getElementById('toastContainer');
+
+    let globalNotifsList = {};
+    let activeEditNotifId = null;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      // Toggle collapsible navigation sidebar drawer
+      sidebarToggle.addEventListener('click', () => {
+        terminalSidebar.classList.toggle('collapsed');
+        terminalSidebar.classList.toggle('mobile-open');
+        mainViewport.classList.toggle('expanded');
+      });
+
+      startTerminalTimerClock();
+      initializeNotificationsListener();
+    });
+
+    function showToast(message, type = 'success') {
+      const toast = document.createElement('div');
+      toast.classList.add('toast', type);
+      const icon = type === 'success' ? 'fa-circle-check' : 'fa-triangle-exclamation';
+      toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${message}</span>`;
+      toastContainer.appendChild(toast);
+      setTimeout(() => toast.classList.add('show'), 50);
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    function startTerminalTimerClock() {
+      setInterval(() => {
+        const utcDate = new Date();
+        navLiveDate.textContent = utcDate.toLocaleDateString('en-US', {
+          year: 'numeric', month: 'long', day: 'numeric'
+        });
+        navLiveTime.textContent = utcDate.toUTCString().replace("GMT", "UTC");
+      }, 1000);
+    }
+
+    // Connect real-time dispatcher listeners (Rule 1, 3, 10 & 15)
+    function initializeNotificationsListener() {
+      db.ref('SystemNotifications').on('value', (snapshot) => {
+        skeletonsContainer.style.display = 'none';
+        notificationsGrid.style.display = 'grid';
+
+        if (!snapshot.exists()) {
+          // Render Premium Empty state Card
+          notificationsGrid.innerHTML = `
+            <div class="empty-state-card">
+              <i class="fa-solid fa-bell-slash"></i>
+              <h4 class="empty-title">No Alerts Published</h4>
+              <p class="empty-subtitle">Compile and dispatch platform-wide dynamic notifications to your users.</p>
+            </div>
+          `;
+          cardTotalNotifs.textContent = "0";
+          cardSentToday.textContent = "0";
+          cardScheduledCount.textContent = "0";
+          cardUnreadCount.textContent = "0";
+          return;
+        }
+
+        globalNotifsList = snapshot.val();
+        
+        calculateNotificationsStats();
+        processSortingAndFiltering();
+      });
+    }
+
+    function calculateNotificationsStats() {
+      const list = Object.values(globalNotifsList);
+      
+      let totalCount = list.length;
+      let sentTodayCount = 0;
+      let scheduledCount = 0;
+      let unreadSum = 0;
+
+      const startOfToday = new Date().setHours(0,0,0,0);
+
+      list.forEach((notif) => {
+        if (notif.status === 'Sent') {
+          sentTodayCount++;
+          unreadSum += parseInt(notif.unreadCount || 0);
+        } else if (notif.status === 'Scheduled') {
+          scheduledCount++;
+        }
+      });
+
+      cardTotalNotifs.textContent = totalCount;
+      cardSentToday.textContent = sentTodayCount;
+      cardScheduledCount.textContent = scheduledCount;
+      cardUnreadCount.textContent = unreadSum;
+    }
+
+    // Search and filter notification listings (Rule 6 & 7 Filters)
+    function processSortingAndFiltering() {
+      const query = searchField.value.trim().toLowerCase();
+      const statusFilter = filterStatusSelect.value;
+
+      let notifArray = Object.keys(globalNotifsList).map(key => globalNotifsList[key]);
+
+      // Apply Search query Filters (Rule 6)
+      if (query) {
+        notifArray = notifArray.filter(n => 
+          (n.title && n.title.toLowerCase().includes(query)) ||
+          (n.message && n.message.toLowerCase().includes(query)) ||
+          (n.type && n.type.toLowerCase().includes(query))
+        );
+      }
+
+      // Apply Status select Filter Check (Rule 7 Filter options)
+      if (statusFilter !== 'all') {
+        if (statusFilter === 'sent') {
+          notifArray = notifArray.filter(n => n.status === 'Sent');
+        } else if (statusFilter === 'draft') {
+          notifArray = notifArray.filter(n => n.status === 'Draft');
+        }
+      }
+
+      // Sort chronological descending
+      notifArray.sort((a, b) => b.createdDate - a.createdDate);
+
+      renderNotificationsStack(notifArray);
+    }
+
+    // Render Grid Cards
+    function renderNotificationsStack(list) {
+      notificationsGrid.innerHTML = "";
+
+      if (list.length === 0) {
+        notificationsGrid.innerHTML = `
+          <div class="empty-state-card">
+            <i class="fa-solid fa-envelope-open-text"></i>
+            <h4 class="empty-title">No matching notifications</h4>
+            <p class="empty-subtitle">Refine filter terms or query keywords to explore drafts details.</p>
+          </div>
+        `;
+        return;
+      }
+
+      list.forEach((notif) => {
+        const cardEl = document.createElement('div');
+        cardEl.className = "notif-card";
+
+        const priorityColor = notif.priority === 'Urgent' ? "var(--error)" : (notif.priority === 'High' ? "var(--warning)" : "var(--success)");
+        const statusColor = notif.status === 'Sent' ? "var(--success)" : "var(--text-muted)";
+
+        const dateLabel = new Date(notif.createdDate || Date.now()).toLocaleDateString();
+
+        cardEl.innerHTML = `
+          <div class="notif-card-hdr">
+            <span class="notif-card-title">${notif.title}</span>
+            <span class="notif-badge">${notif.type}</span>
+          </div>
+
+          <p class="notif-msg-text">${notif.message}</p>
+
+          <div class="notif-properties-list">
+            <div class="notif-property-row"><span>Priority</span><span class="notif-property-val" style="color:${priorityColor};">${notif.priority}</span></div>
+            <div class="notif-property-row"><span>Target Pool</span><span class="notif-p
