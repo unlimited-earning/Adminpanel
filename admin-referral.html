@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>TNMINING - Alliance & Referral Control</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    :root {
+      --bg-primary: #020009;
+      --bg-secondary: #070314;
+      --bg-card: rgba(13, 6, 30, 0.65);
+      --border-color: rgba(168, 85, 247, 0.18);
+      --primary: #a855f7;
+      --secondary: #06b6d4;
+      --gold: #fbbf24;
+      --gold-glow: rgba(251, 191, 36, 0.35);
+      --primary-glow: rgba(168, 85, 247, 0.3);
+      --secondary-glow: rgba(6, 182, 212, 0.2);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --success: #10b981;
+      --error: #ef4444;
+      --warning: #f59e0b;
+      --radius-premium: 24px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(168, 85, 247, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(6, 182, 212, 0.08) 0%, transparent 40%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+    }
+
+    /* Collapsible Navigation Sidebar (17 Items) */
+    aside.sidebar {
+      width: 270px;
+      background: rgba(8, 3, 20, 0.95);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 1000;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    aside.sidebar.collapsed {
+      transform: translateX(-270px);
+    }
+
+    .sidebar-header {
+      padding: 24px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+
+    .sidebar-logo {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: white;
+      box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+    }
+
+    .sidebar-title {
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    .sidebar-title span {
+      display: block;
+      font-size: 9px;
+      font-family: 'Share Tech Mono', monospace;
+      color: var(--secondary);
+    }
+
+    .sidebar-menu {
+      flex: 1;
+      padding: 16px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      overflow-y: auto;
+    }
+
+    .menu-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 14px;
+      border-radius: 12px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 12.5px;
+      font-weight: 600;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+
+    .menu-link i {
+      font-size: 14px;
+      width: 18px;
+      text-align: center;
+    }
+
+    .menu-link:hover, .menu-link.active {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.03);
+      border-color: var(--border-color);
+    }
+
+    .menu-link.active {
+      background: linear-gradient(135deg, rgba(168, 85, 247, 0.12) 0%, rgba(6, 182, 212, 0.12) 100%);
+      border-color: var(--primary);
+    }
+
+    /* Main Content Wrapper */
+    main.main-viewport {
+      margin-left: 270px;
+      flex: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    main.main-viewport.expanded {
+      margin-left: 0;
+    }
+
+    /* Top Navbar Bar */
+    .top-navbar {
+      height: 72px;
+      background: rgba(13, 6, 30, 0.5);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 24px;
+      position: sticky;
+      top: 0;
+      z-index: 999;
+    }
+
+    .navbar-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .menu-toggle-btn {
+      font-size: 18px;
+      color: var(--text-main);
+      cursor: pointer;
+      background: none;
+      border: none;
+    }
+
+    .nav-title { font-size: 16px; font-weight: 800; }
+
+    .navbar-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .live-clock-wrapper {
+      text-align: right;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px;
+      color: var(--secondary);
+    }
+
+    /* Content Area */
+    .dashboard-content {
+      padding: 24px;
+      flex: 1;
+    }
+
+    /* Analytics Dashboard Grid */
+    .stats-matrix-8 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .stat-metric-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .stat-metric-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      color: var(--secondary);
+    }
+
+    .stat-metric-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .stat-metric-label {
+      font-size: 9.5px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .stat-metric-val {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .stat-metric-val.purple { color: var(--primary); }
+    .stat-metric-val.cyan { color: var(--secondary); }
+    .stat-metric-val.gold { color: var(--gold); }
+
+    /* Action bar */
+    .action-toolbar-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.03);
+      border-radius: 20px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    @media (max-width: 600px) {
+      .action-toolbar-card { flex-direction: column; }
+    }
+
+    .search-input-wrapper {
+      flex: 1;
+      position: relative;
+    }
+
+    .search-input-wrapper i {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 13px 16px 13px 44px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      color: var(--text-main);
+      font-size: 13px;
+      outline: none;
+    }
+
+    .search-input:focus { border-color: var(--secondary); }
+
+    .select-filter {
+      background: rgba(13, 6, 30, 0.95);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 0 16px;
+      border-radius: 14px;
+      font-size: 13px;
+      font-weight: 600;
+      outline: none;
+      height: 44px;
+    }
+
+    /* Core Directory List Table Grid */
+    .table-container-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-premium);
+      padding: 20px;
+      overflow-x: auto;
+      margin-bottom: 20px;
+    }
+
+    .referrals-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 12.5px;
+    }
+
+    .referrals-table th {
+      color: var(--text-muted);
+      font-weight: 600;
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      text-transform: uppercase;
+      font-size: 9.5px;
+    }
+
+    .referrals-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+      vertical-align: middle;
+    }
+
+    .referrals-table tbody tr:hover { background: rgba(255,255,255,0.01); }
+
+    .avatar-cell {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 12px;
+    }
+
+    .tbl-status-badge {
+      font-size: 8.5px;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 12px;
+      text-transform: uppercase;
+    }
+
+    .tbl-status-badge.valid { background: rgba(16, 185, 129, 0.08); color: var(--success); border: 1px solid rgba(16,185,129,0.2); }
+    .tbl-status-badge.pending { background: rgba(245, 158, 11, 0.08); color: var(--warning); border: 1px solid rgba(245,158,11,0.2); }
+
+    /* Action buttons in columns */
+    .btn-panel-action {
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 800;
+      border: none;
+      cursor: pointer;
+      margin-right: 4px;
+      transition: all 0.2s;
+    }
+
+    .btn-panel-action.view { background: rgba(6, 182, 212, 0.12); color: var(--secondary); border: 1px solid rgba(6,182,212,0.2); }
+    .btn-panel-action.view:hover { background: var(--secondary); color: white; }
+
+    .btn-panel-action.edit { background: rgba(168, 85, 247, 0.12); color: var(--primary); border: 1px solid rgba(168,85,247,0.2); }
+    .btn-panel-action.edit:hover { background: var(--primary); color: white; }
+
+    .btn-panel-action.reset { background: rgba(245, 158, 11, 0.12); color: var(--warning); border: 1px solid rgba(245,158,11,0.2); }
+    .btn-panel-action.reset:hover { background: var(--warning); color: white; }
+
+    /* Premium Modal Overlays Dialog Drawer */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 2, 12, 0.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease;
+    }
+
+    .modal-overlay.active { opacity: 1; pointer-events: all; }
+
+    .modal-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-premium);
+      width: 100%;
+      max-width: 520px;
+      padding: 24px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-card::-webkit-scrollbar { width: 3px; }
+    .modal-card::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.05); }
+
+    .modal-title {
+      font-size: 15px;
+      font-weight: 800;
+      margin-bottom: 18px;
+      text-align: center;
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 5px;
+      text-transform: uppercase;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 10px 14px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      color: var(--text-main);
+      font-size: 13px;
+      outline: none;
+    }
+
+    /* Double Column Details visual list */
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .detail-item-card {
+      background: rgba(255,255,255,0.01);
+      border: 1px solid rgba(255,255,255,0.03);
+      padding: 10px;
+      border-radius: 12px;
+    }
+
+    .detail-item-label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; }
+    .detail-item-val { font-family: 'Share Tech Mono', monospace; font-size: 13px; font-weight: 700; color: #fff; margin-top: 3px; }
+
+    /* Team Lists visual badges inside Modal Drawer */
+    .team-header-lbl {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .team-members-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 180px;
+      overflow-y: auto;
+      padding-right: 4px;
+      background: rgba(0,0,0,0.15);
+      border-radius: 14px;
+      padding: 10px;
+    }
+
+    .team-member-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11.5px;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.02);
+    }
+    .team-member-row:last-child { border-bottom: none; }
+
+    .team-member-name { font-weight: 700; color: var(--text-main); }
+    .team-member-date { font-size: 9px; color: var(--text-muted); }
+
+    .modal-buttons-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .btn-modal {
+      flex: 1;
+      padding: 12.5px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-cancel { background: rgba(255,255,255,0.04); color: var(--text-main); border: 1px solid var(--border-color); }
+    .btn-save { background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); color: white; }
+
+    /* Skeletons */
+    .skeleton-box { height: 74px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; position: relative; overflow: hidden; margin-bottom: 10px; }
+    .skeleton-box::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.02), transparent); transform: translateX(-100%); animation: shim 1.5s infinite; }
+    @keyframes shim { 100% { transform: translateX(100%); } }
+
+    /* Empty state */
+    .empty-state-card {
+      background: var(--bg-card);
+      border: 1.5px dashed var(--border-color);
+      border-radius: var(--radius-premium);
+      padding: 50px 24px;
+      text-align: center;
+    }
+
+    .empty-state-card i {
+      font-size: 38px;
+      color: rgba(168, 85, 247, 0.3);
+      margin-bottom: 14px;
+    }
+
+    .empty-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 6px;
+    }
+
+    .empty-subtitle {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Footer */
+    footer.terminal-footer {
+      background: rgba(13, 6, 30, 0.3);
+      border-top: 1px solid rgba(255,255,255,0.03);
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar Drawer menus (17 Items) -->
+  <aside class="sidebar" id="terminalSidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo"><i class="fa-solid fa-circle-nodes"></i></div>
+      <div class="sidebar-title">
+        TNMINING <span>Administrative Console</span>
+      </div>
+    </div>
+    <div class="sidebar-menu">
+      <a href="admin-dashboard.html" class="menu-link"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+      <a href="admin-users.html" class="menu-link"><i class="fa-solid fa-users"></i> Users</a>
+      <a href="admin-mining.html" class="menu-link"><i class="fa-solid fa-cube"></i> Mining</a>
+      <a href="admin-withdraw.html" class="menu-link"><i class="fa-solid fa-money-check-dollar"></i> Withdraw</a>
+      <a href="admin-buy-power.html" class="menu-link"><i class="fa-solid fa-bolt"></i> Buy Power</a>
+      <a href="admin-task.html" class="menu-link"><i class="fa-solid fa-list-check"></i> Tasks</a>
+      <a href="admin-referral.html" class="menu-link active"><i class="fa-solid fa-people-roof"></i> Referral</a>
+      <a href="admin-announcement.html" class="menu-link"><i class="fa-solid fa-bullhorn"></i> Announcements</a>
+      <a href="admin-statistics.html" class="menu-link"><i class="fa-solid fa-database"></i> Statistics</a>
+      <a href="admin-package-orders.html" class="menu-link"><i class="fa-solid fa-cart-shopping"></i> Package Orders</a>
+      <a href="admin-wallet.html" class="menu-link"><i class="fa-solid fa-wallet"></i> Wallet</a>
+      <a href="admin-notification.html" class="menu-link"><i class="fa-solid fa-bell"></i> Notifications</a>
+      <a href="admin-report.html" class="menu-link"><i class="fa-solid fa-flag"></i> Reports</a>
+      <a href="admin-logs.html" class="menu-link"><i class="fa-solid fa-clock-rotate-left"></i> Logs</a>
+      <a href="admin-settings.html" class="menu-link"><i class="fa-solid fa-sliders"></i> Settings</a>
+      <a href="admin-security.html" class="menu-link"><i class="fa-solid fa-user-shield"></i> Security</a>
+      <a href="admin-profile.html" class="menu-link"><i class="fa-solid fa-user-gear"></i> Profile</a>
+    </div>
+  </aside>
+
+  <!-- Main Administrative Viewport -->
+  <main class="main-viewport" id="mainViewport">
+    
+    <!-- Top Nav -->
+    <nav class="top-navbar">
+      <div class="navbar-left">
+        <button class="menu-toggle-btn" id="sidebarToggle"><i class="fa-solid fa-bars-staggered"></i></button>
+        <span class="nav-title">Decentralised Alliance Referral trees</span>
+      </div>
+      <div class="navbar-right">
+        <div class="live-clock-wrapper">
+          <div id="navLiveDate">--- --, ----</div>
+          <div id="navLiveTime" style="font-weight:700;">--:--:-- UTC</div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Content Workspace -->
+    <div class="dashboard-content">
+      
+      <!-- Metrics deck (8 dynamic cards) -->
+      <section class="stats-matrix-8">
+        
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-people-roof"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Total Referrals</span>
+            <span class="stat-metric-val purple" id="cardTotalRef">0</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-circle-nodes"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Alliance links</span>
+            <span class="stat-metric-val" id="cardLinks">0</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-circle-check"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Valid Alliance</span>
+            <span class="stat-metric-val cyan" id="cardValidRef">0</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Pending Alliance</span>
+            <span class="stat-metric-val gold" id="cardPendingRef">0</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-bolt"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Ref Power rewarded</span>
+            <span class="stat-metric-val purple" id="cardPowerRewarded" style="font-size:15px;">0 HP</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-coins"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Market Commissions</span>
+            <span class="stat-metric-val cyan" id="cardCommissions" style="font-size:15px;">0 HP</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-calendar-day"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Today's invites</span>
+            <span class="stat-metric-val" id="cardTodayInvites">0</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-award"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Today's Commissions</span>
+            <span class="stat-metric-val gold" id="cardTodayRewards">0 HP</span>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Advanced Filters bar -->
+      <section class="search-filter-card">
+        <div class="toolbar-row">
+          
+          <div class="search-input-wrapper">
+            <input type="text" class="search-input" id="searchField" placeholder="Search by Username, User UID, Referral code/link...">
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </div>
+
+          <select class="select-filter" id="filterStatusSelect">
+            <option value="all">All Members trees</option>
+            <option value="has_referrals">Has active affiliates</option>
+            <option value="no_referrals">No affiliates</option>
+          </select>
+
+          <select class="select-filter" id="filterSortingSelect">
+            <option value="newest">Sort: Newest joins</option>
+            <option value="oldest">Sort: Oldest joins</option>
+            <option value="referrals_count">Sort: Referral count</option>
+          </select>
+
+        </div>
+      </section>
+
+      <!-- Shimmer skeletons loaders -->
+      <div id="skeletonsContainer">
+        <div class="skeleton-box"></div>
+        <div class="skeleton-box"></div>
+      </div>
+
+      <!-- Main Referral list directory table card -->
+      <div class="table-container-card" id="referralsTableCard" style="display:none;">
+        <table class="referrals-table">
+          <thead>
+            <tr>
+              <th>Profile</th>
+              <th>Username</th>
+              <th>UID Address</th>
+              <th>Alliance Code</th>
+              <th>Invited By (Inviter)</th>
+              <th>Total referrals</th>
+              <th>Join Timestamp</th>
+              <th>Actions panel</th>
+            </tr>
+          </thead>
+          <tbody id="referralsTableBody">
+            <!-- Rendered in script -->
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+    <!-- Panel Footer -->
+    <footer class="terminal-footer">
+      <span>TNMINING SYSTEM CONTROL CORE - REFERRAL DIRECTORY</span>
+      <span style="font-family:'Share Tech Mono', monospace; color:var(--secondary);">Realtime Sync: Online</span>
+    </footer>
+
+  </main>
+
+  <!-- ==================== PREMIUM EDIT DETAILS MODAL DRAWER ==================== -->
+
+  <!-- Modal: Deep Team view modal with integrated Progress list (Rule 8 & 9) -->
+  <div class="modal-overlay" id="viewReferralModal">
+    <div class="modal-card">
+      <h3 class="modal-title" id="viewModalTitle">@username's Alliance Network</h3>
+      
+      <div class="detail-grid">
+        <div class="detail-item-card">
+          <span class="detail-item-label">Personal Alliance Code</span>
+          <div class="detail-item-val" id="viewRefCode">-----</div>
+        </div>
+        <div class="detail-item-card">
+          <span class="detail-item-label">Invited By</span>
+          <div class="detail-item-val" id="viewInviter">-----------</div>
+        </div>
+        <div class="detail-item-card">
+          <span class="detail-item-label">Total Referrals Size</span>
+          <div class="detail-item-val" id="viewTotalRef">0 Members</div>
+        </div>
+        <div class="detail-item-card">
+          <span class="detail-item-label">Current total power</span>
+          <div class="detail-item-val" id="viewCurrentPower" style="color:var(--primary);">0 HP</div>
+        </div>
+      </div>
+
+      <!-- Teammates List Directory (Rule 8) -->
+      <span class="team-header-lbl"><i class="fa-solid fa-people-group"></i> Direct Invites list</span>
+      <div class="team-members-stack" id="viewTeamContainer">
+        <!-- Rendered dynamically -->
+        <div class="team-member-row">No alliance partner connections logged.</div>
+      </div>
+
+      <div class="modal-buttons-row">
+        <button class="btn-modal btn-cancel" onclick="closeModal('viewReferralModal')" style="flex:auto;">Close Alliance board</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal B: Edit Referral properties Drawer -->
+  <div class="modal-overlay" id="editReferralModal">
+    <div class="modal-card">
+      <h3 class="modal-title"><i class="fa-solid fa-user-pen" style="color:var(--primary);"></i> Edit Alliance Details</h3>
+      
+      <div class="form-group">
+        <label class="form-label">Invitation Referral Code</label>
+        <input type="text" class="form-input" id="editCodeInput" required autocomplete="off">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Inviter UID Address (Referred By)</label>
+        <input type="text" class="form-input" id="editInviterInput" required autocomplete="off">
+      </div>
+
+      <div class="modal-buttons-row">
+        <button class="btn-modal btn-cancel" onclick="closeModal('editReferralModal')">Cancel</button>
+        <button class="btn-modal btn-save" id="saveEditBtn">Commit Updates</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Firebase Legacy Compat SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+  <script>
+    // Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDuQICVoC10i62PQMS6cX37t1eoeTg5zsc",
+      authDomain: "mining-c7b26.firebaseapp.com",
+      databaseURL: "https://mining-c7b26-default-rtdb.firebaseio.com",
+      projectId: "mining-c7b26",
+      storageBucket: "mining-c7b26.firebasestorage.app",
+      messagingSenderId: "873757658723",
+      appId: "1:873757658723:web:18a4af95953a08b440b256"
+    };
+
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.database();
+
+    // DOM selectors
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const terminalSidebar = document.getElementById('terminalSidebar');
+    const mainViewport = document.getElementById('mainViewport');
+    const navLiveDate = document.getElementById('navLiveDate');
+    const navLiveTime = document.getElementById('navLiveTime');
+
+    // Stats Displays
+    const cardTotalRef = document.getElementById('cardTotalRef');
+    const cardLinks = document.getElementById('cardLinks');
+    const cardValidRef = document.getElementById('cardValidRef');
+    const cardPendingRef = document.getElementById('cardPendingRef');
+    const cardPowerRewarded = document.getElementById('cardPowerRewarded');
+    const cardCommissions = document.getElementById('cardCommissions');
+    const cardTodayInvites = document.getElementById('cardTodayInvites');
+    const cardTodayRewards = document.getElementById('cardTodayRewards');
+
+    const searchField = document.getElementById('searchField');
+    const filterStatusSelect = document.getElementById('filterStatusSelect');
+    const filterSortingSelect = document.getElementById('filterSortingSelect');
+
+    const skeletonsContainer = document.getElementById('skeletonsContainer');
+    const referralsTableCard = document.getElementById('referralsTableCard');
+    const referralsTableBody = document.getElementById('referralsTableBody');
+
+    // Modals elements View
+    const viewReferralModal = document.getElementById('viewReferralModal');
+    const viewModalTitle = document.getElementById('viewModalTitle');
+    const viewRefCode = document.getElementById('viewRefCode');
+    const viewInviter = document.getElementById('viewInviter');
+    const viewTotalRef = document.getElementById('viewTotalRef');
+    const viewCurrentPower = document.getElementById('viewCurrentPower');
+    const viewTeamContainer = document.getElementById('viewTeamContainer');
+
+    // Modals elements Edit
+    const editReferralModal = document.getElementById('editReferralModal');
+    const editCodeInput = document.getElementById('editCodeInput');
+    const editInviterInput = document.getElementById('editInviterInput');
+    const saveEditBtn = document.getElementById('saveEditBtn');
+    const toastContainer = document.getElementById('toastContainer');
+
+    let globalUsersList = {};
+    let activeEditUid = null;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      // Toggle collapsible navigation sidebar drawer
+      sidebarToggle.addEventListener('click', () => {
+        terminalSidebar.classList.toggle('collapsed');
+        terminalSidebar.classList.toggle('mobile-open');
+        mainViewport.classList.toggle('expanded');
+      });
+
+      startTerminalTimerClock();
+      initializeReferralsListener();
+    });
+
+    function showToast(message, type = 'success') {
+      const toast = document.createElement('div');
+      toast.classList.add('toast', type);
+      const icon = type === 'success' ? 'fa-circle-check' : 'fa-triangle-exclamation';
+      toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${message}</span>`;
+      toastContainer.appendChild(toast);
+      setTimeout(() => toast.classList.add('show'), 50);
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    function startTerminalTimerClock() {
+      setInterval(() => {
+        const utcDate = new Date();
+        navLiveDate.textContent = utcDate.toLocaleDateString('en-US', {
+          year: 'numeric', month: 'long', day: 'numeric'
+        });
+        navLiveTime.textContent = utcDate.toUTCString().replace("GMT", "UTC");
+      }, 1000);
+    }
+
+    // Connect referrals listener
+    function initializeReferralsListener() {
+      db.ref('Users').on('value', (snapshot) => {
+        skeletonsContainer.style.display = 'none';
+        referralsTableCard.style.display = 'block';
+
+        if (!snapshot.exists()) {
+          referralsTableBody.innerHTML = `<tr><td colspan="8" class="empty-state">No user nodes loaded in project.</td></tr>`;
+          return;
+        }
+
+        globalUsersList = snapshot.val();
+        
+        calculateReferralNetworkStats();
+        processSortingAndFiltering();
+      });
+    }
+
+    // Calculate aggregated stats (Rule 3 Statistics)
+    function calculateReferralNetworkStats() {
+      const users = Object.values(globalUsersList);
+      
+      let totalRefUsers = 0;
+      let totalValid = 0;
+      let totalPending = 0;
+      let totalBaseHPBonus = 0;
+      let totalCommissionHPBonus = 0;
+
+      let todayInvitesCount = 0;
+      let todayCommissionsGained = 0;
+
+      const startOfToday = new Date().setHours(0,0,0,0);
+
+      // Iterate through each inviter connection
+      users.forEach((user) => {
+        if (user.referredBy) {
+          totalRefUsers++;
+          
+          if (user.createdAt && user.createdAt > startOfToday) {
+            todayInvitesCount++;
+          }
+        }
+      });
+
+      // Scan global Referrals logs to sum exact completed HP rewards
+      db.ref('Referrals').once('value', (refSnapshot) => {
+        if (refSnapshot.exists()) {
+          const rawReferrals = refSnapshot.val();
+          
+          Object.keys(rawReferrals).forEach((inviterUid) => {
+            const list = rawReferrals[inviterUid];
+            
+            Object.keys(list).forEach((referredUid) => {
+              const rec = list[referredUid];
+              
+              if (rec.status === 'Valid') {
+                totalValid++;
+                totalBaseHPBonus += 200; // Registration milestone
+                if (rec.p2_claimed) totalBaseHPBonus += 1000;
+                if (rec.p3_claimed) totalBaseHPBonus += 2000;
+              } else {
+                totalPending++;
+              }
+
+              const commissions = parseInt(rec.commissionsGained || 0);
+              totalCommissionHPBonus += commissions;
+            });
+          });
+        }
+
+        cardTotalRef.textContent = totalRefUsers;
+        cardLinks.textContent = users.length; // Each registered user has their own unique alliance link code
+        cardValidRef.textContent = totalValid;
+        cardPendingRef.textContent = totalPending;
+        cardPowerRewarded.textContent = `${Number(totalBaseHPBonus).toLocaleString()} HP`;
+        cardCommissions.textContent = `${Number(totalCommissionHPBonus).toLocaleString()} HP`;
+        cardTodayInvites.textContent = todayInvitesCount;
+        cardTodayRewards.textContent = "0 HP"; // placeholder today's rates
+      });
+    }
+
+    // Search and filter alliance trees (Rule 6 & 7 Filters)
+    function processSortingAndFiltering() {
+      const query = searchField.value.trim().toLowerCase();
+      const statusFilter = filterStatusSelect.value;
+      const sortingFilter = filterSortingSelect.value;
+
+      let usersArray = Object.keys(globalUsersList).map(key => globalUsersList[key]);
+
+      // Apply Search (Rule 6)
+      if (query) {
+        usersArray = usersArray.filter(u => 
+          (u.username && u.username.toLowerCase().includes(query)) ||
+          (u.uid && u.uid.toLowerCase().includes(query)) ||
+          (u.referredBy && u.referredBy.toLowerCase().includes(query))
+        );
+      }
+
+      // Apply status Filter Check (Rule 7)
+      if (statusFilter !== 'all') {
+        if (statusFilter === 'has_referrals') {
+          usersArray = usersArray.filter(u => (u.referralsCount || 0) > 0);
+        } else if (statusFilter === 'no_referrals') {
+          usersArray = usersArray.filter(u => (u.referralsCount || 0) === 0);
+        }
+      }
+
+      // Apply Sorting Filters (Rule 7 Newest/Oldest)
+      if (sortingFilter === 'newest') {
+        usersArray.sort((a,b) => (b.createdAt || 0) - (a.createdAt || 0));
+      } else if (sortingFilter === 'oldest') {
+        usersArray.sort((a,b) => (a.createdAt || 0) - (b.createdAt || 0));
+      } else if (sortingFilter === 'referrals_count') {
+        usersArray.sort((a,b) => (b.referralsCount || 0) - (a.referralsCount || 0));
+      }
+
+      renderReferralsTable(usersArray);
+    }
+
+    // Render Table Directory listings
+    function renderReferralsTable(list) {
+      referralsTableBody.innerHTML = "";
+
+      if (list.length === 0) {
+        referralsTableBody.innerHTML = `<tr><td colspan="8" class="empty-state">No matching users trees found.</td></tr>`;
+        return;
+      }
+
+      list.forEach((u) => {
+        const tr = document.createElement('tr');
+        
+        const username = u.username ? (u.username.charAt(0).toUpperCase() + u.username.slice(1)) : "Miner";
+        const initials = username.charAt(0).toUpperCase();
+
+        const formattedDate = new Date(u.createdAt || Date.now()).toLocaleDateString();
+
+        const shortLink = `https://unlimited-earning.github.io/-/register.html?ref=${u.uid.substring(0,6)}...`;
+        
+        // Find Inviter Name (referredBy profile matches)
+        let inviterName = "none";
+        if (u.referredBy && globalUsersList[u.referredBy]) {
+          const match = globalUsersList[u.referredBy];
+          inviterName = match.username ? `@${match.username}` : "alliance_member";
+        }
+
+        tr.innerHTML = `
+          <td><div class="avatar-cell">${initials}</div></td>
+          <td><strong>@${username}</strong></td>
+          <td style="font-family:'Share Tech Mono', monospace; font-size:10px;">${u.uid}</td>
+          <td><span class="reward-indicator-badge" style="color:var(--secondary); background:rgba(6,182,212,0.06); border-color:rgba(6,182,212,0.18);">${u.uid.substring(0,8).toUpperCase()}</span></td>
+          <td style="font-weight:700; color:var(--primary);">${inviterName}</td>
+          <td style="font-family:'Share Tech Mono', monospace; font-weight:700;">${u.referralsCount || 0} Affiliates</td>
+          <td>${formattedDate}</td>
+          <td>
+            <button class="btn-panel-action view" onclick="openViewAllianceModal('${u.uid}')">Alliance View</button>
+            <button class="btn-panel-action edit" onclick="openEditReferralModal('${u.uid}')">Edit Codes</button>
+            <button class="btn-panel-action reset" onclick="resetAffiliateMilestones('${u.uid}')">Reset Boni</button>
+          </td>
+        `;
+        referralsTableBody.appendChild(tr);
+      });
+    }
+
+    // Modal view alliance network maps (Rule 8 & 9)
+    window.openViewAllianceModal = function(uid) {
+      const user = globalUsersList[uid];
+      if (!user) return;
+
+      viewModalTitle.textContent = `@${user.username}'s Alliance Network Map`;
+      viewRefCode.textContent = uid.substring(0, 8).toUpperCase();
+      
+      let inviterName = "none";
+      if (user.referredBy && globalUsersList[user.referredBy]) {
+        inviterName = `@${globalUsersList[user.referredBy].username}`;
+      }
+      viewInviter.textContent = inviterName;
+
+      viewTotalRef.textContent = `${user.referralsCount || 0} Referred users`;
+      viewCurrentPower.textContent = `${Number(user.power || 1000).toLocaleString()} HP`;
+
+      viewTeamContainer.innerHTML = "Loading Alliance directory...";
+
+      // Fetch all direct referred users (Teammates details Rule 8)
+      db.ref(`Referrals/${uid}`).once('value', (snapshot) => {
+        viewTeamContainer.innerHTML = "";
+
+        if (!snapshot.exists()) {
+          viewTeamContainer.innerHTML = `<div class="team-member-row">No direct invited alliance connections logged.</div>`;
+          return;
+        }
+
+        const list = snapshot.val();
+        Object.keys(list).forEach((referredUid) => {
+          const rec = list[referredUid];
+          const referredProfile = globalUsersList[referredUid];
+          
+          if (!referredProfile) return;
+
+          const memberName = referredProfile.username ? (referredProfile.username.charAt(0).toUpperCase() + referredProfile.username.slice(1)) : "Miner";
+          
+          // Milestones verification metrics
+          const completedTasksCount = referredProfile.completedTasks ? Object.keys(referredProfile.completedTasks).length : 0;
+          const completedMiningCount = parseInt(referredProfile.completedMiningCycles || 0);
+
+          const hasPassedPhase1 = (completedTasksCount >= 1) && ((referredProfile.miningStatus === 'active') || (completedMiningCount > 0));
+          const hasPassedPhase2 = completedMiningCount >= 1;
+          const hasPassedPhase3 = completedMiningCount >= 10;
+          const commissions = parseInt(rec.commissionsGained || 0);
+
+          // Phase icon states
+          const p1_icon = hasPassedPhase1 ? "fa-circle-check" : "fa-circle-xmark";
+          const p2_icon = hasPassedPhase2 ? "fa-circle-check" : "fa-circle-xmark";
+          const p3_icon = hasPassedPhase3 ? "fa-circle-check" : "fa-circle-xmark";
+
+          const row = document.createElement('div');
+          row.style.background = "rgba(255,255,255,0.01)";
+          row.style.border = "1px solid rgba(255,255,255,0.03)";
+          row.style.borderRadius = "12px";
+          row.style.padding = "10px";
+          row.style.marginBottom = "8px";
+
+          row.innerHTML = `
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:11px;">
+              <span class="team-member-name">@${memberName}</span>
+              <span style="font-family:'Share Tech Mono', monospace; color:var(--primary); font-weight:700;">${Number(referredProfile.power || 1000).toLocaleString()} HP</span>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:4px; font-size:9.5px; color:var(--text-muted);">
+              <div style="display:flex; justify-content:space-between; color:${hasPassedPhase1 ? 'var(--success)' : ''};">
+                <span>Phase 1 milestone (Register+Task)</span>
+                <span><i class="fa-solid ${p1_icon}"></i> +200 HP</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; color:${hasPassedPhase2 ? 'var(--success)' : ''};">
+                <span>Phase 2 milestone (1 Claim)</span>
+                <span><i class="fa-solid ${p2_icon}"></i> +1,000 HP</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; color:${hasPassedPhase3 ? 'var(--success)' : ''};">
+                <span>Phase 3 milestone (10 Claims)</span>
+                <span><i class="fa-solid ${p3_icon}"></i> +2,000 HP</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; color:${commissions > 0 ? 'var(--gold)' : ''}; font-weight:${commissions > 0 ? '700' : ''};">
+                <span>Node commissions (20%)</span>
+                <span>+${commissions.toLocaleString()} HP</span>
+              </div>
+            </div>
+          `;
+          viewTeamContainer.appendChild(row);
+        });
+      });
+
+      document.getElementById('viewReferralModal').classList.add('active');
+    };
+
+    // Modal Edit referral details (Rule 12)
+    window.openEditReferralModal = function(uid) {
+      activeEditUid = uid;
+      const user = globalUsersList[uid];
+      if (!user) return;
+
+      editCodeInput.value = uid.substring(0, 8).toUpperCase();
+      editInviterInput.value = user.referredBy || "";
+
+      document.getElementById('editReferralModal').classList.add('active');
+    };
+
+    saveEditBtn.addEventListener('click', () => {
+      if (!activeEditUid) return;
+
+      const newInviter = editInviterInput.value.trim();
+
+      // Basic mapping sanity verification to prevent loops
+      if (newInviter === activeEditUid) {
+        showToast("Access Denied: User cannot refer themselves.", "error");
+        return;
+      }
+
+      db.ref(`Users/${activeEditUid}`).update({
+        referredBy: newInviter
+      }).then(() => {
+        showToast("Alliance connections parameters updated successfully!", "success");
+        closeModal('editReferralModal');
+      });
+    });
+
+    window.closeModal = function(modalId) {
+      document.getElementById(modalId).classList.remove('active');
+    };
+
+    // Reset referred milestones parameters to allow re-claims (Rule 12 Reset Rewards)
+    window.resetAffiliateMilestones = function(uid) {
+      if (confirm("Reset dynamic referral bonus claim logs? This clears completed milestone tags inside directory maps.")) {
+        // Query connected direct invite logs
+        db.ref(`Referrals/${uid}`).once('value', async (snapshot) => {
+          if (!snapshot.exists()) {
+            showToast("No milestone records logged for user.", "error");
+            return;
+          }
+
+          const records = snapshot.val();
+          const keys = Object.keys(records);
+
+          // Flush connection tags under referrals
+          const updateFlushes = {};
+          keys.forEach((key) => {
+            updateFlushes[`Referrals/${uid}/${key}/p1_claimed`] = null;
+            updateFlushes[`Referrals/${uid}/${key}/p2_claimed`] = null;
+            updateFlushes[`Referrals/${uid}/${key}/p3_claimed`] = null;
+            updateFlgesStatus = "Pending";
+            updateFlushes[`Referrals/${uid}/${key}/status`] = "Pending";
+          });
+
+          await db.ref().update(updateFlushes);
+          showToast("Alliance bonus milestone flags flushed and reset successfully!", "success");
+        });
+      }
+    };
+
+    // Input handlers
+    searchField.addEventListener('input', () => {
+      processSortingAndFiltering();
+    });
+
+    filterStatusSelect.addEventListener('change', () => {
+      processSortingAndFiltering();
+    });
+
+    filterSortingSelect.addEventListener('change', () => {
+      processSortingAndFiltering();
+    });
+  </script>
+</body>
+</html>
