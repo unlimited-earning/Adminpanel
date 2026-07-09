@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>TNMINING - Withdraw Management</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    :root {
+      --bg-primary: #020009;
+      --bg-secondary: #070314;
+      --bg-card: rgba(13, 6, 30, 0.65);
+      --border-color: rgba(168, 85, 247, 0.18);
+      --primary: #a855f7;
+      --secondary: #06b6d4;
+      --gold: #fbbf24;
+      --gold-glow: rgba(251, 191, 36, 0.35);
+      --primary-glow: rgba(168, 85, 247, 0.3);
+      --secondary-glow: rgba(6, 182, 212, 0.2);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --success: #10b981;
+      --error: #ef4444;
+      --warning: #f59e0b;
+      --radius-premium: 24px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(168, 85, 247, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(6, 182, 212, 0.08) 0%, transparent 40%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+    }
+
+    /* Collapsible Navigation Sidebar (17 Items) */
+    aside.sidebar {
+      width: 270px;
+      background: rgba(8, 3, 20, 0.95);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 1000;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    aside.sidebar.collapsed {
+      transform: translateX(-270px);
+    }
+
+    .sidebar-header {
+      padding: 24px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+
+    .sidebar-logo {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: white;
+      box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+    }
+
+    .sidebar-title {
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    .sidebar-title span {
+      display: block;
+      font-size: 9px;
+      font-family: 'Share Tech Mono', monospace;
+      color: var(--secondary);
+    }
+
+    .sidebar-menu {
+      flex: 1;
+      padding: 16px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      overflow-y: auto;
+    }
+
+    .menu-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 14px;
+      border-radius: 12px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 12.5px;
+      font-weight: 600;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+
+    .menu-link i {
+      font-size: 14px;
+      width: 18px;
+      text-align: center;
+    }
+
+    .menu-link:hover, .menu-link.active {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.03);
+      border-color: var(--border-color);
+    }
+
+    .menu-link.active {
+      background: linear-gradient(135deg, rgba(168, 85, 247, 0.12) 0%, rgba(6, 182, 212, 0.12) 100%);
+      border-color: var(--primary);
+    }
+
+    /* Main Content Wrapper */
+    main.main-viewport {
+      margin-left: 270px;
+      flex: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    main.main-viewport.expanded {
+      margin-left: 0;
+    }
+
+    /* Top Navbar Bar */
+    .top-navbar {
+      height: 72px;
+      background: rgba(13, 6, 30, 0.5);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 24px;
+      position: sticky;
+      top: 0;
+      z-index: 999;
+    }
+
+    .navbar-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .menu-toggle-btn {
+      font-size: 18px;
+      color: var(--text-main);
+      cursor: pointer;
+      background: none;
+      border: none;
+    }
+
+    .nav-title {
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .navbar-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .live-clock-wrapper {
+      text-align: right;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px;
+      color: var(--secondary);
+    }
+
+    /* Dashboard body layout */
+    .dashboard-content {
+      padding: 24px;
+      flex: 1;
+    }
+
+    /* Analytics Dashboard Grid */
+    .stats-matrix-8 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .stat-metric-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .stat-metric-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      color: var(--secondary);
+    }
+
+    .stat-metric-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .stat-metric-label {
+      font-size: 9.5px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .stat-metric-val {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .stat-metric-val.purple { color: var(--primary); }
+    .stat-metric-val.cyan { color: var(--secondary); }
+    .stat-metric-val.gold { color: var(--gold); }
+
+    /* Search & Filter Toolbars */
+    .search-filter-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.03);
+      border-radius: 20px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+    }
+
+    .toolbar-row {
+      display: flex;
+      gap: 12px;
+    }
+
+    @media (max-width: 600px) {
+      .toolbar-row { flex-direction: column; }
+    }
+
+    .search-input-wrapper {
+      flex: 1;
+      position: relative;
+    }
+
+    .search-input-wrapper i {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 13px 16px 13px 44px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      color: var(--text-main);
+      font-size: 13px;
+      outline: none;
+    }
+
+    .search-input:focus { border-color: var(--secondary); }
+
+    .select-filter {
+      background: rgba(13, 6, 30, 0.95);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 0 16px;
+      border-radius: 14px;
+      font-size: 13px;
+      font-weight: 600;
+      outline: none;
+      height: 44px;
+    }
+
+    /* Core Directory List Table Grid */
+    .table-container-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-premium);
+      padding: 20px;
+      overflow-x: auto;
+      margin-bottom: 20px;
+    }
+
+    .withdraws-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 12.5px;
+    }
+
+    .withdraws-table th {
+      color: var(--text-muted);
+      font-weight: 600;
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      text-transform: uppercase;
+      font-size: 9.5px;
+    }
+
+    .withdraws-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+      vertical-align: middle;
+    }
+
+    .withdraws-table tbody tr:hover { background: rgba(255,255,255,0.01); }
+
+    .avatar-cell {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 12px;
+    }
+
+    .status-badge {
+      font-size: 8.5px;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 20px;
+      text-transform: uppercase;
+    }
+
+    .status-badge.pending { background: rgba(245, 158, 11, 0.08); color: var(--warning); border: 1px solid rgba(245,158,11,0.2); }
+    .status-badge.completed { background: rgba(16, 185, 129, 0.08); color: var(--success); border: 1px solid rgba(16,185,129,0.2); }
+    .status-badge.rejected { background: rgba(239, 68, 68, 0.08); color: var(--error); border: 1px solid rgba(239,68,68,0.2); }
+
+    /* Action buttons in columns */
+    .btn-panel-action {
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 800;
+      border: none;
+      cursor: pointer;
+      margin-right: 4px;
+      transition: all 0.2s;
+    }
+
+    .btn-panel-action.view { background: rgba(6, 182, 212, 0.12); color: var(--secondary); border: 1px solid rgba(6,182,212,0.2); }
+    .btn-panel-action.view:hover { background: var(--secondary); color: white; }
+
+    .btn-panel-action.approve { background: rgba(16, 185, 129, 0.12); color: var(--success); border: 1px solid rgba(16,185,129,0.2); }
+    .btn-panel-action.approve:hover { background: var(--success); color: white; }
+
+    .btn-panel-action.reject { background: rgba(239, 68, 68, 0.12); color: var(--error); border: 1px solid rgba(239,68,68,0.2); }
+    .btn-panel-action.reject:hover { background: var(--error); color: white; }
+
+    /* Unified Premium Modal Overlay Drawer */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 2, 12, 0.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-premium);
+      width: 100%;
+      max-width: 520px;
+      padding: 24px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-title {
+      font-size: 15px;
+      font-weight: 800;
+      margin-bottom: 18px;
+      text-align: center;
+    }
+
+    /* Modal Grid details layout */
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .detail-item-card {
+      background: rgba(255,255,255,0.01);
+      border: 1px solid rgba(255,255,255,0.03);
+      padding: 10px;
+      border-radius: 12px;
+    }
+
+    .detail-item-label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; }
+    .detail-item-val { font-family: 'Share Tech Mono', monospace; font-size: 13px; font-weight: 700; color: #fff; margin-top: 3px; }
+
+    /* Skeletons loader card */
+    .skeleton-box { height: 74px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; position: relative; overflow: hidden; margin-bottom: 10px; }
+    .skeleton-box::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.02), transparent); transform: translateX(-100%); animation: shim 1.5s infinite; }
+    @keyframes shim { 100% { transform: translateX(100%); } }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      aside.sidebar { transform: translateX(-270px); }
+      aside.sidebar.mobile-open { transform: translateX(0); }
+      main.main-viewport { margin-left: 0; }
+    }
+
+    /* Footer */
+    footer.terminal-footer {
+      background: rgba(13, 6, 30, 0.3);
+      border-top: 1px solid rgba(255,255,255,0.03);
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* Alerts Toasts */
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 11000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .toast {
+      background: rgba(18, 10, 36, 0.95);
+      border: 1px solid var(--border-color);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      padding: 12px 20px;
+      border-radius: 12px;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      transform: translateX(120%);
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .toast.show { transform: translateX(0); }
+    .toast.error { border-left: 4px solid var(--error); }
+    .toast.success { border-left: 4px solid var(--success); }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar Drawer Navigation (17 items) -->
+  <aside class="sidebar" id="terminalSidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo"><i class="fa-solid fa-circle-nodes"></i></div>
+      <div class="sidebar-title">
+        TNMINING <span>Administrative Console</span>
+      </div>
+    </div>
+    <div class="sidebar-menu">
+      <a href="admin-dashboard.html" class="menu-link"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+      <a href="admin-users.html" class="menu-link"><i class="fa-solid fa-users"></i> Users</a>
+      <a href="admin-mining.html" class="menu-link"><i class="fa-solid fa-cube"></i> Mining</a>
+      <a href="admin-withdraw.html" class="menu-link active"><i class="fa-solid fa-money-check-dollar"></i> Withdraw</a>
+      <a href="admin-buy-power.html" class="menu-link"><i class="fa-solid fa-bolt"></i> Buy Power</a>
+      <a href="admin-task.html" class="menu-link"><i class="fa-solid fa-list-check"></i> Tasks</a>
+      <a href="admin-referral.html" class="menu-link"><i class="fa-solid fa-people-roof"></i> Referral</a>
+      <a href="admin-announcement.html" class="menu-link"><i class="fa-solid fa-bullhorn"></i> Announcements</a>
+      <a href="admin-statistics.html" class="menu-link"><i class="fa-solid fa-database"></i> Statistics</a>
+      <a href="admin-package-orders.html" class="menu-link"><i class="fa-solid fa-cart-shopping"></i> Package Orders</a>
+      <a href="admin-wallet.html" class="menu-link"><i class="fa-solid fa-wallet"></i> Wallet</a>
+      <a href="admin-notification.html" class="menu-link"><i class="fa-solid fa-bell"></i> Notifications</a>
+      <a href="admin-report.html" class="menu-link"><i class="fa-solid fa-flag"></i> Reports</a>
+      <a href="admin-logs.html" class="menu-link"><i class="fa-solid fa-clock-rotate-left"></i> Logs</a>
+      <a href="admin-settings.html" class="menu-link"><i class="fa-solid fa-sliders"></i> Settings</a>
+      <a href="admin-security.html" class="menu-link"><i class="fa-solid fa-user-shield"></i> Security</a>
+      <a href="admin-profile.html" class="menu-link"><i class="fa-solid fa-user-gear"></i> Profile</a>
+    </div>
+  </aside>
+
+  <!-- Main Viewport Wrapper -->
+  <main class="main-viewport" id="mainViewport">
+    
+    <!-- Top Nav -->
+    <nav class="top-navbar">
+      <div class="navbar-left">
+        <button class="menu-toggle-btn" id="sidebarToggle"><i class="fa-solid fa-bars-staggered"></i></button>
+        <span class="nav-title">Withdraw Requests Control Ledger</span>
+      </div>
+      <div class="navbar-right">
+        <div class="live-clock-wrapper">
+          <div id="navLiveDate">--- --, ----</div>
+          <div id="navLiveTime" style="font-weight:700;">--:--:-- UTC</div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Content Workspace -->
+    <div class="dashboard-content">
+      
+      <!-- Metrics deck (8 metric cards) -->
+      <section class="stats-matrix-8">
+        
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-receipt"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Total Requests</span>
+            <span class="stat-metric-val purple" id="cardTotalRequests">0</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Pending</span>
+            <span class="stat-metric-val gold" id="cardPendingCount">0</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-circle-check"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Completed</span>
+            <span class="stat-metric-val cyan" id="cardCompletedCount">0</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card" style="border-color: rgba(239, 68, 68, 0.2);">
+          <div class="stat-metric-icon" style="color:var(--error); border-color:var(--error);"><i class="fa-solid fa-circle-xmark"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Rejected</span>
+            <span class="stat-metric-val" id="cardRejectedCount" style="color:var(--error);">0</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-calendar-day"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Today's Queue</span>
+            <span class="stat-metric-val purple" id="cardTodayRequests">0</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-sack-dollar"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Today's amount</span>
+            <span class="stat-metric-val cyan" id="cardTodayAmount">$0.00</span>
+          </div>
+        </div>
+
+        <div class="stat-metric-card">
+          <div class="stat-metric-icon"><i class="fa-solid fa-wallet"></i></div>
+          <div class="stat-metric-info">
+            <span class="stat-metric-label">Total amount</span>
+            <span class="stat-metric-val gold" id="cardTotalAmount">$0.00</span>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Advanced Filter Options -->
+      <section class="search-filter-card">
+        <div class="toolbar-row">
+          
+          <div class="search-input-wrapper">
+            <input type="text" class="search-input" id="searchField" placeholder="Search by Username, User UID, Wallet address, Withdraw ID...">
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </div>
+
+          <select class="select-filter" id="filterStatusSelect">
+            <option value="all">All Request Statuses</option>
+            <option value="pending">Pending Approval</option>
+            <option value="completed">Completed/Approved</option>
+            <option value="rejected">Rejected</option>
+          </select>
+
+          <select class="select-filter" id="filterSortingSelect">
+            <option value="newest">Sort: Newest requested</option>
+            <option value="oldest">Sort: Oldest requested</option>
+            <option value="highest">Sort: Highest amount</option>
+            <option value="lowest">Sort: Lowest amount</option>
+          </select>
+
+        </div>
+      </section>
+
+      <!-- Shimmer loading box stacks -->
+      <div id="skeletonsContainer">
+        <div class="skeleton-box"></div>
+        <div class="skeleton-box"></div>
+        <div class="skeleton-box"></div>
+      </div>
+
+      <!-- Main Directory Listings Grid Card -->
+      <div class="table-container-card" id="withdrawsTableCard" style="display:none;">
+        <table class="withdraws-table">
+          <thead>
+            <tr>
+              <th>ID Address</th>
+              <th>Username</th>
+              <th>Wallet Network Target</th>
+              <th>Deduction Amount</th>
+              <th>Request Timestamp</th>
+              <th>Verified Status</th>
+              <th>Action Ledger</th>
+            </tr>
+          </thead>
+          <tbody id="withdrawsTableBody">
+            <!-- Populated dynamically via Firebase loop -->
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+    <!-- Panel Footer -->
+    <footer class="terminal-footer">
+      <span>TNMINING SYSTEM CONTROL CORE - FINANCIAL PAYOUTS DIRECTORY</span>
+      <span style="font-family:'Share Tech Mono', monospace; color:var(--secondary);">Realtime Sync: Synced</span>
+    </footer>
+
+  </main>
+
+  <!-- ==================== PREMIUM DETAIL MODAL OVERLAY ==================== -->
+
+  <!-- Modal: Request Deep Analytical View Board -->
+  <div class="modal-overlay" id="viewRequestModal">
+    <div class="modal-card">
+      <h3 class="modal-title"><i class="fa-solid fa-shield-halved" style="color:var(--secondary);"></i> Dynamic Request Verification</h3>
+      
+      <div class="detail-grid">
+        <div class="detail-item-card" style="grid-column: span 2;">
+          <span class="detail-item-label">Withdraw ID Reference</span>
+          <div class="detail-item-val" id="viewWithdrawId" style="font-size:11px; color:var(--secondary);">-----------</div>
+        </div>
+        <div class="detail-item-card">
+          <span class="detail-item-label">Alphanumeric Username</span>
+          <div class="detail-item-val" id="viewUsername">@username</div>
+        </div>
+        <div class="detail-item-card">
+          <span class="detail-item-label">Verified UID</span>
+          <div class="detail-item-val" id="viewUid" style="font-size:11px;">uid</div>
+        </div>
+        <div class="detail-item-card" style="grid-column: span 2;">
+          <span class="detail-item-label">TON Recipient Address</span>
+          <div class="detail-item-val" id="viewWallet" style="font-size:11.5px; word-break:break-all;">UQ...</div>
+        </div>
+        <div class="detail-item-card">
+          <span class="detail-item-label">Requested Payout</span>
+          <div class="detail-item-val" id="viewAmount" style="color:var(--gold);">$0.00</div>
+        </div>
+        <div class="detail-item-card">
+          <span class="detail-item-label">Current Available Balance</span>
+          <div class="detail-item-val" id="viewAvailableBalance">$0.00</div>
+        </div>
+        <div class="detail-item-card">
+          <span class="detail-item-label">Mining state status</span>
+          <div class="detail-item-val" id="viewMiningStatus">Idle</div>
+        </div>
+        <div class="detail-item-card">
+          <span class="detail-item-label">Alliance team size</span>
+          <div class="detail-item-val" id="viewReferralCount">0 Users</div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-modal btn-cancel" onclick="closeModal('viewRequestModal')" style="flex:auto;">Close validation board</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Firebase Legacy Compat SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+  <script>
+    // Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDuQICVoC10i62PQMS6cX37t1eoeTg5zsc",
+      authDomain: "mining-c7b26.firebaseapp.com",
+      databaseURL: "https://mining-c7b26-default-rtdb.firebaseio.com",
+      projectId: "mining-c7b26",
+      storageBucket: "mining-c7b26.firebasestorage.app",
+      messagingSenderId: "873757658723",
+      appId: "1:873757658723:web:18a4af95953a08b440b256"
+    };
+
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.database();
+
+    // DOM Selectors
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const terminalSidebar = document.getElementById('terminalSidebar');
+    const mainViewport = document.getElementById('mainViewport');
+    const navLiveDate = document.getElementById('navLiveDate');
+    const navLiveTime = document.getElementById('navLiveTime');
+
+    // Stats Displays
+    const cardTotalRequests = document.getElementById('cardTotalRequests');
+    const cardPendingCount = document.getElementById('cardPendingCount');
+    const cardCompletedCount = document.getElementById('cardCompletedCount');
+    const cardRejectedCount = document.getElementById('cardRejectedCount');
+    const cardTodayRequests = document.getElementById('cardTodayRequests');
+    const cardTodayAmount = document.getElementById('cardTodayAmount');
+    const cardTotalAmount = document.getElementById('cardTotalAmount');
+
+    const searchField = document.getElementById('searchField');
+    const filterStatusSelect = document.getElementById('filterStatusSelect');
+    const filterSortingSelect = document.getElementById('filterSortingSelect');
+
+    const skeletonsContainer = document.getElementById('skeletonsContainer');
+    const withdrawsTableCard = document.getElementById('withdrawsTableCard');
+    const withdrawsTableBody = document.getElementById('withdrawsTableBody');
+
+    // Modal view requests selectors
+    const viewRequestModal = document.getElementById('viewRequestModal');
+    const viewWithdrawId = document.getElementById('viewWithdrawId');
+    const viewUsername = document.getElementById('viewUsername');
+    const viewUid = document.getElementById('viewUid');
+    const viewWallet = document.getElementById('viewWallet');
+    const viewAmount = document.getElementById('viewAmount');
+    const viewAvailableBalance = document.getElementById('viewAvailableBalance');
+    const viewMiningStatus = document.getElementById('viewMiningStatus');
+    const viewReferralCount = document.getElementById('viewReferralCount');
+    const toastContainer = document.getElementById('toastContainer');
+
+    let globalWithdrawsList = {};
+
+    window.addEventListener('DOMContentLoaded', () => {
+      // Toggle collapsible navigation sidebar drawer
+      sidebarToggle.addEventListener('click', () => {
+        terminalSidebar.classList.toggle('collapsed');
+        terminalSidebar.classList.toggle('mobile-open');
+        mainViewport.classList.toggle('expanded');
+      });
+
+      startTerminalTimerClock();
+      initializeWithdrawsListener();
+    });
+
+    function showToast(message, type = 'success') {
+      const toast = document.createElement('div');
+      toast.classList.add('toast', type);
+      const icon = type === 'success' ? 'fa-circle-check' : 'fa-triangle-exclamation';
+      toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${message}</span>`;
+      toastContainer.appendChild(toast);
+      setTimeout(() => toast.classList.add('show'), 50);
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    function startTerminalTimerClock() {
+      setInterval(() => {
+        const utcDate = new Date();
+        navLiveDate.textContent = utcDate.toLocaleDateString('en-US', {
+          year: 'numeric', month: 'long', day: 'numeric'
+        });
+        navLiveTime.textContent = utcDate.toUTCString().replace("GMT", "UTC");
+      }, 1000);
+    }
+
+    // Connect Realtime database and filter lists
+    function initializeWithdrawsListener() {
+      db.ref('Withdraws').on('value', (snapshot) => {
+        skeletonsContainer.style.display = 'none';
+        withdrawsTableCard.style.display = 'block';
+
+        if (!snapshot.exists()) {
+          withdrawsTableBody.innerHTML = `<tr><td colspan="7" class="empty-state">No withdrawals queued in system logs.</td></tr>`;
+          return;
+        }
+
+        globalWithdrawsList = snapshot.val();
+        
+        calculatePayoutAggregatedStats();
+        processSortingAndFiltering();
+      });
+    }
+
+    // Calculate Dynamic visual metrics summaries (Rule 3)
+    function calculatePayoutAggregatedStats() {
+      const logs = Object.values(globalWithdrawsList);
+
+      let totalCount = logs.length;
+      let pendingCount = 0;
+      let completedCount = 0;
+      let rejectedCount = 0;
+
+      let todayCount = 0;
+      let todayAmt = 0;
+      let netRequestAmt = 0;
+
+      const startOfToday = new Date().setHours(0,0,0,0);
+
+      logs.forEach((log) => {
+        const amt = parseFloat(log.amount || 0);
+        netRequestAmt += amt;
+
+        if (log.status === 'Pending') pendingCount++;
+        else if (log.status === 'Completed' || log.status === 'Approved') completedCount++;
+        else if (log.status === 'Rejected') rejectedCount++;
+
+        if (log.createdAt && log.createdAt > startOfToday) {
+          todayCount++;
+          todayAmt += amt;
+        }
+      });
+
+      cardTotalRequests.textContent = Number(totalCount).toLocaleString();
+      cardPendingCount.textContent = pendingCount;
+      cardCompletedCount.textContent = completedCount;
+      cardRejectedCount.textContent = rejectedCount;
+
+      cardTodayRequests.textContent = todayCount;
+      cardTodayAmount.textContent = `$${todayAmt.toFixed(4)}`;
+      cardTotalAmount.textContent = `$${netRequestAmt.toFixed(4)}`;
+    }
+
+    // Perform real-time filter sweeps over payout arrays
+    function processSortingAndFiltering() {
+      const query = searchField.value.trim().toLowerCase();
+      const statusFilter = filterStatusSelect.value;
+      const sortingFilter = filterSortingSelect.value;
+
+      let logsArray = Object.keys(globalWithdrawsList).map(key => globalWithdrawsList[key]);
+
+      // 1. Search Query Filters (Rule 6)
+      if (query) {
+        logsArray = logsArray.filter(log => 
+          (log.requestId && log.requestId.toLowerCase().includes(query)) ||
+          (log.uid && log.uid.toLowerCase().includes(query)) ||
+          (log.username && log.username.toLowerCase().includes(query)) ||
+          (log.wallet && log.wallet.toLowerCase().includes(query))
+        );
+      }
+
+      // 2. Status Selectors Filter
+      if (statusFilter !== 'all') {
+        if (statusFilter === 'pending') {
+          logsArray = logsArray.filter(log => log.status === 'Pending');
+        } else if (statusFilter === 'completed') {
+          logsArray = logsArray.filter(log => log.status === 'Completed' || log.status === 'Approved');
+        } else if (statusFilter === 'rejected') {
+          logsArray = logsArray.filter(log => log.status === 'Rejected');
+        }
+      }
+
+      // 3. Sorting Filters (Rule 5)
+      if (sortingFilter === 'newest') {
+        logsArray.sort((a,b) => (b.createdAt || 0) - (a.createdAt || 0));
+      } else if (sortingFilter === 'oldest') {
+        logsArray.sort((a,b) => (a.createdAt || 0) - (b.createdAt || 0));
+      } else if (sortingFilter === 'highest') {
+        logsArray.sort((a,b) => (b.amount || 0) - (a.amount || 0));
+      } else if (sortingFilter === 'lowest') {
+        logsArray.sort((a,b) => (a.amount || 0) - (b.amount || 0));
+      }
+
+      renderWithdrawsTable(logsArray);
+    }
+
+    // Render Table
+    function renderWithdrawsTable(list) {
+      withdrawsTableBody.innerHTML = "";
+
+      if (list.length === 0) {
+        withdrawsTableBody.innerHTML = `<tr><td colspan="7" class="empty-state">No matching payouts found.</td></tr>`;
+        return;
+      }
+
+      list.forEach((item) => {
+        const tr = document.createElement('tr');
+        
+        const shortId = item.requestId.substring(1, 8).toUpperCase();
+        const cleanName = item.username ? (item.username.charAt(0).toUpperCase() + item.username.slice(1)) : "Miner";
+        const initials = cleanName.charAt(0).toUpperCase();
+
+        const formattedDate = new Date(item.createdAt || Date.now()).toLocaleDateString();
+        const formattedTime = new Date(item.createdAt || Date.now()).toLocaleTimeString();
+
+        // Check if there is action capability based on status parameters
+        let actionButtonsHTML = "";
+        if (item.status === 'Pending') {
+          actionButtonsHTML = `
+            <button class="btn-panel-action approve" onclick="processValidation('${item.requestId}', '${item.uid}', 'Completed')">Approve</button>
+            <button class="btn-panel-action reject" onclick="processValidation('${item.requestId}', '${item.uid}', 'Rejected', ${item.amount})">Reject</button>
+          `;
+        } else {
+          actionButtonsHTML = `<span style="font-size:11px; color:var(--text-muted); font-weight:700;">Handled</span>`;
+        }
+
+        tr.innerHTML = `
+          <td><strong style="font-family:'Share Tech Mono', monospace; color:var(--secondary);">${shortId}</strong></td>
+          <td>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <div class="avatar-cell">${initials}</div>
+              <strong>@${cleanName}</strong>
+            </div>
+          </td>
+          <td style="font-family:'Share Tech Mono', monospace; font-size:11px; max-width:140px; overflow:hidden; text-overflow:ellipsis;">${item.wallet}</td>
+          <td style="font-family:'Share Tech Mono', monospace; font-weight:700; font-size:13.5px;">$${Number(item.amount).toFixed(4)}</td>
+          <td>${formattedDate}<br><span style="font-size:9.5px; color:var(--text-muted);">${formattedTime}</span></td>
+          <td><span class="status-badge ${item.status.toLowerCase()}">${item.status}</span></td>
+          <td>
+            <button class="btn-panel-action view" onclick="openRequestDeepView('${item.requestId}', '${item.uid}')">View</button>
+            ${actionButtonsHTML}
+            <button class="btn-panel-action reject" onclick="purgeWithdrawNode('${item.requestId}')" style="background:rgba(239, 68, 68, 0.05); border-color:rgba(239, 68, 68, 0.15);"><i class="fa-solid fa-trash-can"></i></button>
+          </td>
+        `;
+        withdrawsTableBody.appendChild(tr);
+      });
+    }
+
+    // Modal Viewer Deep details query (Rule 8)
+    window.openRequestDeepView = function(requestId, uid) {
+      const logObj = globalWithdrawsList[requestId];
+      if (!logObj) return;
+
+      // Query complete actual profile values directly from Users for validation
+      db.ref(`Users/${uid}`).once('value', (snapshot) => {
+        if (!snapshot.exists()) return;
+        const user = snapshot.val();
+
+        viewWithdrawId.textContent = logObj.requestId;
+        viewUsername.textContent = `@${user.username}`;
+        viewUid.textContent = user.uid;
+        viewWallet.textContent = logObj.wallet;
+        viewAmount.textContent = `$${Number(logObj.amount).toFixed(4)}`;
+        viewAvailableBalance.textContent = `$${parseFloat(user.balance || 0).toFixed(6)}`;
+        viewMiningStatus.textContent = user.miningStatus === 'active' ? "Online & Active" : "Offline / Idle";
+        viewReferralCount.textContent = `${user.referralsCount || 0} Users`;
+
+        document.getElementById('viewRequestModal').classList.add('active');
+      });
+    };
+
+    window.closeModal = function(modalId) {
+      document.getElementById(modalId).classList.remove('active');
+    };
+
+    // Execute secure payout transaction verification (Rule 9 Approve & Reject logs)
+    window.processValidation = function(requestId, uid, targetStatus, refundVal = 0) {
+      const label = targetStatus === 'Completed' ? "Approve Payout" : "Reject request";
+      
+      if (confirm(`Do you want to verify this transaction payout as: ${targetStatus}?`)) {
+        
+        if (targetStatus === 'Rejected' && refundVal > 0) {
+          // RESTITUTION REFUND TRANSACTION ISSUED SECURELY
+          db.ref(`Users/${uid}`).transaction((curr) => {
+            if (curr) {
+              curr.balance = parseFloat(curr.balance || 0) + parseFloat(refundVal);
+            }
+            return curr;
+          });
+        }
+
+        // Parallel update payload mapping
+        const updatePayloads = {};
+        updatePayloads[`Withdraws/${requestId}/status`] = targetStatus;
+        updatePayloads[`Users/${uid}/withdrawHistory/${requestId}/status`] = targetStatus;
+
+        db.ref().update(updatePayloads)
+          .then(() => {
+            showToast(`Transaction successful! Marked request as ${targetStatus}.`, "success");
+            
+            // Push dynamic user notifications collection
+            const notificationRef = db.ref(`Users/${uid}/notifications`).push();
+            notificationRef.set({
+              text: targetStatus === 'Completed' 
+                ? `Your withdraw request for $${Number(refundVal || 0).toFixed(4)} has been approved.`
+                : `Your withdraw request for $${Number(refundVal || 0).toFixed(4)} has been rejected.`,
+              timestamp: firebase.database.ServerValue.TIMESTAMP,
+              read: false
+            });
+          })
+          .catch(() => showToast("Failed to complete database updates.", "error"));
+      }
+    };
+
+    // Delete single request trace
+    window.purgeWithdrawNode = function(requestId) {
+      if (confirm("WARNING: Purging this payout request entry deletes logs from history. Available funds will not be refunded. Continue?")) {
+        db.ref(`Withdraws/${requestId}`).remove()
+          .then(() => showToast("Transaction requested record cleared successfully.", "success"));
+      }
+    };
+
+    // Handle Input filters
+    searchField.addEventListener('input', () => {
+      processSortingAndFiltering();
+    });
+
+    filterStatusSelect.addEventListener('change', () => {
+      processSortingAndFiltering();
+    });
+
+    filterSortingSelect.addEventListener('change', () => {
+      processSortingAndFiltering();
+    });
+  </script>
+</body>
+</html>
