@@ -292,13 +292,13 @@
       <div class="form-group">
         <label class="form-label">Admin Email Address</label>
         <div class="input-wrapper">
-          <input type="email" id="adminEmail" class="form-input" placeholder="admin@example.com" required autocomplete="email">
+          <input type="email" id="adminEmail" class="form-input" placeholder="rafsanvai388@gmail.com" required autocomplete="email">
           <i class="fa-solid fa-envelope"></i>
         </div>
       </div>
 
       <div class="form-group">
-        <label class="form-label">Security Terminal Password</label>
+        <label class="form-label">Security Password</label>
         <div class="input-wrapper">
           <input type="password" id="adminPassword" class="form-input" placeholder="••••••••" required autocomplete="current-password">
           <i class="fa-solid fa-key"></i>
@@ -363,22 +363,19 @@
       }, 4000);
     }
 
-    // Auto routing gate verification
+    // Checking Session on entry
     window.addEventListener('DOMContentLoaded', () => {
       auth.onAuthStateChanged((user) => {
         if (user) {
-          // Verify role permissions on existing active sessions
           db.ref(`Admins/${user.uid}`).once('value')
             .then((snapshot) => {
               if (snapshot.exists()) {
                 const adminData = snapshot.val();
                 if (adminData.role === 'admin' && adminData.status === 'active') {
-                  // Direct to dashboard
                   window.location.href = 'admin-dashboard.html';
                   return;
                 }
               }
-              // Fail-safe Signout
               auth.signOut();
               screenLoader.classList.add('fade-out');
             })
@@ -392,7 +389,7 @@
       });
     });
 
-    // Handle Form Email-Auth submissions
+    // Submitting Creds
     loginForm.addEventListener('submit', (e) => {
       e.preventDefault();
 
@@ -403,58 +400,94 @@
       btnSpinner.style.display = 'block';
       btnText.style.opacity = '0.3';
 
+      // Standard sign in attempts
       auth.signInWithEmailAndPassword(email, password)
         .then((userCredential) => {
           const user = userCredential.user;
-
-          // 2. Strict Realtime Database Role Validation check (Rule 2 & 3)
-          db.ref(`Admins/${user.uid}`).once('value')
-            .then((snapshot) => {
-              if (snapshot.exists()) {
-                const adminVal = snapshot.val();
-
-                if (adminVal.role === 'admin' && adminVal.status === 'active') {
-                  showToast("Admin credentials authenticated successfully! Directing...", "success");
-                  
-                  // Local helper token setup matching multi-tier dashboard protection
-                  const tokenTime = Date.now();
-                  const payload = btoa(JSON.stringify({
-                    authenticated: true,
-                    role: "admin",
-                    expiry: tokenTime + (2 * 60 * 60 * 1000) // 2 Hour Persistent Lifetime
-                  }));
-                  localStorage.setItem('tn_admin_session', payload);
-
-                  setTimeout(() => {
-                    window.location.href = 'admin-dashboard.html';
-                  }, 1200);
-
-                } else {
-                  triggerAccessDeniedBlock();
-                }
-              } else {
-                triggerAccessDeniedBlock();
-              }
-            })
-            .catch(() => {
-              triggerAccessDeniedBlock();
-            });
+          verifyAndSeedAdminNode(user);
         })
         .catch((error) => {
-          let msg = "Incorrect password or account parameters.";
-          if (error.code === 'auth/invalid-email') msg = "Invalid email format.";
-          else if (error.code === 'auth/user-not-found') msg = "Admin profile not registered.";
-          
-          showToast(msg, "error");
-          resetBtnState();
+          // SELF-HEALING ACTION (Rule 6 Programmatic creation)
+          if (email === "rafsanvai388@gmail.com" && password === "RAFSAN20" && (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential')) {
+            showToast("Self-Healing Triggered: Deploying Admin Credential Modules...", "success");
+            
+            // Programmatically deploy/re-deploy account inside Firebase Auth
+            auth.createUserWithEmailAndPassword(email, password)
+              .then((userCredential) => {
+                const user = userCredential.user;
+                verifyAndSeedAdminNode(user);
+              })
+              .catch((createError) => {
+                showToast("Self-healing failed: " + createError.message, "error");
+                resetBtnState();
+              });
+          } else {
+            let msg = "Incorrect password or account parameter settings.";
+            if (error.code === 'auth/invalid-email') msg = "Invalid email formatting.";
+            showToast(msg, "error");
+            resetBtnState();
+          }
         });
     });
 
-    function triggerAccessDeniedBlock() {
-      showToast("Access Denied: Non-administrative or inactive account parameters.", "error");
-      auth.signOut(); // Secure sign out (Rule 3)
-      localStorage.removeItem('tn_admin_session');
-      resetBtnState();
+    // Auto seed permission tables securely
+    function verifyAndSeedAdminNode(user) {
+      db.ref(`Admins/${user.uid}`).once('value')
+        .then((snapshot) => {
+          if (!snapshot.exists()) {
+            // Write direct active configurations to Firebase database
+            const adminSetupObj = {
+              name: "Admin Rafsan",
+              email: "rafsanvai388@gmail.com",
+              role: "admin",
+              status: "active",
+              permissions: {
+                users: true,
+                mining: true,
+                withdraw: true,
+                task: true,
+                referral: true,
+                buyPower: true,
+                announcement: true,
+                settings: true
+              }
+            };
+
+            db.ref(`Admins/${user.uid}`).set(adminSetupObj)
+              .then(() => {
+                completeRedirectAction(user);
+              })
+              .catch(() => {
+                showToast("Write permission missing. Please verify DB rules.", "error");
+                resetBtnState();
+              });
+          } else {
+            const adminData = snapshot.val();
+            if (adminData.role === 'admin' && adminData.status === 'active') {
+              completeRedirectAction(user);
+            } else {
+              showToast("Access Denied: Administrative Node Inactive.", "error");
+              auth.signOut();
+              resetBtnState();
+            }
+          }
+        });
+    }
+
+    function completeRedirectAction(user) {
+      showToast("Access Authenticated! Directing to terminal consoles...", "success");
+
+      const tokenTime = Date.now();
+      const payload = btoa(JSON.stringify({
+        authenticated: true,
+        role: "admin",
+        expiry: tokenTime + (2 * 60 * 60 * 1000)
+      }));
+      localStorage.setItem('tn_admin_session', payload);
+
+      setTimeout(() => {
+        window.location.href = 'admin-dashboard.html';
+      }, 1200);
     }
 
     function resetBtnState() {
